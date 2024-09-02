@@ -1,0 +1,12 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  // Indicar el tipo de base de datos (mysql)
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Agregar los modelos de la base de datos
