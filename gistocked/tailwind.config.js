@@ -1,3 +1,5 @@
+const { Racing_Sans_One } = require('next/font/google');
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -17,10 +19,15 @@ module.exports = {
       
       colors: {
         PaletaLogin: {
-          1: "#DEE2E6",
-          2: "#343A40",
-          3: "#E9ECEF"
+          1: "#DEE2E6", // Background 1
+          2: "#343A40", // Background 2
+          3: "#E9ECEF", // Background 3
+          4: "#F8F9FA"  // Font-Family
         }
+      },
+
+      fontFamily: {
+        racing_sans_one: ["Racing Sans One"]
       }
     },
   },
