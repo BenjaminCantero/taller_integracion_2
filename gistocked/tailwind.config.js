@@ -18,7 +18,7 @@ module.exports = {
       */
       
       colors: {
-        PaletaLogin: {
+        Colores_Login: {
           1: "#DEE2E6", // Background 1
           2: "#343A40", // Background 2
           3: "#E9ECEF", // Background 3

@@ -9,6 +9,12 @@
 }
 
 body {
-  background: rgb(var(--background-start-rgb)); /* Ahora es un color sólido */
-  color: rgb(var(--foreground-rgb)); /* Mantiene el color del texto */
+  background: #DEE2E6;
+  color: #F8F9FA;
+}
+
+.horizontal_line {
+  width: 4.2rem;
+  height: 0.13rem;
+  background: #FFFFFF
 }
