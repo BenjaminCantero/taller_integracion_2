@@ -3,9 +3,9 @@ import Link from 'next/link';
 
 const Layout = ({ children }) => {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-100">
       {/* Header */}
-      <header className="bg-gray-800 text-white p-4">
+      <header className="bg-gray-800 text-white p-4 shadow-md">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <h1 className="text-2xl font-bold">Mi Tienda</h1>
           <nav className="space-x-4">
@@ -29,7 +29,7 @@ const Layout = ({ children }) => {
       <main className="flex-grow max-w-7xl mx-auto p-6">{children}</main>
 
       {/* Footer */}
-      <footer className="bg-gray-800 text-white p-4">
+      <footer className="bg-gray-800 text-white p-4 shadow-md">
         <div className="max-w-7xl mx-auto text-center">
           <p>&copy; 2024 Mi Tienda. Todos los derechos reservados.</p>
         </div>

@@ -3,31 +3,58 @@
 @tailwind utilities;
 
 :root {
+  --primary-color: #3498db;
+  --secondary-color: #f1c40f;
   --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
+  --background-start-rgb: 240, 240, 240;
   --background-end-rgb: 255, 255, 255;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
+    --primary-color: #2ecc71;
+    --secondary-color: #e74c3c;
     --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+    --background-start-rgb: 30, 30, 30;
+    --background-end-rgb: 50, 50, 50;
   }
 }
 
 body {
+  font-family: 'Open Sans', sans-serif;
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
       to bottom,
-      transparent,
+      rgb(var(--background-start-rgb)),
       rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+    );
+  padding: 0;
+  margin: 0;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply py-3 px-6 rounded-lg text-white font-semibold transition-all duration-300 ease-in-out;
+    background-color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+  }
+
+  .btn:hover {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+  }
+
+  .card {
+    @apply bg-white rounded-lg shadow-md;
+  }
+
+  .card-img-top {
+    @apply w-full h-48 object-cover;
   }
 }

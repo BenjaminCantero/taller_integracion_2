@@ -1,61 +1,71 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './globals.css';
+import Head from 'next/head';
 import Link from 'next/link';
 
-export default function Home() {
+const Home = () => {
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-4xl font-bold mb-6">Bienvenido a Mi Tienda</h1>
-      <p className="mb-6">
-        Esta es una plataforma integral para la gestión de inventarios y ventas.
-        Aquí puedes gestionar tus productos, consultar tus ventas y revisar el inventario de tu tienda.
-      </p>
+      <Head>
+        <title>Gestión de Ventas y Inventario</title>
+      </Head>
 
-      <div className="flex flex-wrap justify-center mb-6">
-        <Link href="/products" className="text-blue-500 hover:underline">Ver Productos</Link>
-        <Link href="/sales" className="text-blue-500 hover:underline">Ver Ventas</Link>
-        <Link href="/inventory" className="text-blue-500 hover:underline">Gestionar Inventario</Link>
-      </div>
+      <header className="text-center mb-8 bg-gradient-to-r from-blue-600 to-teal-400 text-white p-8 rounded-2xl shadow-2xl">
+        <h1 className="text-5xl font-extrabold leading-tight">Gestión de Ventas y Inventario</h1>
+        <p className="text-xl mt-2">Optimiza tu negocio con nuestra plataforma</p>
+      </header>
 
-      {/* Sección de reseñas */}
-      <h2 className="text-3xl font-bold mb-4">Reseñas de nuestros clientes</h2>
-      <div className="flex flex-wrap justify-center mb-6">
-        <div className="w-full md:w-1/2 xl:w-1/3 p-4">
-          <img src="imagen1.jpg" alt="Imagen de reseña 1" className="w-full h-64 object-cover" />
-          <p className="text-lg">"Me encanta esta tienda, siempre encuentro lo que necesito."</p>
-          <p className="text-sm">- Juan Pérez</p>
+      <section className="mb-8">
+        <h2 className="text-4xl font-bold text-center mb-6">Productos</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[1, 2, 3].map((id) => (
+            <div key={id} className="card border-2 border-gray-300 rounded-xl overflow-hidden transform transition-transform hover:scale-105 hover:shadow-xl">
+              <img src={`producto${id}.jpg`} alt={`Imagen de producto ${id}`} className="card-img-top object-cover h-48 w-full" />
+              <div className="card-body p-4">
+                <h5 className="card-title text-2xl font-semibold mb-2">Producto {id}</h5>
+                <p className="card-text text-gray-700 mb-2">Descripción del producto {id}</p>
+                <p className="card-text text-xl font-bold mb-4">$19.99</p>
+                <button className="btn btn-primary w-full">Comprar ahora</button>
+              </div>
+            </div>
+          ))}
         </div>
-        <div className="w-full md:w-1/2 xl:w-1/3 p-4">
-          <img src="imagen2.jpg" alt="Imagen de reseña 2" className="w-full h-64 object-cover" />
-          <p className="text-lg">"La atención al cliente es excelente, siempre están dispuestos a ayudar."</p>
-          <p className="text-sm">- María García</p>
-        </div>
-        {/* Agrega más reseñas aquí */}
-      </div>
+      </section>
 
-      {/* Sección de productos de muestra */}
-      <h2 className="text-3xl font-bold mb-4">Productos de muestra</h2>
-      <div className="flex flex-wrap justify-center mb-6">
-        <div className="w-full md:w-1/2 xl:w-1/3 p-4">
-          <img src="producto1.jpg" alt="Imagen de producto 1" className="w-full h-64 object-cover" />
-          <p className="text-lg">Producto 1</p>
-          <p className="text-sm">$19.99</p>
+      <section className="mb-8">
+        <h2 className="text-4xl font-bold text-center mb-6">Gestión de inventario</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {[{ title: 'Inventario actual', text: '10 productos en stock', icon: 'box', color: 'blue-500' },
+            { title: 'Historial de ventas', text: '20 ventas en el último mes', icon: 'chart-line', color: 'green-500' }
+          ].map((item, index) => (
+            <div key={index} className="card border-2 border-gray-300 rounded-xl overflow-hidden shadow-lg">
+              <div className="card-body flex items-center p-4">
+                <div className={`mr-4 text-4xl text-${item.color}`}>
+                  <i className={`fas fa-${item.icon}`}></i>
+                </div>
+                <div>
+                  <h5 className="card-title text-2xl font-semibold mb-2">{item.title}</h5>
+                  <p className="card-text text-gray-700 mb-4">{item.text}</p>
+                  <button className="btn btn-primary">Ver detalles</button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-        <div className="w-full md:w-1/2 xl:w-1/3 p-4">
-          <img src="producto2.jpg" alt="Imagen de producto 2" className="w-full h-64 object-cover" />
-          <p className="text-lg">Producto 2</p>
-          <p className="text-sm">$29.99</p>
-        </div>
-        {/* Agrega más productos aquí */}
-      </div>
+      </section>
 
-      {/* Carta que cuenta la historia de la tienda */}
-      <h2 className="text-3xl font-bold mb-4">Nuestra historia</h2>
-      <p className="mb-6">
-        En Mi Tienda, nos enfocamos en brindar la mejor experiencia de compra posible a nuestros clientes.
-        Nuestra historia comenzó hace 10 años, cuando nuestros fundadores decidieron crear una plataforma
-        que uniera a los vendedores y compradores de manera sencilla y eficiente.
-        Desde entonces, hemos crecido y mejorado constantemente, siempre con el objetivo de
-        brindar el mejor servicio posible a nuestros clientes.
-      </p>
+      <section className="mb-8">
+        <h2 className="text-4xl font-bold text-center mb-6">Llamado a la acción</h2>
+        <div className="flex justify-center">
+          <button className="btn btn-primary btn-lg border-2 border-blue-700 hover:border-blue-500">Registra tu tienda ahora</button>
+        </div>
+      </section>
+
+      <footer className="text-center mb-6">
+        <p className="text-lg">© 2023 Gestión de Ventas y Inventario</p>
+      </footer>
     </div>
   );
-}
+};
+
+export default Home;
