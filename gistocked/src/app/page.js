@@ -37,7 +37,7 @@ export default function Home() {
             </li>
             <li>
               <a href="#" className='block py-3 px-5 rounded-lg hover:bg-gray-700 transition-colors duration-300'>
-                Ofertas
+                
               </a>
             </li>
             <li>
