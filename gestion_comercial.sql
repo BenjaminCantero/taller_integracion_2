@@ -3,9 +3,15 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
+<<<<<<< HEAD
 -- Tiempo de generación: 31-08-2024 a las 04:50:49
 -- Versión del servidor: 10.4.28-MariaDB
 -- Versión de PHP: 8.2.4
+=======
+-- Tiempo de generación: 29-08-2024 a las 23:37:09
+-- Versión del servidor: 10.4.32-MariaDB
+-- Versión de PHP: 8.2.12
+>>>>>>> 6e10c59 (Descripcion)
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -34,6 +40,7 @@ CREATE TABLE `categoria` (
   `descripcion` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+<<<<<<< HEAD
 --
 -- Disparadores `categoria`
 --
@@ -99,6 +106,8 @@ INSERT INTO `categoria_rev` (`action`, `id`, `id_categoria`, `nombre_categoria`,
 ('INSERT', 1, 69, 'lol', '', 'league of legends', '2024-08-31 02:48:35'),
 ('DELETE', 2, 69, 'lol', '', 'league of legends', '2024-08-31 02:49:29');
 
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- --------------------------------------------------------
 
 --
@@ -111,6 +120,7 @@ CREATE TABLE `detalle_venta` (
   `id_producto` int(11) NOT NULL,
   `cantidad_vendida` int(11) NOT NULL,
   `total_detalle` decimal(12,2) NOT NULL
+<<<<<<< HEAD
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -162,6 +172,9 @@ CREATE TABLE `detalle_venta_rev` (
   `total` decimal(10,2) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+=======
+) ;
+>>>>>>> 6e10c59 (Descripcion)
 
 -- --------------------------------------------------------
 
@@ -175,6 +188,7 @@ CREATE TABLE `estado_pago` (
   `descripcion_estado` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+<<<<<<< HEAD
 --
 -- Disparadores `estado_pago`
 --
@@ -214,6 +228,8 @@ CREATE TABLE `estado_pago_rev` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- --------------------------------------------------------
 
 --
@@ -226,6 +242,7 @@ CREATE TABLE `forma_pago` (
   `id_estado_pago` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+<<<<<<< HEAD
 --
 -- Disparadores `forma_pago`
 --
@@ -265,6 +282,8 @@ CREATE TABLE `forma_pago_rev` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- --------------------------------------------------------
 
 --
@@ -279,6 +298,7 @@ CREATE TABLE `inf_ventas` (
   `productos_mas_vendidos` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+<<<<<<< HEAD
 --
 -- Disparadores `inf_ventas`
 --
@@ -320,6 +340,8 @@ CREATE TABLE `inf_ventas_rev` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- --------------------------------------------------------
 
 --
@@ -335,6 +357,7 @@ CREATE TABLE `inventario` (
   `stock_ajustado` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+<<<<<<< HEAD
 --
 -- Disparadores `inventario`
 --
@@ -401,6 +424,8 @@ CREATE TABLE `inventario_rev` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- --------------------------------------------------------
 
 --
@@ -413,6 +438,7 @@ CREATE TABLE `metodo_pago` (
   `descripcion_metodo` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+<<<<<<< HEAD
 --
 -- Disparadores `metodo_pago`
 --
@@ -452,6 +478,8 @@ CREATE TABLE `metodo_pago_rev` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- --------------------------------------------------------
 
 --
@@ -471,6 +499,7 @@ CREATE TABLE `producto` (
   `stock` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+<<<<<<< HEAD
 --
 -- Disparadores `producto`
 --
@@ -513,6 +542,8 @@ CREATE TABLE `producto_rev` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- --------------------------------------------------------
 
 --
@@ -525,6 +556,7 @@ CREATE TABLE `rol_user` (
   `permisos` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+<<<<<<< HEAD
 --
 -- Disparadores `rol_user`
 --
@@ -564,6 +596,8 @@ CREATE TABLE `rol_user_rev` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- --------------------------------------------------------
 
 --
@@ -577,6 +611,7 @@ CREATE TABLE `usuario` (
   `rol` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+<<<<<<< HEAD
 --
 -- Disparadores `usuario`
 --
@@ -618,6 +653,8 @@ CREATE TABLE `usuario_rev` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- --------------------------------------------------------
 
 --
@@ -631,6 +668,7 @@ CREATE TABLE `ventas` (
   `descuento` decimal(5,2) DEFAULT NULL,
   `id_usuario` int(11) NOT NULL,
   `id_forma_pago` int(11) NOT NULL
+<<<<<<< HEAD
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -673,6 +711,9 @@ CREATE TABLE `ventas_rev` (
   `total` decimal(10,2) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+=======
+) ;
+>>>>>>> 6e10c59 (Descripcion)
 
 --
 -- Índices para tablas volcadas
@@ -686,12 +727,15 @@ ALTER TABLE `categoria`
   ADD KEY `idx_categoria_nombre` (`nombre_categoria`);
 
 --
+<<<<<<< HEAD
 -- Indices de la tabla `categoria_rev`
 --
 ALTER TABLE `categoria_rev`
   ADD PRIMARY KEY (`id`);
 
 --
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- Indices de la tabla `detalle_venta`
 --
 ALTER TABLE `detalle_venta`
@@ -700,24 +744,30 @@ ALTER TABLE `detalle_venta`
   ADD KEY `idx_detalle_venta_producto` (`id_producto`);
 
 --
+<<<<<<< HEAD
 -- Indices de la tabla `detalle_venta_rev`
 --
 ALTER TABLE `detalle_venta_rev`
   ADD PRIMARY KEY (`id`);
 
 --
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- Indices de la tabla `estado_pago`
 --
 ALTER TABLE `estado_pago`
   ADD PRIMARY KEY (`id_estado_pago`);
 
 --
+<<<<<<< HEAD
 -- Indices de la tabla `estado_pago_rev`
 --
 ALTER TABLE `estado_pago_rev`
   ADD PRIMARY KEY (`id`);
 
 --
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- Indices de la tabla `forma_pago`
 --
 ALTER TABLE `forma_pago`
@@ -726,12 +776,15 @@ ALTER TABLE `forma_pago`
   ADD KEY `id_estado_pago` (`id_estado_pago`);
 
 --
+<<<<<<< HEAD
 -- Indices de la tabla `forma_pago_rev`
 --
 ALTER TABLE `forma_pago_rev`
   ADD PRIMARY KEY (`id`);
 
 --
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- Indices de la tabla `inf_ventas`
 --
 ALTER TABLE `inf_ventas`
@@ -739,12 +792,15 @@ ALTER TABLE `inf_ventas`
   ADD KEY `id_usuario` (`id_usuario`);
 
 --
+<<<<<<< HEAD
 -- Indices de la tabla `inf_ventas_rev`
 --
 ALTER TABLE `inf_ventas_rev`
   ADD PRIMARY KEY (`id`);
 
 --
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- Indices de la tabla `inventario`
 --
 ALTER TABLE `inventario`
@@ -752,24 +808,30 @@ ALTER TABLE `inventario`
   ADD KEY `id_producto` (`id_producto`);
 
 --
+<<<<<<< HEAD
 -- Indices de la tabla `inventario_rev`
 --
 ALTER TABLE `inventario_rev`
   ADD PRIMARY KEY (`id`);
 
 --
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- Indices de la tabla `metodo_pago`
 --
 ALTER TABLE `metodo_pago`
   ADD PRIMARY KEY (`id_metodo_pago`);
 
 --
+<<<<<<< HEAD
 -- Indices de la tabla `metodo_pago_rev`
 --
 ALTER TABLE `metodo_pago_rev`
   ADD PRIMARY KEY (`id`);
 
 --
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- Indices de la tabla `producto`
 --
 ALTER TABLE `producto`
@@ -778,24 +840,30 @@ ALTER TABLE `producto`
   ADD KEY `idx_producto_nombre` (`nombre_producto`);
 
 --
+<<<<<<< HEAD
 -- Indices de la tabla `producto_rev`
 --
 ALTER TABLE `producto_rev`
   ADD PRIMARY KEY (`id`);
 
 --
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- Indices de la tabla `rol_user`
 --
 ALTER TABLE `rol_user`
   ADD PRIMARY KEY (`id_rol`);
 
 --
+<<<<<<< HEAD
 -- Indices de la tabla `rol_user_rev`
 --
 ALTER TABLE `rol_user_rev`
   ADD PRIMARY KEY (`id`);
 
 --
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- Indices de la tabla `usuario`
 --
 ALTER TABLE `usuario`
@@ -803,12 +871,15 @@ ALTER TABLE `usuario`
   ADD KEY `rol` (`rol`);
 
 --
+<<<<<<< HEAD
 -- Indices de la tabla `usuario_rev`
 --
 ALTER TABLE `usuario_rev`
   ADD PRIMARY KEY (`id`);
 
 --
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- Indices de la tabla `ventas`
 --
 ALTER TABLE `ventas`
@@ -818,12 +889,15 @@ ALTER TABLE `ventas`
   ADD KEY `idx_ventas_fecha` (`fecha_venta`);
 
 --
+<<<<<<< HEAD
 -- Indices de la tabla `ventas_rev`
 --
 ALTER TABLE `ventas_rev`
   ADD PRIMARY KEY (`id`);
 
 --
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- AUTO_INCREMENT de las tablas volcadas
 --
 
@@ -831,6 +905,7 @@ ALTER TABLE `ventas_rev`
 -- AUTO_INCREMENT de la tabla `categoria`
 --
 ALTER TABLE `categoria`
+<<<<<<< HEAD
   MODIFY `id_categoria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=70;
 
 --
@@ -838,6 +913,9 @@ ALTER TABLE `categoria`
 --
 ALTER TABLE `categoria_rev`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+=======
+  MODIFY `id_categoria` int(11) NOT NULL AUTO_INCREMENT;
+>>>>>>> 6e10c59 (Descripcion)
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_venta`
@@ -846,120 +924,150 @@ ALTER TABLE `detalle_venta`
   MODIFY `id_detalle_venta` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+<<<<<<< HEAD
 -- AUTO_INCREMENT de la tabla `detalle_venta_rev`
 --
 ALTER TABLE `detalle_venta_rev`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- AUTO_INCREMENT de la tabla `estado_pago`
 --
 ALTER TABLE `estado_pago`
   MODIFY `id_estado_pago` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+<<<<<<< HEAD
 -- AUTO_INCREMENT de la tabla `estado_pago_rev`
 --
 ALTER TABLE `estado_pago_rev`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- AUTO_INCREMENT de la tabla `forma_pago`
 --
 ALTER TABLE `forma_pago`
   MODIFY `id_forma_pago` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+<<<<<<< HEAD
 -- AUTO_INCREMENT de la tabla `forma_pago_rev`
 --
 ALTER TABLE `forma_pago_rev`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- AUTO_INCREMENT de la tabla `inf_ventas`
 --
 ALTER TABLE `inf_ventas`
   MODIFY `id_inf` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+<<<<<<< HEAD
 -- AUTO_INCREMENT de la tabla `inf_ventas_rev`
 --
 ALTER TABLE `inf_ventas_rev`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- AUTO_INCREMENT de la tabla `inventario`
 --
 ALTER TABLE `inventario`
   MODIFY `id_inventario` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+<<<<<<< HEAD
 -- AUTO_INCREMENT de la tabla `inventario_rev`
 --
 ALTER TABLE `inventario_rev`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- AUTO_INCREMENT de la tabla `metodo_pago`
 --
 ALTER TABLE `metodo_pago`
   MODIFY `id_metodo_pago` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+<<<<<<< HEAD
 -- AUTO_INCREMENT de la tabla `metodo_pago_rev`
 --
 ALTER TABLE `metodo_pago_rev`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- AUTO_INCREMENT de la tabla `producto`
 --
 ALTER TABLE `producto`
   MODIFY `id_producto` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+<<<<<<< HEAD
 -- AUTO_INCREMENT de la tabla `producto_rev`
 --
 ALTER TABLE `producto_rev`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- AUTO_INCREMENT de la tabla `rol_user`
 --
 ALTER TABLE `rol_user`
   MODIFY `id_rol` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+<<<<<<< HEAD
 -- AUTO_INCREMENT de la tabla `rol_user_rev`
 --
 ALTER TABLE `rol_user_rev`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- AUTO_INCREMENT de la tabla `usuario`
 --
 ALTER TABLE `usuario`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+<<<<<<< HEAD
 -- AUTO_INCREMENT de la tabla `usuario_rev`
 --
 ALTER TABLE `usuario_rev`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- AUTO_INCREMENT de la tabla `ventas`
 --
 ALTER TABLE `ventas`
   MODIFY `id_venta` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+<<<<<<< HEAD
 -- AUTO_INCREMENT de la tabla `ventas_rev`
 --
 ALTER TABLE `ventas_rev`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+=======
+>>>>>>> 6e10c59 (Descripcion)
 -- Restricciones para tablas volcadas
 --
 

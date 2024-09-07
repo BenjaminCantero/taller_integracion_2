@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import Image from "next/image";
 
 export default function Home() {
@@ -108,6 +109,206 @@ export default function Home() {
           </p>
         </a>
       </div>
+=======
+"use client";
+
+import { useState, useEffect } from "react";
+import "./style.css";
+
+export default function Home() {
+  const [products, setProducts] = useState([]);
+  const [newProduct, setNewProduct] = useState({ id: "", name: "", provider: "", type: "", stock: "", orders: "", value: "" });
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 5;
+
+  useEffect(() => {
+    const storedProducts = JSON.parse(localStorage.getItem("products"));
+    if (storedProducts) {
+      setProducts(storedProducts);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("products", JSON.stringify(products));
+  }, [products]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    // Validación de campos
+    if (!newProduct.name || !newProduct.provider || !newProduct.type || isNaN(newProduct.stock) || isNaN(newProduct.orders) || isNaN(newProduct.value)) {
+      alert("Por favor, completa todos los campos correctamente.");
+      return;
+    }
+
+    const productWithNumberValues = {
+      ...newProduct,
+      stock: Number(newProduct.stock),
+      orders: Number(newProduct.orders),
+      value: Number(newProduct.value),
+    };
+
+    if (editingIndex === null) {
+      setProducts([...products, productWithNumberValues]);
+    } else {
+      const updatedProducts = [...products];
+      updatedProducts[editingIndex] = productWithNumberValues;
+      setProducts(updatedProducts);
+      setEditingIndex(null);
+    }
+
+    setNewProduct({ id: "", name: "", provider: "", type: "", stock: "", orders: "", value: "" });
+  };
+
+  const deleteProduct = (index) => {
+    if (window.confirm("¿Estás seguro de que quieres eliminar este producto?")) {
+      setProducts(products.filter((_, i) => i !== index));
+    }
+  };
+
+  const editProduct = (index) => {
+    setNewProduct({
+      ...products[index],
+      stock: products[index].stock.toString(),
+      orders: products[index].orders.toString(),
+      value: products[index].value.toString(),
+    });
+    setEditingIndex(index);
+  };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
+
+  const totalPages = Math.ceil(products.length / productsPerPage);
+
+  return (
+    <main className="flex min-h-screen flex-col items-center p-12">
+      <h1 className="text-3xl font-bold mb-6">Gestión de Stock</h1>
+
+      {/* Formulario de agregar/editar producto */}
+      <div className="mb-8 w-full max-w-md">
+        <h2 className="text-xl mb-4">{editingIndex === null ? "Agregar Producto" : "Editar Producto"}</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="text"
+            value={newProduct.name}
+            onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+            placeholder="Nombre del Producto"
+            className="w-full p-2 border border-gray-300 rounded"
+            required
+          />
+          <input
+            type="text"
+            value={newProduct.provider}
+            onChange={(e) => setNewProduct({ ...newProduct, provider: e.target.value })}
+            placeholder="Proveedor"
+            className="w-full p-2 border border-gray-300 rounded"
+            required
+          />
+          <select
+            value={newProduct.type}
+            onChange={(e) => setNewProduct({ ...newProduct, type: e.target.value })}
+            className="w-full p-2 border border-gray-300 rounded"
+            required
+          >
+            <option value="">Seleccione Tipo</option>
+            <option value="Alimentos">Alimentos</option>
+            <option value="Bebidas">Bebidas</option>
+          </select>
+          <input
+            type="number"
+            value={newProduct.stock}
+            onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })}
+            placeholder="Stock actual"
+            className="w-full p-2 border border-gray-300 rounded"
+            required
+          />
+          <input
+            type="number"
+            value={newProduct.orders}
+            onChange={(e) => setNewProduct({ ...newProduct, orders: e.target.value })}
+            placeholder="Encargos"
+            className="w-full p-2 border border-gray-300 rounded"
+            required
+          />
+          <input
+            type="number"
+            value={newProduct.value}
+            onChange={(e) => setNewProduct({ ...newProduct, value: e.target.value })}
+            placeholder="Valor"
+            className="w-full p-2 border border-gray-300 rounded"
+            required
+          />
+          <button type="submit" className="w-full p-2 bg-blue-600 text-white rounded">
+            {editingIndex === null ? "Agregar Producto" : "Guardar Cambios"}
+          </button>
+        </form>
+      </div>
+
+      {/* Tabla de productos */}
+      <div className="w-full max-w-5xl">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr>
+              <th className="border p-2">ID</th>
+              <th className="border p-2">Producto</th>
+              <th className="border p-2">Proveedor</th>
+              <th className="border p-2">Tipo</th>
+              <th className="border p-2">Stock</th>
+              <th className="border p-2">Encargos</th>
+              <th className="border p-2">Valor</th>
+              <th className="border p-2">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentProducts.map((product, index) => (
+              <tr key={index} className="text-center">
+                <td className="border p-2">{product.id}</td>
+                <td className="border p-2">{product.name}</td>
+                <td className="border p-2">{product.provider}</td>
+                <td className="border p-2">{product.type}</td>
+                <td className="border p-2">{product.stock}</td>
+                <td className="border p-2">{product.orders}</td>
+                <td className="border p-2">${Number(product.value).toFixed(2)}</td>
+                <td className="border p-2">
+                  <button
+                    onClick={() => editProduct(index)}
+                    className="bg-yellow-500 text-white p-1 rounded mr-2"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    onClick={() => deleteProduct(index)}
+                    className="bg-red-600 text-white p-1 rounded"
+                  >
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* Paginación */}
+        <div className="flex justify-center space-x-2 mt-4">
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              onClick={() => handlePageChange(page)}
+              className={`px-4 py-2 rounded ${currentPage === page ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+            >
+              {page}
+            </button>
+          ))}
+        </div>
+      </div>
+>>>>>>> 6e10c59 (Descripcion)
     </main>
   );
 }

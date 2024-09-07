@@ -1,0 +1,104 @@
+/* styles.css */
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #edf0f5;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .stock-management {
+    padding: 20px;
+    max-width: 1200px;
+    margin: auto;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .header h1 {
+    font-size: 2rem;
+    color: #333;
+  }
+  
+  .tabs {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .tab {
+    padding: 10px 20px;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .tab.active {
+    border-bottom: 2px solid #008f68;
+    color: #008f68;
+  }
+  
+  .search-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 20px 0;
+  }
+  
+  .search-bar {
+    flex-grow: 1;
+    padding: 10px 15px;
+    border-radius: 25px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+  }
+  
+  .filter-btn {
+    background-color: #008f68;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 25px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .filter-btn:hover {
+    background-color: #006b4d;
+  }
+  
+  .table-container {
+    overflow-x: auto;
+  }
+  
+  .product-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+  }
+  
+  .product-table th, .product-table td {
+    border: 1px solid #ddd;
+    padding: 12px 15px;
+    text-align: center;
+  }
+  
+  .product-table th {
+    background-color: #f7f7f7;
+    color: #333;
+  }
+  
+  .product-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  .product-table tr:hover {
+    background-color: #e9f7ef;
+  }
+  
+  .product-table td {
+    font-size: 1rem;
+  }
+  
