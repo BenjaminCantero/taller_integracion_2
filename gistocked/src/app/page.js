@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const router = useRouter(); // Importa el router para redireccionar
 
   const showProductDetails = (product) => {
     setSelectedProduct(product);
@@ -14,7 +16,7 @@ export default function Home() {
   };
 
   const goToPage = (url) => {
-    window.location.href = url;
+    router.push(url); // Redirige usando el router de Next.js
   };
 
   return (
@@ -48,7 +50,7 @@ export default function Home() {
             <li>
               <button
                 className='block w-full text-left py-3 px-5 rounded-lg hover:bg-gray-700 transition-colors duration-300'
-                onClick={() => goToPage('/estadisticas')}
+                onClick={() => goToPage('/app/Grafics')} // Redirige a grafics.js
               >
                 Estadísticas
               </button>
@@ -56,7 +58,7 @@ export default function Home() {
             <li>
               <button
                 className='block w-full text-left py-3 px-5 rounded-lg hover:bg-gray-700 transition-colors duration-300'
-                onClick={() => goToPage('/contacto')}
+                onClick={() => goToPage('/gistocked/src/app/Grafics.js')}
               >
                 Contacto
               </button>
