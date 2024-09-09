@@ -9,14 +9,10 @@ module.exports = {
   ],
   theme: {
     extend: {
-      /*
-      backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic":
-        "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
-      }, 
-      */
-      
+      width:{
+        13: "3.75rem"
+      },
+
       colors: {
         Colores_Login: {
           1: "#DEE2E6", // Background 1
