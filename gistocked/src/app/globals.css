@@ -9,12 +9,19 @@
 }
 
 body {
-  background: #DEE2E6;
+  background: #FFFFFF;
   color: #F8F9FA;
 }
 
 .horizontal_line {
-  width: 4.27rem;
+  width: 100%;
   height: 0.13rem;
   background: #FFFFFF
+}
+
+@media (min-width:1536px){
+  input::placeholder {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
 }
