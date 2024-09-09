@@ -13,6 +13,10 @@ module.exports = {
         13: "3.75rem"
       },
 
+      screens: {
+        "ss": "375px"
+      },
+
       colors: {
         Colores_Login: {
           1: "#DEE2E6", // Background 1
