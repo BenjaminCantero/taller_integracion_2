@@ -134,7 +134,7 @@ export default function Home() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table> 
         </div>
       </div>
 
