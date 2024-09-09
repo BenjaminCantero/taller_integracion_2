@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import "./style.css";
 
 export default function Home() {
   // Estado inicial de los productos
@@ -49,103 +50,85 @@ export default function Home() {
   };
 
   return (
-    <main className="flex flex-col min-h-screen items-center p-12 bg-gray-100">
-      <h1 className="text-4xl font-bold mb-8 text-center">Gestión de Stock</h1>
+    <main>
+      <h1>Gestión de Stock</h1>
 
-      <div className="w-full max-w-6xl grid grid-cols-2 gap-8">
-        {/* Formulario de agregar/editar producto */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl font-semibold mb-4">{editingIndex === null ? "Agregar Producto" : "Editar Producto"}</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-              type="text"
-              value={newProduct.name}
-              onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-              placeholder="Nombre del Producto"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-            <select
-              value={newProduct.category}
-              onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            >
-              <option value="">Seleccione Categoría</option>
-              <option value="Alimentos">Alimentos</option>
-              <option value="Bebidas">Bebidas</option>
-            </select>
-            <input
-              type="number"
-              value={newProduct.quantity}
-              onChange={(e) => setNewProduct({ ...newProduct, quantity: e.target.value })}
-              placeholder="Cantidad"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-            <input
-              type="number"
-              value={newProduct.price}
-              onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-              placeholder="Precio"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-            <button type="submit" className="w-full p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-              {editingIndex === null ? "Agregar Producto" : "Guardar Cambios"}
-            </button>
-          </form>
-        </div>
-
-        {/* Tabla de productos */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl font-semibold mb-4">Listado de Productos</h2>
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="border p-4 text-left">Producto</th>
-                <th className="border p-4 text-left">Categoría</th>
-                <th className="border p-4 text-left">Cantidad</th>
-                <th className="border p-4 text-left">Precio</th>
-                <th className="border p-4 text-left">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((product, index) => (
-                <tr key={index} className="text-center even:bg-gray-100">
-                  <td className="border p-4">{product.name}</td>
-                  <td className="border p-4">{product.category}</td>
-                  <td className="border p-4">{product.quantity}</td>
-                  <td className="border p-4">${Number(product.price).toFixed(2)}</td>
-                  <td className="border p-4 flex justify-center">
-                    <button
-                      onClick={() => editProduct(index)}
-                      className="bg-yellow-500 text-white px-3 py-1 rounded-lg mr-2 hover:bg-yellow-600"
-                    >
-                      Editar
-                    </button>
-                    <button
-                      onClick={() => deleteProduct(index)}
-                      className="bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-700"
-                    >
-                      Eliminar
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table> 
-        </div>
+      {/* Filtro */}
+      <div className="filter-container">
+        <input type="text" className="filter-input" placeholder="Buscar producto..." />
+        <button className="filter-button">Filtrar</button>
       </div>
 
+      {/* Formulario de agregar/editar producto */}
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          value={newProduct.name}
+          onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+          placeholder="Nombre del Producto"
+          required
+        />
+        <select
+          value={newProduct.category}
+          onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+          required
+        >
+          <option value="">Seleccione Categoría</option>
+          <option value="Alimentos">Alimentos</option>
+          <option value="Bebidas">Bebidas</option>
+        </select>
+        <input
+          type="number"
+          value={newProduct.quantity}
+          onChange={(e) => setNewProduct({ ...newProduct, quantity: e.target.value })}
+          placeholder="Cantidad"
+          required
+        />
+        <input
+          type="number"
+          value={newProduct.price}
+          onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+          placeholder="Precio"
+          required
+        />
+        <button type="submit">{editingIndex === null ? "Agregar Producto" : "Guardar Cambios"}</button>
+      </form>
+
+      {/* Tabla de productos */}
+      <table>
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Categoría</th>
+            <th>Cantidad</th>
+            <th>Precio</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {products.map((product, index) => (
+            <tr key={index}>
+              <td>{product.name}</td>
+              <td>{product.category}</td>
+              <td>{product.quantity}</td>
+              <td>${Number(product.price).toFixed(2)}</td>
+              <td>
+                <button onClick={() => editProduct(index)}>Editar</button>
+                <button onClick={() => deleteProduct(index)}>Eliminar</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
       {/* Alerta de productos con bajo stock */}
-      <div className="mt-8 w-full max-w-6xl bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-2xl font-semibold mb-4">Productos con Bajo Stock</h2>
-        <ul className="list-disc pl-6">
+      <div className="stock-alert">
+        <h2>Productos con Bajo Stock</h2>
+        <ul>
           {products
             .filter((product) => product.quantity < 10)
             .map((product, index) => (
-              <li key={index} className="mb-2">
+              <li key={index}>
                 {product.name} - Cantidad: {product.quantity}
               </li>
             ))}
