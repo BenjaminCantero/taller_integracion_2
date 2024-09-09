@@ -60,10 +60,6 @@ const Home = () => {
           <button className="btn btn-primary btn-lg border-2 border-blue-700 hover:border-blue-500">Registra tu tienda ahora</button>
         </div>
       </section>
-
-      <footer className="text-center mb-6">
-        <p className="text-lg">© 2023 Gestión de Ventas y Inventario</p>
-      </footer>
     </div>
   );
 };
