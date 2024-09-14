@@ -9,4 +9,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Agregar los modelos de la base de datos
+model Producto {
+  id        Int      @id @default(autoincrement())
+  name      String
+  category  String
+  quantity  Int
+  price     Float
+}

@@ -1,42 +1,64 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./style.css";
 
 export default function Home() {
-  // Estado inicial de los productos
-  const [products, setProducts] = useState([
-    { name: "Leche", category: "Bebidas", quantity: 20, price: 1.50 },
-    { name: "Pan", category: "Alimentos", quantity: 50, price: 0.50 },
-  ]);
-
-  // Estados para manejar el formulario de agregar/editar productos
+  // Estado para manejar los productos desde la base de datos
+  const [products, setProducts] = useState([]);
   const [newProduct, setNewProduct] = useState({ name: "", category: "", quantity: "", price: "" });
   const [editingIndex, setEditingIndex] = useState(null);
 
+  // Función para obtener productos desde la API
+  const fetchProducts = async () => {
+    const response = await fetch('http://localhost:3000/productos');
+    const data = await response.json();
+    setProducts(data);
+  };
+
+  // Cargar productos al montar el componente
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
   // Función para agregar o editar un producto
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const productWithNumberPrice = {
       ...newProduct,
       quantity: Number(newProduct.quantity),
-      price: Number(newProduct.price)
+      price: Number(newProduct.price),
     };
 
     if (editingIndex === null) {
-      setProducts([...products, productWithNumberPrice]); // Agregar nuevo producto
+      // Agregar nuevo producto (POST)
+      await fetch('http://localhost:3000/productos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(productWithNumberPrice),
+      });
     } else {
-      const updatedProducts = [...products];
-      updatedProducts[editingIndex] = productWithNumberPrice; // Editar producto existente
-      setProducts(updatedProducts);
+      // Editar producto existente (PUT)
+      const productId = products[editingIndex].id;
+      await fetch(`http://localhost:3000/productos/${productId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(productWithNumberPrice),
+      });
       setEditingIndex(null);
     }
+
     setNewProduct({ name: "", category: "", quantity: "", price: "" }); // Limpiar formulario
+    fetchProducts(); // Recargar productos después de agregar o editar
   };
 
   // Función para eliminar un producto
-  const deleteProduct = (index) => {
-    setProducts(products.filter((_, i) => i !== index));
+  const deleteProduct = async (index) => {
+    const productId = products[index].id;
+    await fetch(`http://localhost:3000/productos/${productId}`, {
+      method: 'DELETE',
+    });
+    fetchProducts(); // Recargar productos después de eliminar
   };
 
   // Función para cargar datos en el formulario para edición
@@ -44,7 +66,7 @@ export default function Home() {
     setNewProduct({
       ...products[index],
       price: products[index].price.toString(),
-      quantity: products[index].quantity.toString()
+      quantity: products[index].quantity.toString(),
     });
     setEditingIndex(index);
   };
