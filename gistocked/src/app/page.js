@@ -1,11 +1,11 @@
-import Header from "../components/Header";
-import Footer from "../components/Footer";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 
 export default function Home() {
   const productos = [
-    { id: 1, nombre: 'Laptop', cantidad: 10, precio: '$1000' },
-    { id: 2, nombre: 'Mouse', cantidad: 50, precio: '$20' },
-    { id: 3, nombre: 'Teclado', cantidad: 30, precio: '$50' },
+    { id: 1, nombre: 'Carnes', cantidad: 10, precio: '$1000' },
+    { id: 2, nombre: 'Heldaos', cantidad: 50, precio: '$20' },
+    { id: 3, nombre: 'Tecnologia', cantidad: 30, precio: '$50' },
   ];
 
   return (
