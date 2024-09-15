@@ -3,8 +3,8 @@ import './globals.css';
 import Layout from './components/layout';
 
 export const metadata = {
-  title: 'Mi Tienda',
-  description: 'Gestión de inventario y ventas',
+  title: 'Gistoked',
+  description: 'Zona de ventas',
 };
 
 export default function RootLayout({ children }) {
