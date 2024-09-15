@@ -5,15 +5,15 @@ const Home = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <Head>
-        <title>Gestión de Ventas y Inventario</title>
+        <title>Gestión de Ventas e Inventario de Insumos Médicos</title>
       </Head>
 
       {/* Imagen de la tienda */}
       <section className="mb-16">
         <div className="relative">
           <img src="/store-image.jpg" alt="Imagen de la tienda" className="w-full h-64 object-cover rounded-lg shadow-lg" />
-          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 rounded-lg">
-            <h1 className="text-4xl font-bold text-white">Bienvenidos a Nuestra Tienda</h1>
+          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 rounded-lg">
+            <h1 className="text-4xl font-bold text-white">Bienvenidos a Nuestra Tienda de Insumos Médicos</h1>
           </div>
         </div>
       </section>
@@ -22,9 +22,7 @@ const Home = () => {
       <section className="mb-16 text-center">
         <h2 className="text-4xl font-bold mb-6 text-gray-900">Nuestra Historia</h2>
         <p className="text-lg text-gray-800">
-          En nuestra tienda, nos apasiona ofrecer los mejores productos con la mejor atención. Fundada en 2020, nuestra misión es
-          proporcionar una experiencia de compra inigualable. Desde productos innovadores hasta un servicio al cliente excepcional,
-          trabajamos arduamente para cumplir nuestras promesas y superar tus expectativas.
+          En nuestra tienda, nos especializamos en ofrecer los mejores insumos médicos con la más alta calidad y atención. Fundada en 2020, nuestra misión es proporcionar productos médicos confiables y un servicio excepcional para ayudar a mejorar la salud y el bienestar. Trabajamos continuamente para superar tus expectativas.
         </p>
       </section>
 
@@ -36,9 +34,9 @@ const Home = () => {
             <div key={id} className="bg-white border border-gray-300 rounded-lg overflow-hidden shadow-lg transform transition-transform hover:scale-105 hover:shadow-2xl">
               <img src={`producto${id}.jpg`} alt={`Imagen de producto ${id}`} className="w-full h-48 object-cover" />
               <div className="p-6">
-                <h3 className="text-2xl font-semibold text-gray-900 mb-2">Producto {id}</h3>
-                <p className="text-gray-800 mb-4">Descripción del producto {id}</p>
-                <p className="text-xl font-bold mb-4">$19.99</p>
+                <h3 className="text-2xl font-semibold text-gray-900 mb-2">Insumo Médico {id}</h3>
+                <p className="text-gray-800 mb-4">Descripción detallada del insumo médico {id}</p>
+                <p className="text-xl font-bold mb-4">$19.990 CLP</p>
                 <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors w-full">Comprar ahora</button>
               </div>
             </div>
