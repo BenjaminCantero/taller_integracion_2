@@ -6,6 +6,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import LinesChart from "./LinesChart";
 import BarsChart from "./BarsChart";
+import PiesChart from "./PiesChart";
 
 
 
@@ -35,7 +36,8 @@ export default function Home() {
         <div>
             <p className="m-2"><b>Ejemplo #3: </b>Gráfico circular</p>
             <div className="bg-light mx-auto border border-2 border-primary" style={{width:"450px", height:"250px"}}>
-                <div style={{width:"100%", height:"100%", padding:"10px 0"}}>                 
+                <div style={{width:"100%", height:"100%", padding:"10px 0"}}>
+                  <PiesChart />             
                 </div>
             </div>
         </div>
