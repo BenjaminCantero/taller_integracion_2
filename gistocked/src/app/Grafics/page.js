@@ -4,7 +4,9 @@ import { useState, useEffect, useRef } from "react";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import LinesChart from "../LinesChart";
+import LinesChart from "./LinesChart";
+import BarsChart from "./BarsChart";
+
 
 
 
@@ -26,6 +28,7 @@ export default function Home() {
         <div>
             <p className="m-2"><b>Ejemplo #2: </b>Gráfico de barras</p>
             <div className="bg-light mx-auto px-2 border border-2 border-primary" style={{width:"450px", height:"225px"}}>
+              <BarsChart />
             </div>
         </div>
         <hr className="mt-3 mb-2"/>
