@@ -41,6 +41,14 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+
+  .hover-shadow {
+    transition: box-shadow 0.3s ease-in-out;
+  }
+
+  .hover-shadow:hover {
+    box-shadow: 0 8px 12px var(--shadow-color);
+  }
 }
 
 @layer components {
