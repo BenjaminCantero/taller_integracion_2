@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import "./inv_stile.css";
 
 // Componente React (front-end)
 export default function Home() {
@@ -11,7 +10,6 @@ export default function Home() {
   const productsPerPage = 5;
 
   useEffect(() => {
-    // Llamada para obtener los productos desde la base de datos
     async function fetchProducts() {
       try {
         const response = await fetch('/api/inventory'); // Asegúrate de que la ruta es correcta.
@@ -28,7 +26,6 @@ export default function Home() {
     fetchProducts(); // Invocar la función
   }, []); // Se ejecuta cuando el componente se monta
 
-  // Función para agregar o editar un producto
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -78,7 +75,6 @@ export default function Home() {
     }
   };
 
-  // Función para eliminar un producto
   const deleteProduct = async (index) => {
     if (window.confirm("¿Estás seguro de que quieres eliminar este producto?")) {
       try {
@@ -98,7 +94,6 @@ export default function Home() {
     }
   };
 
-  // Función para cargar datos en el formulario para edición
   const editProduct = (index) => {
     setNewProduct({
       ...products[index],
@@ -119,10 +114,10 @@ export default function Home() {
   const totalPages = Math.ceil(products.length / productsPerPage);
 
   return (
-    <main className="flex flex-col min-h-screen items-center p-12 bg-gray-100">
+    <main className="flex flex-col min-h-screen items-center p-12 bg-gray-50 text-gray-900">
       <h1 className="text-4xl font-bold mb-8 text-center">Gestión de Stock</h1>
 
-      <div className="w-full max-w-6xl grid grid-cols-2 gap-8">
+      <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Formulario de agregar/editar producto */}
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-2xl font-semibold mb-4">{editingIndex === null ? "Agregar Producto" : "Editar Producto"}</h2>
@@ -164,7 +159,7 @@ export default function Home() {
               step="0.01" // Incrementos de centavos
               required
             />
-            <button type="submit" className="w-full p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            <button type="submit" className="w-full p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200">
               {editingIndex === null ? "Agregar Producto" : "Guardar Cambios"}
             </button>
           </form>
@@ -176,30 +171,30 @@ export default function Home() {
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-gray-200">
-                <th className="border p-4 text-left">Producto</th>
-                <th className="border p-4 text-left">Categoría</th>
-                <th className="border p-4 text-left">Cantidad</th>
-                <th className="border p-4 text-left">Precio</th>
-                <th className="border p-4 text-left">Acciones</th>
+                <th className="border p-4 text-left text-black">Producto</th>
+                <th className="border p-4 text-left text-black">Categoría</th>
+                <th className="border p-4 text-left text-black">Cantidad</th>
+                <th className="border p-4 text-left text-black">Precio</th>
+                <th className="border p-4 text-left text-black">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {currentProducts.map((product, index) => (
                 <tr key={index} className="text-center even:bg-gray-100">
-                  <td className="border p-4">{product.name}</td>
-                  <td className="border p-4">{product.category}</td>
-                  <td className="border p-4">{product.quantity}</td>
-                  <td className="border p-4">${Number(product.price).toFixed(2)}</td>
-                  <td className="border p-4 flex justify-center">
+                  <td className="border p-4 text-black">{product.name}</td>
+                  <td className="border p-4 text-black">{product.category}</td>
+                  <td className="border p-4 text-black">{product.quantity}</td>
+                  <td className="border p-4 text-black">${Number(product.price).toFixed(2)}</td>
+                  <td className="border p-4 flex justify-center space-x-2">
                     <button
                       onClick={() => editProduct(index)}
-                      className="bg-yellow-500 text-white px-3 py-1 rounded-lg mr-2 hover:bg-yellow-600"
+                      className="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600 transition duration-200"
                     >
                       Editar
                     </button>
                     <button
                       onClick={() => deleteProduct(index)}
-                      className="bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-700"
+                      className="bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-700 transition duration-200"
                     >
                       Eliminar
                     </button>
@@ -215,7 +210,7 @@ export default function Home() {
               <button
                 key={page}
                 onClick={() => handlePageChange(page)}
-                className={`px-4 py-2 rounded ${currentPage === page ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+                className={`px-4 py-2 rounded ${currentPage === page ? "bg-blue-500 text-white" : "bg-gray-200 text-black"}`}
               >
                 {page}
               </button>
@@ -231,7 +226,7 @@ export default function Home() {
           {products
             .filter((product) => product.quantity < 10)
             .map((product, index) => (
-              <li key={index}>
+              <li key={index} className="text-black">
                 {product.name} - {product.quantity} unidades restantes
               </li>
             ))}
