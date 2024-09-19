@@ -1,0 +1,111 @@
+/* Estructura básica */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f4f7; /* Color de fondo claro */
+  margin: 0;
+  padding: 0;
+}
+
+/* Contenedor principal de la tabla */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px auto;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Filas de la tabla */
+tr {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+th, td {
+  text-align: left;
+  padding: 12px 15px;
+}
+
+/* Encabezado de la tabla */
+th {
+  background-color: #f6f8fa; /* Color del fondo de encabezado */
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #6b6b6b; /* Color del texto */
+}
+
+/* Filas impares para diseño alternado */
+tr:nth-child(odd) {
+  background-color: #fafafa;
+}
+
+/* Buscador */
+.search-bar {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+  margin: 20px auto;
+  width: 90%;
+  max-width: 1200px;
+}
+
+.search-bar input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.search-bar .filter-buttons {
+  display: flex;
+  align-items: center;
+  margin-left: 10px;
+}
+
+.filter-buttons button {
+  background-color: #e8e8e8;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.filter-buttons button:hover {
+  background-color: #d0d0d0;
+}
+
+/* Estilo de las celdas específicas */
+td img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+td:last-child {
+  text-align: right;
+}
+
+.stock-header {
+  text-align: left;
+  padding: 10px 15px;
+  color: #2c3e50;
+  font-size: 22px;
+}
+
+.btn-login {
+  background-color: #e57373;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  float: right;
+  margin-right: 20px;
+  margin-top: 10px;
+}
+
+.btn-login:hover {
+  background-color: #d32f2f;
+}
