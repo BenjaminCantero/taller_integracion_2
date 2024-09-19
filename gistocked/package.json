@@ -10,11 +10,11 @@
   },
   "dependencies": {
     "@prisma/client": "^5.19.0",
-    "bootstrap": "^5.3.3",
-    "gistocked": "file:",
+    "bcrypt": "^5.1.1",
     "next": "^14.2.12",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-hook-form": "^7.53.0"
   },
   "devDependencies": {
     "eslint": "^8",
