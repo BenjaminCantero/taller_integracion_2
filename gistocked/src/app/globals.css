@@ -38,6 +38,13 @@ body {
   transition: background 0.5s ease, color 0.5s ease; /* Transición suave para el modo oscuro */
 }
 
+.horizontal_line {
+  width: 4.27rem;
+  width: 100%;
+  height: 0.13rem;
+  background: #FFFFFF
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
