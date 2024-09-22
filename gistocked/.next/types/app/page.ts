@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // File: C:\Users\ggard\OneDrive\Escritorio\taller_integracion_2\gistocked\src\app\page.js
+=======
+// File: C:\Users\bherr\OneDrive\Escritorio\taller_integracion_2\gistocked\src\app\page.js
+>>>>>>> 52a76f7f7a4a4aa7d529dcdfabd7f02609f0e34d
 import * as entry from '../../../src/app/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

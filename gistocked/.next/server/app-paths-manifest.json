@@ -1,5 +1,8 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
+<<<<<<< HEAD
   "/auth/UserRegister/page": "app/auth/UserRegister/page.js",
+=======
+>>>>>>> 52a76f7f7a4a4aa7d529dcdfabd7f02609f0e34d
   "/page": "app/page.js"
 }
