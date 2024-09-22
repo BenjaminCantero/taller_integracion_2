@@ -1,4 +1,4 @@
-"use client"; // Asegúrate de incluir esta línea al principio del archivo
+"use client";
 
 import React, { useEffect } from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
