@@ -1,8 +1,0 @@
-{
-  "dependencies": {
-    "bootstrap": "^5.3.3",
-    "chart.js": "^4.4.4",
-    "create-next-app": "^14.2.7",
-    "react-chartjs-2": "^5.2.0"
-  }
-}
