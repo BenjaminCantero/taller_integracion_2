@@ -4,15 +4,15 @@ const TabInfo = () => (
         <h5>Información de la cuenta</h5>
         <div className="form-group">
           <label className="form-label">Nombre completo</label>
-          <input type="text" className="form-control" defaultValue="Nelle Maxwell" />
+          <input type="text" className="form-control" />
         </div>
         <div className="form-group">
           <label className="form-label">E-mail</label>
-          <input type="email" className="form-control" defaultValue="nmaxwell@mail.com" />
+          <input type="email" className="form-control" />
         </div>
         <div className="form-group">
           <label className="form-label">Número de teléfono</label>
-          <input type="text" className="form-control" defaultValue="123-456-7890" />
+          <input type="text" className="form-control" />
         </div>
       </div>
     </div>
