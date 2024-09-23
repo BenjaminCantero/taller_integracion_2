@@ -45,6 +45,18 @@ body {
   background: #FFFFFF
 }
 
+.show_element {
+  opacity: 1;
+  height: auto;
+  overflow: visible;
+}
+
+.hide_element {
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
