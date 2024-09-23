@@ -25,17 +25,17 @@ const TabGeneral = () => (
     <div className="card-body" style={formBodyStyle}>
       <div className="form-group">
         <label className="form-label">Nombre de usuario</label>
-        <input type="text" className="form-control mb-1" defaultValue="nmaxwell" />
+        <input type="text" className="form-control mb-1" />
       </div>
 
       <div className="form-group">
         <label className="form-label">Nombre</label>
-        <input type="text" className="form-control" defaultValue="Nelle Maxwell" />
+        <input type="text" className="form-control" />
       </div>
 
       <div className="form-group">
         <label className="form-label">E-mail</label>
-        <input type="text" className="form-control mb-1" defaultValue="nmaxwell@mail.com" />
+        <input type="text" className="form-control mb-1" />
         <div className="alert alert-warning mt-3">
           Tu correo electrónico no está confirmado. Por favor revisa tu bandeja de entrada.<br />
           <a href="javascript:void(0)">Reenviar confirmación</a>
@@ -44,7 +44,7 @@ const TabGeneral = () => (
 
       <div className="form-group">
         <label className="form-label">Compañía</label>
-        <input type="text" className="form-control" defaultValue="Company Ltd." />
+        <input type="text" className="form-control" />
       </div>
     </div>
   </div>
