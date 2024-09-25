@@ -76,6 +76,10 @@ const Layout = ({ children }) => {
             <div className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors" >Iniciar Sesión</div>
             </Link>
 
+            <Link href="/worker_management">
+            <div className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors" >Worker</div>
+            </Link>
+
             <button onClick={cerrarAside}>
               <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" className="bi bi-person-circle" viewBox="0 0 16 16">
                 <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
