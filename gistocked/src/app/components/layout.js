@@ -23,6 +23,8 @@ const Layout = ({ children }) => {
               <Link href="/products" className="hover:text-gray-400 transition-colors focus:outline-none">Productos</Link>
               <Link href="/sales" className="hover:text-gray-400 transition-colors focus:outline-none">Ventas</Link>
               <Link href="/inventory" className="hover:text-gray-400 transition-colors focus:outline-none">Inventario</Link>
+              <Link href="/Grafics" className="hover:text-gray-400 transition-colors focus:outline-none">Graficos</Link>
+              <Link href="/perfil" className="hover:text-gray-400 transition-colors focus:outline-none">Perfil</Link>
             </nav>
 
             {/* Login Button */}
