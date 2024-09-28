@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { useForm } from "react-hook-form";
 import Link from 'next/link';
 
 const Layout = ({ children }) => {
@@ -10,13 +11,56 @@ const Layout = ({ children }) => {
     setIsMenuOpen(prev => !prev);
   };
 
+  const cerrarAside = () => {
+    const elemento = document.getElementById('aside')
+    elemento.classList.toggle('hide_element');
+    elemento.classList.toggle('show_input');
+  }
+
+  const cambiarVisibilidadCorreo = () => {
+    const elemento = document.getElementById('new_email');
+    elemento.classList.toggle('hide_element');
+    elemento.classList.toggle('show_input');
+  };
+
+  const cambiarVisibilidadContrasena = () => {
+    const elemento_1 = document.getElementById('new_password_1');
+    const elemento_2 = document.getElementById('new_password_2');
+
+    elemento_1.classList.toggle('hide_element');
+    elemento_1.classList.toggle('show_element');
+
+    elemento_2.classList.toggle('hide_element');
+    elemento_2.classList.toggle('show_element');
+  };
+
+  const { register, handleSubmit } = useForm();
+
+  const onSubmit_Correo = handleSubmit( async (data) => {
+    // Envia los datos en formato JSON 
+    const res = await fetch("/api/usuario_main_2/cony", {method: "PUT", body: JSON.stringify({correo:data.correo}), headers: {"Content-Type":"application/json"}});
+  });
+
+  const onSubmit_Contrasena = handleSubmit( async (data) => {
+    // Envia los datos en formato JSON
+    try {
+      if (data.contrasena_1 == data.contrasena_2) {
+        const res = await fetch("../api/usuario_main_2/cony", {method: "PUT", body: JSON.stringify({contrasena:data.contrasena_1}), headers: {"Content-Type":"application/json"}});
+      }
+    } catch {
+      return new Error("Las Contraseñas No Coinciden")
+    }
+  });
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
       {/* Header */}
       <header className="bg-gray-900 text-white shadow-md">
         <div className="max-w-7xl mx-auto flex justify-between items-center p-4">
           <h1 className="text-2xl font-bold">Mi Tienda</h1>
+
           <div className="flex items-center space-x-4">
+
             {/* Desktop Navigation */}
             <nav className="hidden md:flex space-x-6">
               <Link href="/" className="hover:text-gray-400 transition-colors focus:outline-none">Inicio</Link>
@@ -25,10 +69,99 @@ const Layout = ({ children }) => {
               <Link href="/inventory" className="hover:text-gray-400 transition-colors focus:outline-none">Inventario</Link>
             </nav>
 
+
+
             {/* Login Button */}
             <Link href="/auth/UserLogin">
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">Iniciar Sesión</button>
+            <div className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors" >Iniciar Sesión</div>
             </Link>
+
+            <Link href="/worker_management">
+            <div className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors" >Worker</div>
+            </Link>
+
+            <button onClick={cerrarAside}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" className="bi bi-person-circle" viewBox="0 0 16 16">
+                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+                <path fillRule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+              </svg>
+            </button>
+
+            <aside id="aside" className="w-1/2 h-full flex justify-center items-center fixed top-0 right-0 bg-white z-50 hide_element">
+              <div className="modal-content">
+                <button onClick={cerrarAside} className="absolute top-4 left-4 close">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="text-black bi bi-x-lg" viewBox="0 0 16 16">
+                    <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" stroke="currentColor" strokeWidth="2" fill="none"/>
+                  </svg>
+                </button>
+                
+
+                    <div className="p-10 bg-gray-900 text-white rounded-lg flex flex-col items-center">
+                        <div className="flex flex-col items-center">
+
+                          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" className="bi bi-person-circle" viewBox="0 0 16 16">
+                            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+                            <path fillRule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+                          </svg>
+
+                          <p className="mt-2">Nombre de Usuario</p>
+                        </div>
+
+                        <div>
+                          <from>
+                            <ul className="w-full">
+                              <li className="my-2">
+                                  <label htmlFor="email">Correo</label>
+                              </li>
+
+                              <li className="my-2 bg-white text-black rounded-sm">
+                                  <label>Correo Actual</label>
+                              </li>
+
+                              <li id="new_email" className="my-2 text-black hide_element">
+                                  <input {...register("correo", {require: true})} type="text" placeholder="Correo Nuevo" className="w-full rounded-sm"></input>
+                              </li>
+
+                              <li>
+                                <div className="my-2">
+                                  <button type="button" onClick={cambiarVisibilidadCorreo} className="px-1 mr-2 bg-blue-600 rounded-md">Cambiar Correo</button>
+                                  <button type="button" onClick={onSubmit_Correo} className="px-1 ml-2 bg-red-600 rounded-md">Cancelar</button>
+                                </div>
+                              </li>
+                            </ul>
+                          </from>
+
+                          <form>
+                            <ul className="w-full">
+                              <li className="my-2">
+                                  <label htmlFor="password">Contraseña</label>
+                              </li>
+
+                              <li className="my-2 bg-white text-black rounded-sm">
+                              <label>Contraseña Actual</label>
+                              </li>
+
+                              <li id="new_password_1" className="my-2 hide_element">
+                                  <input {...register("contrasena_1", {require: true})} type="password" placeholder="Ingresar Contraseña Nueva" className="w-full text-black rounded-sm"></input>
+                              </li>
+
+                              <li id="new_password_2" className="my-2 hide_element">
+                                  <input {...register("contrasena_2", {require: true})} type="password" placeholder="Ingresar Contraseña Nueva" className="w-full text-black rounded-sm"></input>
+                                </li>
+
+                              <li className="my-2">
+                                <div>
+                                  <button type="button" onClick={cambiarVisibilidadContrasena} className="px-1 mr-2 bg-blue-600 rounded-md">Cambiar Contraseña</button>
+                                  <button type="button" onClick={onSubmit_Contrasena} className="px-1 ml-2 bg-red-600 rounded-md">Cancelar</button>
+                                </div>
+                              </li>
+                            </ul>
+                          </form>
+                        </div>
+                        
+                    </div>
+              </div>
+          </aside>
 
 
             {/* Mobile Menu Button */}
@@ -44,6 +177,9 @@ const Layout = ({ children }) => {
           </div>
         </div>
 
+
+
+
         {/* Mobile Menu */}
         {isMenuOpen && (
           <nav className="md:hidden bg-gray-800">
@@ -56,10 +192,21 @@ const Layout = ({ children }) => {
         )}
       </header>
 
+
+
+
+
+
+
       {/* Main Content */}
       <main className="flex-grow max-w-7xl mx-auto p-6">
         {children}
       </main>
+
+
+
+
+
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white shadow-md mt-8">

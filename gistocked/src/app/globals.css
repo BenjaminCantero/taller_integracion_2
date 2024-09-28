@@ -38,6 +38,25 @@ body {
   transition: background 0.5s ease, color 0.5s ease; /* Transición suave para el modo oscuro */
 }
 
+.horizontal_line {
+  width: 4.27rem;
+  width: 100%;
+  height: 0.13rem;
+  background: #FFFFFF
+}
+
+.show_element {
+  opacity: 1;
+  height: auto;
+  overflow: visible;
+}
+
+.hide_element {
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
