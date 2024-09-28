@@ -10,7 +10,7 @@ import { useForm } from "react-hook-form";
 export default function UserRegister() {
 
     // Prepara las funciones importantes
-    const { register, handleSubmit } = useForm();
+    const { register, handleSubmit, formState: {errors} } = useForm();
     const router = useRouter();
 
     // Función asociada al Formulario
@@ -20,7 +20,7 @@ export default function UserRegister() {
 
         // Luego de registrarse exitosamente redirige al Login
         if (res.ok) {
-            router.push("../../")
+            router.push("../auth/UserLogin/")
         }
     });
 
@@ -59,19 +59,28 @@ export default function UserRegister() {
 
               <li>
                 <div className="ss:h-12 2xl:h-16 rounded-md text-black 2xl:text-3xl">
-                  <input {...register("nombre", {require: true})} type="text" placeholder="Nombre de Usuario" className="px-5 w-full h-full rounded-md bg-Colores_Login-3"></input>
+                  <input {...register("nombre", {required: {value:true, message: "El nombre de usuario es requerido"}})} type="text" placeholder="Nombre de Usuario" className="px-5 w-full h-full rounded-md bg-Colores_Login-3"></input>
+                  {
+                    errors.nombre && ( <span className="text-red-500"> {errors.nombre.message} </span> )
+                  }
                 </div>
               </li>
 
               <li>
                 <div className="ss:h-12 2xl:h-16 rounded-md text-black 2xl:text-3xl">
-                  <input {...register("correo", {require: true})} type="email" placeholder="Correo" className="px-5 w-full h-full rounded-md bg-Colores_Login-3"></input>
+                  <input {...register("correo", {required: {value:true, message: "El correo es requerido"}})} type="email" placeholder="Correo" className="px-5 w-full h-full rounded-md bg-Colores_Login-3"></input>
+                  {
+                    errors.correo && ( <span className="text-red-500"> {errors.correo.message} </span> )
+                  }
                 </div>
               </li>
 
               <li>
                 <div className="ss:h-12 2xl:h-16 rounded-md text-black 2xl:text-3xl">
-                  <input {...register("contrasena", {require: true})} type="password" placeholder="Contraseña" className="px-5 w-full h-full rounded-md bg-Colores_Login-3"></input>
+                  <input {...register("contrasena", {required: {value:true, message: "La contraseña es requerida"}})} type="password" placeholder="Contraseña" className="px-5 w-full h-full rounded-md bg-Colores_Login-3"></input>
+                  {
+                    errors.contrasena && ( <span className="text-red-500"> {errors.contrasena.message} </span> )
+                  }
                 </div>
               </li>
 

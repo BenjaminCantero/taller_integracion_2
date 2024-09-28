@@ -1,6 +1,7 @@
 // src/app/layout.js
+
+import Layout from '@/components/layout';
 import './globals.css';
-import Layout from './components/layout';
 
 export const metadata = {
   title: 'Gistoked',
@@ -11,7 +12,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es">
       <body>
-        <Layout>{children}</Layout>
+        <Layout>
+          {children}
+        </Layout>
       </body>
     </html>
   );

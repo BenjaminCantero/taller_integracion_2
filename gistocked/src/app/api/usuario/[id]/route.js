@@ -5,7 +5,7 @@ export async function GET(request, { params }) {
     const nombre = params.id;
 
     try {
-        const usuario = await prisma.Usuario_Main_2.findFirst({
+        const usuario = await prisma.usuario.findFirst({
             where: { nombre: nombre },
         });
         if (!usuario){
@@ -21,7 +21,7 @@ export async function DELETE(request, { params }) {
     const nombre = params.id
 
     try{
-        const result = await prisma.Usuario_Main_2.delete({
+        const result = await prisma.usuario.delete({
             where: { nombre: nombre },
         });
         return NextResponse.json({ message: result }, { status: 200 });
@@ -36,7 +36,7 @@ export async function PUT(request, { params }) {
     const data = await request.json();
 
     try {
-        const result = await prisma.Usuario_Main_2.update({
+        const result = await prisma.usuario.update({
             where: { nombre: nombre },
             data: data,
         });
