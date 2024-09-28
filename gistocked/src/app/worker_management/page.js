@@ -43,12 +43,12 @@ const Worker_Management = () => {
                   <p
                     className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400"
                   >
-                    Total clients
+                    Vendedores
                   </p>
                   <p
                     className="text-lg font-semibold text-gray-700 dark:text-gray-200"
                   >
-                    6389
+                    20
                   </p>
                 </div>
               </div>
@@ -75,7 +75,7 @@ const Worker_Management = () => {
                   <p
                     className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400"
                   >
-                    Account balance
+                    Agregar Vendedor
                   </p>
                   <p
                     className="text-lg font-semibold text-gray-700 dark:text-gray-200"
@@ -106,7 +106,7 @@ const Worker_Management = () => {
                   <p
                     className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400"
                   >
-                    New sales
+                    Actualizar Vendedor
                   </p>
                   <p
                     className="text-lg font-semibold text-gray-700 dark:text-gray-200"
@@ -136,7 +136,7 @@ const Worker_Management = () => {
                   <p
                     className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400"
                   >
-                    Pending contacts
+                    eliminar Vendedor
                   </p>
                   <p
                     className="text-lg font-semibold text-gray-700 dark:text-gray-200"

@@ -17,8 +17,14 @@ export default function UserLogin() {
   };
 
   return (
-    <div className="ss:min-h-[600px] flex justify-center items-center">
-      <form className="p-10 bg-Colores_Login-2 rounded-lg font-racing_sans_one">
+    <div className="relative ss:min-h-[600px] flex justify-center items-center bg-white"> {/* Agregar bg-white aquí */}
+      {/* Círculo superior izquierdo */}
+      <div className="absolute top-0 left-0 w-60 h-60 bg-blue-300 rounded-full opacity-50 -z-10"></div>
+
+      {/* Círculo inferior derecho */}
+      <div className="absolute bottom-0 right-0 w-80 h-80 bg-pink-300 rounded-full opacity-50 -z-10"></div>
+
+      <form className="p-10 bg-Colores_Login-2 rounded-lg font-racing_sans_one z-10"> {/* Agregar z-10 aquí */}
         <ul className="grid grid-cols-1 grid-rows-7 gap-6 2xl:gap-2">
           <li>
             <div className="ss:px-20 2xl:px-20 text-white ss:text-5xl 2xl:text-8xl">
@@ -87,7 +93,7 @@ export default function UserLogin() {
           <li className="relative">
             <button
               type="button"
-              className="bg-Colores_Login-3 text-white px-4 py-2 rounded-md 2xl:text-3xl w-full"
+              className="bg-Colores_Login-3 text-black px-4 py-2 rounded-md 2xl:text-3xl w-full"
               onClick={toggleDropdown}
             >
               {accountType}
