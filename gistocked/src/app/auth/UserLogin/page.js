@@ -23,6 +23,7 @@ export default function UserLogin() {
       setError(res.error)
     } else {
       router.push("/")
+      router.refresh()
     }
   });
 

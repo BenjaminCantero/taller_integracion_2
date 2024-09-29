@@ -17,7 +17,7 @@ export async function POST(request) {
         // Envia los datos encriptados a la base de datos
         const usuario = await prisma.usuario.create(({
             data: {
-                rolId: 1,
+                rolId: 2,
                 nombre: data.nombre,
                 correo: data.correo,
                 contrasena: contrasenaEncriptado,

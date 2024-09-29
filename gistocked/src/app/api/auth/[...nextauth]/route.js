@@ -24,7 +24,8 @@ export const authOptions = {
                 if (!matchPassword) throw new Error("Correo y/o Constraseña invalidos")
 
                 return {
-                    id: userFound.id,
+                    id: userFound.id_usuarios,
+                    rol: userFound.rolId,
                     name: userFound.nombre,
                     email: userFound.correo,
                 }
@@ -33,6 +34,31 @@ export const authOptions = {
     ],
 
     secret: process.env.NEXTAUTH_SECRET,
+
+    session: {
+        strategy: "jwt",
+    },
+
+    callbacks: {
+        async jwt({ token, user }) {
+            if (user) {
+                // Si hay un usuario, añade sus datos al token
+                token.id = user.id;
+                token.rol = user.rol;
+                token.name = user.name;
+                token.email = user.email;
+            }
+            return token;
+        },
+        async session({ session, token }) {
+            // Añade los datos del token a la sesión
+            session.user.id = token.id;
+            session.user.rol = token.rol;
+            session.user.name = token.name;
+            session.user.email = token.email;
+            return session;
+        },
+    },
 };
 
 const handler = NextAuth(authOptions);
