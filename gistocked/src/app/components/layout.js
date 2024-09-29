@@ -25,6 +25,8 @@ const Layout = ({ children }) => {
               <Link href="/inventory" className="hover:text-gray-400 transition-colors focus:outline-none">Inventario</Link>
               <Link href="/Grafics" className="hover:text-gray-400 transition-colors focus:outline-none">Graficos</Link>
               <Link href="/perfil" className="hover:text-gray-400 transition-colors focus:outline-none">Perfil</Link>
+              <Link href="/Prueba" className="hover:text-gray-400 transition-colors focus:outline-none">prueba</Link>
+              
             </nav>
 
             {/* Login Button */}
