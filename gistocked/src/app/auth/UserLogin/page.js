@@ -8,7 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 export default function UserLogin() {
-  const { register, handleSubmit, formState: {errors} } = useForm();
+  const { register, handleSubmit, setValue, formState: {errors} } = useForm();
   const router = useRouter();
   const [error, setError] = useState(null)
 
@@ -16,6 +16,7 @@ export default function UserLogin() {
     const res = await signIn("credentials", {
       email: data.correo,
       password: data.contrasena,
+      rol: data.rol,
       redirect: false
     });
 
@@ -26,6 +27,24 @@ export default function UserLogin() {
       router.refresh()
     }
   });
+
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [accountType, setAccountType] = useState("Tipo de cuenta");
+
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
+  };
+
+  const handleAccountTypeChange = (type) => {
+    setAccountType(type);
+    setDropdownOpen(false);
+
+    if (type == "Admin") {
+      setValue("rol", 1);
+    } else {
+      setValue("rol", 2);
+    }
+  };
 
   return (
     <div className="ss:min-h-[600px] flex justify-center items-center">
@@ -78,6 +97,46 @@ export default function UserLogin() {
                     errors.contrasena && ( <span className="text-red-500"> {errors.contrasena.message} </span> )
                   }
                 </div>
+              </li>
+
+              {/* Botón para seleccionar tipo de cuenta */}
+              <li className="relative">
+                <button
+                  type="button"
+                  className="bg-Colores_Login-3 text-black px-4 py-2 rounded-md 2xl:text-3xl w-full"
+                  onClick={toggleDropdown}
+                  {...register("rol", {required: {value:true, message: "El rol es requerido"}})}
+                >
+                  {accountType}
+                </button>
+                {
+                  errors.rol && ( <span className="text-red-500"> {errors.rol.message} </span> )
+                }
+
+                {/* Dropdown */}
+                {dropdownOpen && (
+                  <div className="absolute mt-2 w-full bg-white rounded-md shadow-lg z-10">
+                    <ul className="py-1">
+                      <li>
+                        <button
+                          className="block px-4 py-2 text-black hover:bg-gray-200 w-full text-left"
+                          onClick={() => handleAccountTypeChange("Vendedor")}
+                        >
+                          
+                          Iniciar como Vendedor
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className="block px-4 py-2 text-black hover:bg-gray-200 w-full text-left"
+                          onClick={() => handleAccountTypeChange("Admin")}
+                        >
+                          Iniciar como Admin
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                )}
               </li>
 
               <li>

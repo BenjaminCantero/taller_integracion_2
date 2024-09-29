@@ -9,6 +9,7 @@ export const authOptions = {
             name: "Credentials",
             credentials: { correo: {label: "correo", type: "text"},
                            contrasena: {label: "contrasena", type: "password"},
+                           rol: {label: "rol", type: "text"},
             },
             async authorize(credentials, req) {
                 const userFound = await prisma.usuario.findUnique({
@@ -18,6 +19,8 @@ export const authOptions = {
                 })
 
                 if (!userFound) throw new Error("Correo y/o Constraseña invalidos")
+
+                if (parseInt(userFound.rolId) != parseInt(credentials.rol)) throw new Error("Tipo de rol invalido")
                 
                 const matchPassword = await bcrypt.compare(credentials.password, userFound.contrasena)
 
