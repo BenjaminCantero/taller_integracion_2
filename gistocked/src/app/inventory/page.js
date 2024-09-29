@@ -9,6 +9,19 @@ export default function Home() {
   const [editingIndex, setEditingIndex] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 5;
+  const [searchTerm, setSearchTerm] = useState("");
+  const handleSearch = async () => {
+    try {
+      const response = await fetch(`/api/inventory/search?name=${searchTerm}`);
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      const products = await response.json();
+      setProducts(products);    
+    } catch (error) {
+      console.error("Error al buscar productos:", error);
+    }
+  };
 
   useEffect(() => {
     // Llamada para obtener los productos desde la base de datos
@@ -121,7 +134,21 @@ export default function Home() {
   return (
     <main className="flex flex-col min-h-screen items-center p-12 bg-gray-100">
       <h1 className="text-4xl font-bold mb-8 text-center">Gestión de Stock</h1>
-
+      <div className="w-full max-w-6xl mb-4">
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Buscar producto por nombre"
+          className="w-full p-3 border border-gray-300 rounded-lg"
+        />
+        <button
+          onClick={handleSearch}
+          className="w-full mt-2 p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Buscar
+        </button>
+      </div>
       <div className="w-full max-w-6xl grid grid-cols-2 gap-8">
         {/* Formulario de agregar/editar producto */}
         <div className="bg-white p-6 rounded-lg shadow-md">

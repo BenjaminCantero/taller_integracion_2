@@ -4,6 +4,24 @@ const prisma = new PrismaClient();
 const app = express();
 const port = 3000;
 
+// Ruta para buscar productos por nombre
+app.get('/api/inventory/search', async (req, res) => {
+  const { name } = req.query;
+
+  try {
+    const products = await prisma.product.findMany({
+      where: {
+        name: {
+          contains: name,
+          mode: 'insensitive',
+        },
+      },
+    });
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al buscar los productos' });
+  }
+});
 // Middleware para parsear JSON
 app.use(express.json());
 
