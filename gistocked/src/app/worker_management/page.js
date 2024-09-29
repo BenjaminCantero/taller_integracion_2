@@ -1,25 +1,6 @@
 const Worker_Management = () => {
     return (
       <div className="container px-6 mx-auto grid">   
-            <a
-              className="flex items-center justify-between p-4 mb-8 text-sm font-semibold text-purple-100 bg-purple-600 rounded-lg shadow-md focus:outline-none focus:shadow-outline-purple"
-              href="https://github.com/estevanmaito/windmill-dashboard"
-            >
-              <div className="flex items-center">
-                <svg
-                  className="w-5 h-5 mr-2"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                  ></path>
-                </svg>
-                <span>Star this project on GitHub</span>
-              </div>
-              <span>View more &RightArrow;</span>
-            </a>
-   
             
             <div className="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
 
@@ -136,7 +117,7 @@ const Worker_Management = () => {
                   <p
                     className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400"
                   >
-                    eliminar Vendedor
+                    Contactos
                   </p>
                   <p
                     className="text-lg font-semibold text-gray-700 dark:text-gray-200"
@@ -156,10 +137,10 @@ const Worker_Management = () => {
                     <tr
                       className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800"
                     >
-                      <th className="px-4 py-3">Client</th>
-                      <th className="px-4 py-3">Amount</th>
-                      <th className="px-4 py-3">Status</th>
-                      <th className="px-4 py-3">Date</th>
+                      <th className="px-4 py-3">Cliente</th>
+                      <th className="px-4 py-3">monto</th>
+                      <th className="px-4 py-3">estado</th>
+                      <th className="px-4 py-3">fecha</th>
                     </tr>
                   </thead>
                   <tbody
@@ -456,26 +437,7 @@ const Worker_Management = () => {
                       <td className="px-4 py-3">
                         <div className="flex items-center text-sm">
 
-                          <div
-                            className="relative hidden w-8 h-8 mr-3 rounded-full md:block"
-                          >
-                            <img
-                              className="object-cover w-full h-full rounded-full"
-                              src="https://images.unsplash.com/photo-1566411520896-01e7ca4726af?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=200&fit=max&ixid=eyJhcHBfaWQiOjE3Nzg0fQ"
-                              alt=""
-                              loading="lazy"
-                            />
-                            <div
-                              className="absolute inset-0 rounded-full shadow-inner"
-                              aria-hidden="true"
-                            ></div>
-                          </div>
-                          <div>
-                            <p className="font-semibold">Hitney Wouston</p>
-                            <p className="text-xs text-gray-600 dark:text-gray-400">
-                              Singer
-                            </p>
-                          </div>
+                         
                         </div>
                       </td>
                       <td className="px-4 py-3 text-sm">
@@ -497,26 +459,8 @@ const Worker_Management = () => {
                       <td className="px-4 py-3">
                         <div className="flex items-center text-sm">
 
-                          <div
-                            className="relative hidden w-8 h-8 mr-3 rounded-full md:block"
-                          >
-                            <img
-                              className="object-cover w-full h-full rounded-full"
-                              src="https://images.unsplash.com/flagged/photo-1570612861542-284f4c12e75f?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=200&fit=max&ixid=eyJhcHBfaWQiOjE3Nzg0fQ"
-                              alt=""
-                              loading="lazy"
-                            />
-                            <div
-                              className="absolute inset-0 rounded-full shadow-inner"
-                              aria-hidden="true"
-                            ></div>
-                          </div>
-                          <div>
-                            <p className="font-semibold">Hans Burger</p>
-                            <p className="text-xs text-gray-600 dark:text-gray-400">
-                              10x Developer
-                            </p>
-                          </div>
+
+                          
                         </div>
                       </td>
                       <td className="px-4 py-3 text-sm">
