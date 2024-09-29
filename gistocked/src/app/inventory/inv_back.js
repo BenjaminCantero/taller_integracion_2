@@ -5,7 +5,7 @@ const app = express();
 const port = 3000;
 
 // Ruta para buscar productos por nombre
-app.get('/api/inventory/search', async (req, res) => {
+app.get('/api/inve ntory/search', async (req, res) => {
   const { name } = req.query;
 
   try {

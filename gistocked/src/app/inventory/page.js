@@ -21,7 +21,7 @@ export default function Home() {
     } catch (error) {
       console.error("Error al buscar productos:", error);
     }
-  };
+  }; 
 
   useEffect(() => {
     // Llamada para obtener los productos desde la base de datos
