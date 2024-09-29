@@ -33,6 +33,10 @@ export const authOptions = {
         }),
     ],
 
+    pages: {
+        signIn: "/auth/UserLogin"
+    },
+
     secret: process.env.NEXTAUTH_SECRET,
 
     session: {
