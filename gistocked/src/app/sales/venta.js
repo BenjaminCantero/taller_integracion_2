@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState } from 'react';
 import { CURRENCY, DEFAULT_TOTAL } from '../../constants';
 
@@ -15,13 +14,79 @@ const Venta = () => {
     { id: 8, nombre: 'Venda Elástica', precio: 1200, cantidad: 12 }
   ]);
 
+  const [tablaVentas, setTablaVentas] = useState({});
+  const [total, setTotal] = useState(DEFAULT_TOTAL);
+  const [paymentOptionsVisible, setPaymentOptionsVisible] = useState(false);
+  const [documentOptionsVisible, setDocumentOptionsVisible] = useState(false);
+  const [productosSeleccionados, setProductosSeleccionados] = useState([]);
+
   const eliminarProducto = (id) => {
     setProductos(productos.filter(producto => producto.id !== id));
   };
 
-  const [total, setTotal] = useState(DEFAULT_TOTAL);
-  const [paymentOptionsVisible, setPaymentOptionsVisible] = useState(false);
-  const [documentOptionsVisible, setDocumentOptionsVisible] = useState(false);
+  const agregarProductoAVenta = (producto) => {
+    setTablaVentas(prev => {
+      const nuevoTotal = prev[producto.nombre] ? prev[producto.nombre].cantidad + 1 : 1;
+      const nuevoPrecio = prev[producto.nombre] ? prev[producto.nombre].precio + producto.precio : producto.precio;
+
+      return {
+        ...prev,
+        [producto.nombre]: {
+          ...producto,
+          cantidad: nuevoTotal,
+          precio: nuevoPrecio
+        }
+      };
+    });
+    setTotal(total + producto.precio);
+  };
+
+  const retirarProductoDeVenta = (nombre) => {
+    setTablaVentas(prev => {
+      const nuevaCantidad = prev[nombre].cantidad - 1;
+      const nuevoTotal = total - prev[nombre].precio;
+
+      if (nuevaCantidad === 0) {
+        const { [nombre]: _, ...resto } = prev;
+        setTotal(nuevoTotal);
+        return resto;
+      }
+
+      setTotal(nuevoTotal);
+      return {
+        ...prev,
+        [nombre]: {
+          ...prev[nombre],
+          cantidad: nuevaCantidad
+        }
+      };
+    });
+  };
+
+  const seleccionarProducto = (index) => {
+    if (productosSeleccionados.includes(index)) {
+      setProductosSeleccionados(productosSeleccionados.filter(i => i !== index));
+    } else {
+      setProductosSeleccionados([...productosSeleccionados, index]);
+    }
+  };
+
+  const retirarProductosSeleccionados = () => {
+    let nuevoTotal = total;
+    const nuevosProductos = { ...tablaVentas };
+
+    productosSeleccionados.forEach(index => {
+      const nombre = Object.keys(nuevosProductos)[index];
+      if (nuevosProductos[nombre]) {
+        nuevoTotal -= nuevosProductos[nombre].precio;
+        delete nuevosProductos[nombre];
+      }
+    });
+
+    setTablaVentas(nuevosProductos);
+    setTotal(nuevoTotal);
+    setProductosSeleccionados([]); 
+  };
 
   const togglePaymentOptions = () => {
     setPaymentOptionsVisible(!paymentOptionsVisible);
@@ -64,6 +129,9 @@ const Venta = () => {
               <span className="font-medium">{producto.nombre}</span>
               <span>{CURRENCY}{producto.precio}</span>
               <span>{producto.cantidad}</span>
+              <button className="text-green-500 mr-4" onClick={() => agregarProductoAVenta(producto)}>
+                Agregar
+              </button>
               <button className="text-red-500" onClick={() => eliminarProducto(producto.id)}>
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -71,6 +139,41 @@ const Venta = () => {
               </button>
             </div>
           ))}
+        </div>
+
+        {/* Tabla de ventas */}
+        <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
+          <h2 className="font-bold text-lg mb-4">Productos en la Venta</h2>
+          {Object.values(tablaVentas).map((producto, index) => (
+            <div key={index} className="flex justify-between items-center mb-4 border-b pb-2">
+              <input
+                type="checkbox"
+                checked={productosSeleccionados.includes(index)}
+                onChange={() => seleccionarProducto(index)}
+              />
+              <span className="font-medium">{producto.nombre} (x{producto.cantidad})</span>
+              <span>{CURRENCY}{producto.precio}</span>
+              {/* Botón para retirar uno de un producto */}
+              {producto.cantidad > 1 && (
+                <button className="text-red-500" onClick={() => retirarProductoDeVenta(producto.nombre)}>
+                  Quitar Uno
+                </button>
+              )}
+              {/* Botón para retirar completamente el producto */}
+              {producto.cantidad === 1 && (
+                <button className="text-red-500" onClick={() => retirarProductoDeVenta(producto.nombre)}>
+                  Retirar
+                </button>
+              )}
+            </div>
+          ))}
+          <button
+            className="bg-red-500 text-white p-3 rounded-lg mt-4"
+            onClick={retirarProductosSeleccionados}
+            disabled={productosSeleccionados.length === 0}
+          >
+            Retirar Seleccionados
+          </button>
         </div>
 
         {/* Métodos de pago */}
@@ -87,34 +190,23 @@ const Venta = () => {
         {paymentOptionsVisible && (
           <div className="bg-white p-4 rounded-lg shadow-lg mb-6">
             <h2 className="font-bold text-lg mb-4">Seleccionar Método de Pago</h2>
-            <button className="bg-blue-500 text-white p-3 rounded-lg w-full mb-2">Crédito</button>
-            <button className="bg-green-500 text-white p-3 rounded-lg w-full mb-2">Débito</button>
-            <button className="bg-yellow-500 text-white p-3 rounded-lg w-full mb-2">Depósito</button>
-            <button className="bg-gray-500 text-white p-3 rounded-lg w-full">Cheque</button>
+            <button className="bg-gray-500 text-white p-3 rounded-lg w-full mb-2">Efectivo</button>
+            <button className="bg-gray-500 text-white p-3 rounded-lg w-full">Tarjeta de Crédito/Débito</button>
           </div>
         )}
 
         {/* Opciones de documento */}
         {documentOptionsVisible && (
           <div className="bg-white p-4 rounded-lg shadow-lg mb-6">
-            <h2 className="font-bold text-lg mb-4">Seleccionar Documento</h2>
-            <button className="bg-blue-500 text-white p-3 rounded-lg w-full mb-2">Boleta</button>
-            <button className="bg-green-500 text-white p-3 rounded-lg w-full">Factura</button>
+            <h2 className="font-bold text-lg mb-4">Opciones de Documento</h2>
+            <button className="bg-gray-500 text-white p-3 rounded-lg w-full mb-2">Generar Boleta</button>
+            <button className="bg-gray-500 text-white p-3 rounded-lg w-full">Generar Factura</button>
           </div>
         )}
 
-        {/* Total y botones */}
-        <div className="bg-gray-800 text-white p-6 rounded-lg shadow-lg mb-6">
-          <div className="flex justify-between items-center">
-            <span className="text-2xl font-bold">Total:</span>
-            <span className="text-2xl font-bold">{CURRENCY}{total}</span>
-          </div>
-        </div>
-
-        {/* Botones de acción */}
-        <div className="grid grid-cols-2 gap-4">
-          <button className="bg-red-500 text-white p-4 rounded-lg">Cancelar</button>
-          <button className="bg-green-500 text-white p-4 rounded-lg">Vender</button>
+        {/* Total */}
+        <div className="bg-white p-4 rounded-lg shadow-lg">
+          <h2 className="font-bold text-lg">Total: {CURRENCY}{total}</h2>
         </div>
       </div>
     </div>
