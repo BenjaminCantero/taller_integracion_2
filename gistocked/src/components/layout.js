@@ -1,13 +1,18 @@
 
+"use client"
+
 import Link from 'next/link';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+//import { getServerSession } from 'next-auth/next';
+//import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import Button_User_Icon from './Button_User_Icon';
 import Button_Navigation_Menu from './Button_Navigation_Menu';
 
-async function Layout({ children }){
+import { useUser } from '@/app/globalsUsers'; // Asegúrate de la ruta correcta
 
-  const session = await getServerSession(authOptions);
+function Layout({ children }){
+
+  const { rolState, userInfo } = useUser(); // Usar el hook para acceder al contexto
+  // const session = await getServerSession(authOptions);
  
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
@@ -18,7 +23,8 @@ async function Layout({ children }){
 
           <div className="flex items-center space-x-4">
           {
-            !session?.user  ? (
+            // !session?.user && 
+            !userInfo  ? (
               <>
               
             {/* Login Button */}          
@@ -34,7 +40,8 @@ async function Layout({ children }){
                 {/* Desktop Navigation */}
                 {/* Cuando SI hay un usuario conectado Y es Vendedor*/}
                 <nav className="hidden md:flex space-x-6">
-                  {session.user.rol === 1 && (
+                  {/* session?.user?.rol === 1 || */}
+                  {( rolState === 1)&& (
                     <>
                       <Link href="/" className="hover:text-gray-400 transition-colors focus:outline-none">Inicio</Link>
                       <Link href="/products/" className="hover:text-gray-400 transition-colors focus:outline-none">Productos</Link>
@@ -44,7 +51,8 @@ async function Layout({ children }){
                     </>
                   )}
 
-                  {session.user.rol === 2 && (
+                  {/* session?.user?.rol === 2 || */}
+                  {( rolState === 2) && (
                     <>
                       <Link href="/" className="hover:text-gray-400 transition-colors focus:outline-none">Inicio</Link>
                       <Link href="/products/" className="hover:text-gray-400 transition-colors focus:outline-none">Productos</Link>
@@ -54,8 +62,8 @@ async function Layout({ children }){
                   )}
                 </nav>
                     
-                <Button_User_Icon nombreUsuario={ session.user.name }></Button_User_Icon>
-                <Button_Navigation_Menu nombreUsuario={ session.user.name } rolUsuario={ session.user.rol }></Button_Navigation_Menu>
+                <Button_User_Icon nombreUsuario={ userInfo.name }></Button_User_Icon>
+                <Button_Navigation_Menu nombreUsuario={ userInfo.name } rolUsuario={ userInfo.rol }></Button_Navigation_Menu>
 
                 
               </>

@@ -4,6 +4,8 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { useUser } from '@/app/globalsUsers';
+
 import Image from "next/image";
 import Link from "next/link";
 
@@ -12,19 +14,43 @@ export default function UserLogin() {
   const router = useRouter();
   const [error, setError] = useState(null)
 
-  const onSubmit = handleSubmit(async data => {
-    const res = await signIn("credentials", {
-      email: data.correo,
-      password: data.contrasena,
-      rol: data.rol,
-      redirect: false
-    });
+  const { updateRolState } = useUser();
 
-    if (res.error) {
-      setError(res.error)
+  const staticUsers = [
+    {name: "admin", email: "admin@gmail.com", password: "123", rol:1},
+    {name: "vendedor", email: "vendedor@gmail.com", password: "123", rol:2},
+  ]
+
+  const onSubmit = handleSubmit(async data => {
+    // Usuarios estático
+  
+    // Verifica si el usuario está en los usuarios estáticos
+    const staticUser = staticUsers.find(u => u.email === data.correo && u.password === data.contrasena && u.rol === data.rol);
+
+    if (staticUser) {
+      if (staticUser.rol == 1){
+        updateRolState(1)
+      } else {
+        updateRolState(2)
+      }
+
+      router.push("/");
+      router.refresh();
     } else {
-      router.push("/")
-      router.refresh()
+      // Si no se encuentra, proceder a consultar la base de datos
+      const res = await signIn("credentials", {
+        email: data.correo,
+        password: data.contrasena,
+        rol: data.rol,
+        redirect: false
+      });
+  
+      if (res.error) {
+        setError(res.error);
+      } else {
+        router.push("/");
+        router.refresh();
+      }
     }
   });
 
