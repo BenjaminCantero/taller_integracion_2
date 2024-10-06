@@ -1,191 +1,268 @@
 "use client";
-
 import React, { useState, useEffect } from 'react';
-import { CURRENCY, DEFAULT_TOTAL } from '../../constants';
 
 const Venta = () => {
-
-  const [data, setData] = useState([
+  const [productos, setProductos] = useState([
     { id: 1, nombre: 'Guantes Quirúrgicos', precio: 1500, stock: 50 },
-    { id: 2, nombre: 'Mascarillas N95', precio: 2500, stock: 50 },
-    { id: 3, nombre: 'Jeringas 5ml', precio: 500, stock: 50 },
-    { id: 4, nombre: 'Batas Desechables', precio: 3000, stock: 50 },
-    { id: 5, nombre: 'Alcohol Gel 500ml', precio: 3500, stock: 50 },
-    { id: 6, nombre: 'Termómetro Digital', precio: 7000, stock: 50 },
-    { id: 7, nombre: 'Oxímetro de Pulso', precio: 9500, stock: 50 },
-    { id: 8, nombre: 'Venda Elástica', precio: 1200, stock: 50 }
+    { id: 2, nombre: 'Mascarillas N95'    , precio: 2500, stock: 50 },
+    { id: 3, nombre: 'Jeringas 5ml'       , precio: 500 , stock: 10 },
   ]);
 
-  let [productos, setProductos] = useState([]);
+  const [tablaVentas, setTablaVentas] = useState({});
+  const [total, setTotal] = useState(0);
+  const [codigoBarras, setCodigoBarras] = useState('');
+  const [escanerVisible, setEscanerVisible] = useState(false); 
+  const [productosSeleccionados, setProductosSeleccionados] = useState([]);
+  
+  const [formaPago, setFormaPago] = useState('');
+  const [tipoComprobante, setTipoComprobante] = useState('');
 
   {/* ---------------------------------------------------------------------------- */}
   {/* ---------------------------------------------------------------------------- */}
   {/* ---------------------------------------------------------------------------- */}
 
-  function shuffleElements(data) {
-      let aux = data.slice();
+  const agregarProductoAVenta = (producto) => {
+    if (producto.stock > 0) {
+      let copiaProducto = { ...producto }
+      copiaProducto.cantidad = 0;
 
-      for (let i = aux.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [aux[i], aux[j]] = [aux[j], aux[i]];
-      }
-  
-      let selected = aux.slice(0, 8);
-  
-      // Eliminar elementos con stock igual a 0
-      selected = selected.filter(item => item.stock > 0);
-  
-      for (let j = 0; j < selected.length; j++) {
-        selected[j].cantidad = Math.floor(Math.random() * selected[j].stock) + 1;
-      }
-  
-      return selected;
-  }
-
-
-  const agregarProducto = () => {
-    setProductos(shuffleElements(data));
-  }
-
-
-  const calculaTotal = () => {
-    let total = 0
-    for (let i = 0; i < productos.length; i++) {
-      total += productos[i].precio * productos[i].cantidad;
+      if (copiaProducto.cantidad < copiaProducto.stock) {
+        setTablaVentas(prev => {
+            const nuevoTotal = prev[copiaProducto.nombre] ? prev[copiaProducto.nombre].cantidad + 1 : 1;
+            
+            // Verificamos que el nuevo total no exceda el stock
+            if (nuevoTotal <= copiaProducto.stock) {
+                const nuevoPrecio = prev[copiaProducto.nombre] ? prev[copiaProducto.nombre].precio + copiaProducto.precio : copiaProducto.precio;
+    
+                return {
+                    ...prev,
+                    [copiaProducto.nombre]: {
+                        ...copiaProducto,
+                        cantidad: nuevoTotal,
+                        precio: nuevoPrecio
+                    }
+                };
+            } else {
+                // Opcional: puedes manejar el caso en que no se pueda agregar más
+                console.log('No se puede agregar más productos, stock insuficiente.');
+                return prev; // Retorna el estado previo si no se puede agregar
+            }
+        });
     }
-    return total;
-  }
 
-
-  const eliminarProducto = (id) => {
-    setProductos(productos.filter(producto => producto.id !== id));
+    } else {
+      console.log("Producto sin stock")
+    }
+    
+    
+    setTotal(total + producto.precio);
   };
 
+  const retirarProductosSeleccionados = () => {
+    let nuevoTotal = total;
+    const nuevosProductos = { ...tablaVentas };
+
+    productosSeleccionados.forEach(index => {
+      const nombre = Object.keys(nuevosProductos)[index];
+      if (nuevosProductos[nombre]) {
+        nuevoTotal -= nuevosProductos[nombre].precio;
+        delete nuevosProductos[nombre];
+      }
+    });
+
+    setTablaVentas(nuevosProductos);
+    setTotal(nuevoTotal);
+    setProductosSeleccionados([]); 
+  };
 
   const venderProducto = () => {
-    const updatedData = [...data]; // Copia del estado original
-    for (let i = 0; i < productos.length; i++) {
-        updatedData[productos[i].id - 1].stock -= productos[i].cantidad;
+    const copiaProductos = { ...productos }
+    const arrayCopiaProductos = Object.values(copiaProductos);
+
+    const productosEnVenta = Object.values(tablaVentas);
+    const cantidadProductosEnVenta = Object.keys(tablaVentas).length;
+
+    for (let i = 0; i < cantidadProductosEnVenta; i++) {
+      arrayCopiaProductos[productosEnVenta[i].id -1].stock -= productosEnVenta[i].cantidad;
     }
 
-    setData(updatedData); // Actualiza el estado con el nuevo stock
-    setProductos([]); // Limpia productos
-    
-    console.log(updatedData);
+    console.log(arrayCopiaProductos);
+    setProductos(arrayCopiaProductos);
+    setTablaVentas([]);
   };
 
-  {/* ---------------------------------------------------------------------------- */}
-  {/* ---------------------------------------------------------------------------- */}
-  {/* ---------------------------------------------------------------------------- */}
 
-  const [total, setTotal] = useState(DEFAULT_TOTAL);
-  const [paymentOptionsVisible, setPaymentOptionsVisible] = useState(false);
-  const [documentOptionsVisible, setDocumentOptionsVisible] = useState(false);
-
-
-  const togglePaymentOptions = () => {
-    setPaymentOptionsVisible(!paymentOptionsVisible);
+  const manejarEscaneo = (e) => {
+    if (e.key === 'Enter' && codigoBarras.trim() !== '') {
+      const producto = productos.find(p => p.id.toString() === codigoBarras);
+      if (producto) {
+        agregarProductoAVenta(producto);
+        setCodigoBarras('');  
+      } else {
+        alert('Producto no encontrado.');
+      }
+    }
   };
 
-  
-  const toggleDocumentOptions = () => {
-    setDocumentOptionsVisible(!documentOptionsVisible);
+  const seleccionarFormaPago = (pago) => {
+    setFormaPago(pago);
+  };
+
+  const seleccionarComprobante = (comprobante) => {
+    setTipoComprobante(comprobante);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 text-black">
+    <div className="min-h-screen flex flex-col bg-gray-50 text-black">
       {/* Encabezado */}
-      <div className="bg-gray-800 text-white py-4 px-6">
-        <div className="container mx-auto flex justify-between items-center">
+      <div className="bg-gray-800 text-white py-4 px-6 w-full">
+        <div className="flex justify-between items-center">
           <button className="text-white">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
+            {/* Icono para retroceder */}
           </button>
           <h1 className="text-2xl font-bold">Venta</h1>
         </div>
       </div>
 
-      <div className="container mx-auto py-10 px-4">
-        {/* Barra de búsqueda */}
+      {/* Contenido principal */}
+      <div className="flex-grow container mx-auto py-10 px-4">
+        {/* Barra de búsqueda con escaneo */}
         <div className="flex items-center mb-6">
           <input
             type="text"
-            placeholder="Buscar"
+            placeholder="Buscar o escanear código de barras"
             className="border border-gray-300 rounded-lg p-3 w-full mr-4"
+            value={codigoBarras}
+            onChange={(e) => setCodigoBarras(e.target.value)}
+            onKeyDown={manejarEscaneo} 
           />
           <button className="bg-gray-200 p-3 rounded-lg text-black">Escáner QR</button>
-          <button className="ml-2 bg-gray-200 p-3 rounded-lg text-black">Escáner de Barra</button>
+          <button 
+            className="ml-2 bg-gray-200 p-3 rounded-lg text-black"
+            onClick={() => setEscanerVisible(!escanerVisible)}
+          >
+            Escáner de Barra
+          </button>
         </div>
 
-        {/* Lista de productos */}
-        <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
-            <div className="flex mb-2 border-b pb-2">
-              {/* 
-              <span className="font-medium flex-1">PRODUCTO</span>
-              <span className="flex-none w-24 text-left font-medium">PRECIO</span>
-              <span className="flex-none w-16 text-left font-medium">CANTIDAD</span>
-              */}
+        {/* Menú desplegable para escanear */}
+        {escanerVisible && (
+          <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
+            <h2 className="font-bold text-lg mb-4">Escanear Código de Barras</h2>
+            <input
+              type="text"
+              placeholder="Introduce el código o usa el lector"
+              className="border border-gray-300 rounded-lg p-3 w-full"
+              value={codigoBarras}
+              onChange={(e) => setCodigoBarras(e.target.value)}
+              onKeyDown={manejarEscaneo} 
+            />
+          </div>
+        )}
+
+        {/* ---------------------------------------------------------------------------- */}
+        {/* ---------------------------------------------------------------------------- */}
+        {/* ---------------------------------------------------------------------------- */}
+
+        {/* Productos disponibles */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10 w-full">
+          {productos.map((producto) => (
+            <div key={producto.id} className="bg-white p-6 rounded-lg shadow-md">
+
+              <h3 className="text-xl font-bold mb-2">{producto.nombre}</h3>
+
+              <p className="text-gray-700">Precio: ${producto.precio}</p>
+              <p className="text-gray-700">Cantidad en stock: {producto.stock}</p>
+              
+              <button
+                className="mt-4 bg-blue-500 text-white p-2 rounded-lg"
+                onClick={() => agregarProductoAVenta(producto)}
+              >
+                Agregar a la venta
+              </button>
             </div>
 
-            {productos.map((producto) => (
-                <div key={producto.id} className="flex justify-between items-center mb-4 border-b pb-2">
-                  <span className="flex-1">{producto.nombre}</span>
-                  <span className="flex-none w-24 text-left">{CURRENCY}{producto.precio}</span>
-                  <span className="flex-none w-16 text-left">{producto.cantidad}</span>
-
-                  <button className="text-red-500" onClick={() => eliminarProducto(producto.id)}>
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                      </svg>
-                  </button>
-                </div>
-            ))}
+          ))}
         </div>
 
-        {/* Métodos de pago */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <button className="bg-gray-200 p-4 rounded-lg text-black" onClick={togglePaymentOptions}>
-            {paymentOptionsVisible ? 'Cerrar Métodos de Pago' : 'Método de Pago'}
-          </button>
-          <button className="bg-gray-200 p-4 rounded-lg text-black" onClick={toggleDocumentOptions}>
-            {documentOptionsVisible ? 'Cerrar Opciones de Documento' : 'Boleta/Factura'}
-          </button>
-        </div>
+        {/* Tabla de ventas */}
+        <div className="bg-white p-6 rounded-lg shadow-md w-full">
+          <h2 className="text-2xl font-bold mb-4">Resumen de la Venta</h2>
+          <table className="table-auto w-full text-left">
+            <thead>
+              <tr>
+                <th className="px-4 py-2">Producto</th>
+                <th className="px-4 py-2">Cantidad</th>
+                <th className="px-4 py-2">Precio</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(tablaVentas).map(([nombre, producto], index) => (
+                <tr key={nombre}>
+                  <td className="border px-4 py-2">{nombre}</td>
+                  <td className="border px-4 py-2">{producto.cantidad}</td>
+                  <td className="border px-4 py-2">${producto.precio}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
-        {/* Opciones de pago */}
-        {paymentOptionsVisible && (
-          <div className="bg-white p-4 rounded-lg shadow-lg mb-6">
-            <h2 className="font-bold text-lg mb-4">Seleccionar Método de Pago</h2>
-            <button className="bg-blue-500 text-white p-3 rounded-lg w-full mb-2">Crédito</button>
-            <button className="bg-green-500 text-white p-3 rounded-lg w-full mb-2">Débito</button>
-            <button className="bg-yellow-500 text-white p-3 rounded-lg w-full mb-2">Depósito</button>
-            <button className="bg-gray-500 text-white p-3 rounded-lg w-full">Cheque</button>
+          {/* Formas de Pago */}
+          <div className="mt-6">
+            <h3 className="text-xl font-bold mb-2">Forma de Pago:</h3>
+            <div className="flex space-x-4">
+              <button
+                className={"p-2 rounded-lg ${formaPago === 'Efectivo' ? 'bg-green-500 text-white' : 'bg-gray-200 text-black'}"}
+                onClick={() => seleccionarFormaPago('Efectivo')}
+              >
+                Efectivo
+              </button>
+              <button
+                className={"p-2 rounded-lg ${formaPago === 'Tarjeta' ? 'bg-green-500 text-white' : 'bg-gray-200 text-black'}"}
+                onClick={() => seleccionarFormaPago('Tarjeta')}
+              >
+                Tarjeta
+              </button>
+              <button
+                className={"p-2 rounded-lg ${formaPago === 'Transferencia' ? 'bg-green-500 text-white' : 'bg-gray-200 text-black'}"}
+                onClick={() => seleccionarFormaPago('Transferencia')}
+              >
+                Transferencia
+              </button>
+            </div>
           </div>
-        )}
 
-        {/* Opciones de documento */}
-        {documentOptionsVisible && (
-          <div className="bg-white p-4 rounded-lg shadow-lg mb-6">
-            <h2 className="font-bold text-lg mb-4">Seleccionar Documento</h2>
-            <button className="bg-blue-500 text-white p-3 rounded-lg w-full mb-2">Boleta</button>
-            <button className="bg-green-500 text-white p-3 rounded-lg w-full">Factura</button>
+          {/* Tipo de Comprobante */}
+          <div className="mt-6">
+            <h3 className="text-xl font-bold mb-2">Tipo de Comprobante:</h3>
+            <div className="flex space-x-4">
+              <button
+                className={"p-2 rounded-lg ${tipoComprobante === 'Boleta' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}"}
+                onClick={() => seleccionarComprobante('Boleta')}
+              >
+                Boleta
+              </button>
+              <button
+                className={"p-2 rounded-lg ${tipoComprobante === 'Factura' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}"}
+                onClick={() => seleccionarComprobante('Factura')}
+              >
+                Factura
+              </button>
+            </div>
           </div>
-        )}
 
-        {/* Total y botones */}
-        <div className="bg-gray-800 text-white p-6 rounded-lg shadow-lg mb-6">
-          <div className="flex justify-between items-center">
-            <span className="text-2xl font-bold">Total:</span>
-            <span className="text-2xl font-bold">{CURRENCY}{calculaTotal()}</span>
+          {/* Total */}
+          <div className="flex justify-end items-end h-full">
+            <div className="inline-block mt-6 text-right">
+              <h3 className="text-xl font-bold">Total: ${total}</h3>
+            </div>
+
+            <div className="inline-block mt-6 text-right ml-4"> {/* Agregar margen a la izquierda para separar */}
+              <button onClick={venderProducto} className="bg-blue-500 text-white p-2 rounded-lg">
+                Vender
+              </button>
+            </div>
           </div>
-        </div>
-
-        {/* Botones de acción */}
-        <div className="grid grid-cols-2 gap-4">
-          <button className="bg-red-500 text-white p-4 rounded-lg">Cancelar</button>
-          <button onClick={venderProducto} className="bg-green-500 text-white p-4 rounded-lg">Vender</button>
-          <button onClick={agregarProducto} className="bg-yellow-500 text-white p-4 rounded-lg">Agregar</button>
         </div>
       </div>
     </div>
