@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 
 const Venta = () => {
   const [productos, setProductos] = useState([
-    { id: 1, nombre: 'Guantes Quirúrgicos', precio: 1500, stock: 50 },
-    { id: 2, nombre: 'Mascarillas N95'    , precio: 2500, stock: 50 },
+    { id: 1, nombre: 'Guantes Quirúrgicos', precio: 1500, stock: 25 },
+    { id: 2, nombre: 'Mascarillas N95'    , precio: 2500, stock: 30 },
     { id: 3, nombre: 'Jeringas 5ml'       , precio: 500 , stock: 10 },
   ]);
 
@@ -28,20 +28,22 @@ const Venta = () => {
 
       if (copiaProducto.cantidad < copiaProducto.stock) {
         setTablaVentas(prev => {
-            const nuevoTotal = prev[copiaProducto.nombre] ? prev[copiaProducto.nombre].cantidad + 1 : 1;
+            const cantidadDelProducto = prev[copiaProducto.nombre] ? prev[copiaProducto.nombre].cantidad + 1 : 1;
             
             // Verificamos que el nuevo total no exceda el stock
-            if (nuevoTotal <= copiaProducto.stock) {
-                const nuevoPrecio = prev[copiaProducto.nombre] ? prev[copiaProducto.nombre].precio + copiaProducto.precio : copiaProducto.precio;
+            if (cantidadDelProducto <= copiaProducto.stock) {
+                const productoPrecioTabla =  prev[copiaProducto.nombre] ? prev[copiaProducto.nombre].precio + producto.precio : copiaProducto.precio;
+                setTotal(total + copiaProducto.precio);
     
                 return {
                     ...prev,
-                    [copiaProducto.nombre]: {
+                      [copiaProducto.nombre]: {
                         ...copiaProducto,
-                        cantidad: nuevoTotal,
-                        precio: nuevoPrecio
+                        cantidad: cantidadDelProducto,
+                        precio: productoPrecioTabla,
                     }
                 };
+
             } else {
                 // Opcional: puedes manejar el caso en que no se pueda agregar más
                 console.log('No se puede agregar más productos, stock insuficiente.');
@@ -53,9 +55,6 @@ const Venta = () => {
     } else {
       console.log("Producto sin stock")
     }
-    
-    
-    setTotal(total + producto.precio);
   };
 
   const retirarProductosSeleccionados = () => {
@@ -89,6 +88,7 @@ const Venta = () => {
     console.log(arrayCopiaProductos);
     setProductos(arrayCopiaProductos);
     setTablaVentas([]);
+    setTotal(0)
   };
 
 
@@ -201,7 +201,7 @@ const Venta = () => {
                 <tr key={nombre}>
                   <td className="border px-4 py-2">{nombre}</td>
                   <td className="border px-4 py-2">{producto.cantidad}</td>
-                  <td className="border px-4 py-2">${producto.precio}</td>
+                  <td className="border px-4 py-2">${producto.precio.toLocaleString('es-CL')}</td>
                 </tr>
               ))}
             </tbody>
@@ -254,7 +254,7 @@ const Venta = () => {
           {/* Total */}
           <div className="flex justify-end items-end h-full">
             <div className="inline-block mt-6 text-right">
-              <h3 className="text-xl font-bold">Total: ${total}</h3>
+              <h3 className="text-xl font-bold">Total: ${total.toLocaleString('es-CL')}</h3>
             </div>
 
             <div className="inline-block mt-6 text-right ml-4"> {/* Agregar margen a la izquierda para separar */}
