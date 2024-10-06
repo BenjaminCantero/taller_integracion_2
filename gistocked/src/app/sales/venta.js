@@ -5,7 +5,7 @@ const Venta = () => {
   const [productos, setProductos] = useState([
     { id: 1, nombre: 'Guantes Quirúrgicos', precio: 1500, stock: 50 },
     { id: 2, nombre: 'Mascarillas N95'    , precio: 2500, stock: 50 },
-    { id: 3, nombre: 'Jeringas 5ml'       , precio: 500 , stock: 50 },
+    { id: 3, nombre: 'Jeringas 5ml'       , precio: 500 , stock: 10 },
   ]);
 
   const [tablaVentas, setTablaVentas] = useState({});
@@ -26,19 +26,30 @@ const Venta = () => {
       let copiaProducto = { ...producto }
       copiaProducto.cantidad = 0;
 
-      setTablaVentas(prev => {
-        const nuevoTotal = prev[copiaProducto.nombre] ? prev[copiaProducto.nombre].cantidad + 1 : 1;
-        const nuevoPrecio = prev[copiaProducto.nombre] ? prev[copiaProducto.nombre].precio + copiaProducto.precio : copiaProducto.precio;
+      if (copiaProducto.cantidad < copiaProducto.stock) {
+        setTablaVentas(prev => {
+            const nuevoTotal = prev[copiaProducto.nombre] ? prev[copiaProducto.nombre].cantidad + 1 : 1;
+            
+            // Verificamos que el nuevo total no exceda el stock
+            if (nuevoTotal <= copiaProducto.stock) {
+                const nuevoPrecio = prev[copiaProducto.nombre] ? prev[copiaProducto.nombre].precio + copiaProducto.precio : copiaProducto.precio;
+    
+                return {
+                    ...prev,
+                    [copiaProducto.nombre]: {
+                        ...copiaProducto,
+                        cantidad: nuevoTotal,
+                        precio: nuevoPrecio
+                    }
+                };
+            } else {
+                // Opcional: puedes manejar el caso en que no se pueda agregar más
+                console.log('No se puede agregar más productos, stock insuficiente.');
+                return prev; // Retorna el estado previo si no se puede agregar
+            }
+        });
+    }
 
-        return {
-          ...prev,
-          [producto.nombre]: {
-            ...producto,
-            cantidad: nuevoTotal,
-            precio: nuevoPrecio
-          }
-        };
-      });
     } else {
       console.log("Producto sin stock")
     }
