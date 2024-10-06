@@ -12,13 +12,15 @@ export async function POST(request) {
         // Se encriptan los datos
         const nombreEncriptado = await bcrypt.hash(data.nombre, 10)
         const correoEncriptado = await bcrypt.hash(data.correo, 10)
-        const contrasenaEncriptado = await bcrypt.hash(data.contrasena,10)
+        const contrasenaEncriptado = await bcrypt.hash(data.contrasena, 10)
+        // const rolEncriptado = await bcrypt.hash(data.rol, 10)
 
         // Envia los datos encriptados a la base de datos
         const usuario = await prisma.usuario.create(({
             data: {
-                nombre: nombreEncriptado,
-                correo: correoEncriptado,
+                nombre: data.nombre,
+                rolId: data.rol,
+                correo: data.correo,
                 contrasena: contrasenaEncriptado,
             }
         }))
@@ -27,6 +29,7 @@ export async function POST(request) {
             status:201
         })
     } catch (error) {
+        console.log(error)
         return new NextResponse(error.message, {status:500})
     }
 }
