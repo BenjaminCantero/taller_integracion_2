@@ -5,15 +5,14 @@ import { useState, useEffect } from "react";
 export default function Home() {
   const [products, setProducts] = useState([]);
   const [newProduct, setNewProduct] = useState({ name: "", category: "", quantity: "", price: "" });
-  const [editingIndex, setEditingIndex] = useState(null); // Controla si estamos editando
+  const [editingIndex, setEditingIndex] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 5;
 
-  // Obtener productos de la API
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const response = await fetch("/api/inventory"); // Asegúrate de que la ruta es correcta.
+        const response = await fetch('/api/inventory'); // Asegúrate de que la ruta es correcta.
         if (!response.ok) {
           throw new Error(`Error: ${response.status}`);
         }
@@ -24,14 +23,12 @@ export default function Home() {
       }
     }
 
-    fetchProducts(); // Invocar la función al montar el componente
-  }, []);
+    fetchProducts(); // Invocar la función
+  }, []); // Se ejecuta cuando el componente se monta
 
-  // Manejar el envío del formulario (agregar/editar producto)
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validación de campos
     if (!newProduct.name || !newProduct.category || isNaN(newProduct.quantity) || isNaN(newProduct.price)) {
       alert("Por favor, completa todos los campos correctamente.");
       return;
@@ -46,9 +43,9 @@ export default function Home() {
     try {
       if (editingIndex === null) {
         // Agregar un nuevo producto
-        const response = await fetch("/api/inventory", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        const response = await fetch('/api/inventory', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(productWithNumberValues),
         });
         if (!response.ok) {
@@ -57,58 +54,55 @@ export default function Home() {
       } else {
         // Editar un producto existente
         const response = await fetch(`/api/inventory/${products[editingIndex].id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(productWithNumberValues),
         });
         if (!response.ok) {
           throw new Error(`Error: ${response.status}`);
         }
-        setEditingIndex(null); // Resetea el índice de edición tras la actualización
+        setEditingIndex(null);
       }
 
       // Refresca los productos desde la base de datos
-      const refreshResponse = await fetch("/api/inventory");
+      const refreshResponse = await fetch('/api/inventory');
       const data = await refreshResponse.json();
       setProducts(data);
 
-      setNewProduct({ name: "", category: "", quantity: "", price: "" }); // Limpia el formulario
+      setNewProduct({ name: "", category: "", quantity: "", price: "" });
     } catch (error) {
       console.error("Error al agregar/editar producto:", error);
     }
   };
 
-  // Eliminar producto
   const deleteProduct = async (index) => {
     if (window.confirm("¿Estás seguro de que quieres eliminar este producto?")) {
       try {
         const response = await fetch(`/api/inventory/${products[index].id}`, {
-          method: "DELETE",
+          method: 'DELETE',
         });
         if (!response.ok) {
           throw new Error(`Error: ${response.status}`);
         }
 
-        const refreshResponse = await fetch("/api/inventory");
+        const refreshResponse = await fetch('/api/inventory');
         const data = await refreshResponse.json();
-        setProducts(data); // Refresca la lista tras la eliminación
+        setProducts(data);
       } catch (error) {
         console.error("Error al eliminar el producto:", error);
       }
     }
   };
 
-  // Cargar los datos del producto a editar
   const editProduct = (index) => {
     setNewProduct({
       ...products[index],
-      quantity: products[index].quantity.toString(), // Asegura que la cantidad se maneje como string en el formulario
-      price: products[index].price.toString(), // Convierte el precio a string
+      quantity: products[index].quantity.toString(),
+      price: products[index].price.toString(),
     });
-    setEditingIndex(index); // Define el índice del producto que se está editando
+    setEditingIndex(index);
   };
 
-  // Manejo de la paginación
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
@@ -152,7 +146,7 @@ export default function Home() {
               onChange={(e) => setNewProduct({ ...newProduct, quantity: e.target.value })}
               placeholder="Cantidad"
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              min="1"
+              min="1" // Mínimo valor aceptado
               required
             />
             <input
@@ -161,8 +155,8 @@ export default function Home() {
               onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
               placeholder="Precio"
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              min="0.01"
-              step="0.01"
+              min="0.01" // Mínimo valor aceptado
+              step="0.01" // Incrementos de centavos
               required
             />
             <button type="submit" className="w-full p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200">
@@ -216,15 +210,27 @@ export default function Home() {
               <button
                 key={page}
                 onClick={() => handlePageChange(page)}
-                className={`px-4 py-2 border rounded-lg ${
-                  currentPage === page ? "bg-blue-600 text-white" : "bg-white text-black"
-                } hover:bg-blue-500 hover:text-white transition duration-200`}
+                className={`px-4 py-2 rounded ${currentPage === page ? "bg-blue-500 text-white" : "bg-gray-200 text-black"}`}
               >
                 {page}
               </button>
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Alerta de productos con bajo stock */}
+      <div className="mt-8 w-full max-w-6xl bg-yellow-200 p-4 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold mb-2">Alerta: Productos con bajo stock (menos de 10 unidades)</h2>
+        <ul className="list-disc list-inside">
+          {products
+            .filter((product) => product.quantity < 10)
+            .map((product, index) => (
+              <li key={index} className="text-black">
+                {product.name} - {product.quantity} unidades restantes
+              </li>
+            ))}
+        </ul>
       </div>
     </main>
   );
