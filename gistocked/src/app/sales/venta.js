@@ -1,5 +1,4 @@
-"use client"; // Asegúrate de que esta línea esté aquí
-
+"use client";
 import React, { useState } from 'react';
 
 const Venta = () => {
@@ -52,6 +51,29 @@ const Venta = () => {
       }
       
       return resto;
+    });
+  };
+
+  const reducirCantidadProducto = (nombreProducto) => {
+    setTablaVentas(prev => {
+      const producto = prev[nombreProducto];
+
+      if (producto) {
+        if (producto.cantidad > 1) {
+          const nuevoTotal = total - producto.precio;
+          setTotal(nuevoTotal);
+          return {
+            ...prev,
+            [nombreProducto]: {
+              ...producto,
+              cantidad: producto.cantidad - 1,
+            }
+          };
+        } else {
+          eliminarProductoDeVenta(nombreProducto);
+        }
+      }
+      return prev;
     });
   };
 
@@ -167,12 +189,20 @@ const Venta = () => {
                   <td className="border px-4 py-2">{producto.cantidad}</td>
                   <td className="border px-4 py-2">${producto.precio}</td>
                   <td className="border px-4 py-2">
-                    <button
-                      className="bg-red-500 text-white p-1 rounded-lg"
-                      onClick={() => eliminarProductoDeVenta(nombre)}
-                    >
-                      Eliminar
-                    </button>
+                    <div className="flex space-x-2">
+                      <button
+                        className="bg-red-500 text-white p-1 rounded-lg"
+                        onClick={() => eliminarProductoDeVenta(nombre)}
+                      >
+                        Eliminar
+                      </button>
+                      <button
+                        className="bg-yellow-500 text-white p-1 rounded-lg"
+                        onClick={() => reducirCantidadProducto(nombre)}
+                      >
+                        ▼
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -203,33 +233,27 @@ const Venta = () => {
             </div>
           </div>
 
-          <div className="mt-6">
+          <div className="mt-4">
             <h3 className="text-xl font-bold mb-2">Tipo de Comprobante:</h3>
             <div className="flex space-x-4">
-              <button
-                className={`p-2 rounded-lg ${tipoComprobante === 'Boleta' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}`}
-                onClick={() => seleccionarComprobante('Boleta')}
-              >
-                Boleta
-              </button>
               <button
                 className={`p-2 rounded-lg ${tipoComprobante === 'Factura' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}`}
                 onClick={() => seleccionarComprobante('Factura')}
               >
                 Factura
               </button>
+              <button
+                className={`p-2 rounded-lg ${tipoComprobante === 'Boleta' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}`}
+                onClick={() => seleccionarComprobante('Boleta')}
+              >
+                Boleta
+              </button>
             </div>
           </div>
 
-          <div className="mt-4">
-            <h3 className="text-xl font-bold">Total a Pagar: ${total}</h3>
-          </div>
-
-          <button
-            className="mt-4 bg-green-500 text-white p-2 rounded-lg"
-            onClick={venderProducto}
-          >
-            Finalizar Venta
+          <h3 className="text-2xl font-bold mt-4">Total: ${total}</h3>
+          <button className="mt-6 bg-green-500 text-white p-2 rounded-lg" onClick={venderProducto}>
+            Realizar Venta
           </button>
         </div>
       </div>
