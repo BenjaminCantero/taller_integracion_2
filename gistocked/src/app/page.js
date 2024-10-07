@@ -1,80 +1,69 @@
-import './globals.css';
+import './globals.css'
 import Head from 'next/head';
+import React from 'react';
 
 const Home = () => {
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <Head>
-        <title>Gestión de Ventas e Inventario de Insumos Médicos</title>
-      </Head>
-
-      {/* Imagen de la tienda */}
-      <section className="mb-16">
-        <div className="relative">
-          <img src="/store-image.jpg" alt="Imagen de la tienda" className="w-full h-64 object-cover rounded-lg shadow-lg" />
-          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 rounded-lg">
-            <h1 className="text-4xl font-bold text-white">Bienvenidos a Nuestra Tienda de Insumos Médicos</h1>
-          </div>
-        </div>
-      </section>
-
-      {/* Historia de la tienda */}
-      <section className="mb-16 text-center">
-        <h2 className="text-4xl font-bold mb-6 text-gray-900">Nuestra Historia</h2>
-        <p className="text-lg text-gray-800">
-          En nuestra tienda, nos especializamos en ofrecer los mejores insumos médicos con la más alta calidad y atención. Fundada en 2020, nuestra misión es proporcionar productos médicos confiables y un servicio excepcional para ayudar a mejorar la salud y el bienestar. Trabajamos continuamente para superar tus expectativas.
-        </p>
-      </section>
-
-      {/* Productos de exhibición */}
-      <section className="mb-16">
-        <h2 className="text-4xl font-bold text-center mb-8 text-gray-900">Productos de Exhibición</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {[1, 2, 3].map((id) => (
-            <div key={id} className="bg-white border border-gray-300 rounded-lg overflow-hidden shadow-lg transform transition-transform hover:scale-105 hover:shadow-2xl">
-              <img src={`producto${id}.jpg`} alt={`Imagen de producto ${id}`} className="w-full h-48 object-cover" />
-              <div className="p-6">
-                <h3 className="text-2xl font-semibold text-gray-900 mb-2">Insumo Médico {id}</h3>
-                <p className="text-gray-800 mb-4">Descripción detallada del insumo médico {id}</p>
-                <p className="text-xl font-bold mb-4">$19.990 CLP</p>
-                <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors w-full">Comprar ahora</button>
-              </div>
+    return (
+        <>
+            <Head>
+                <title>Dashboard</title>
+            </Head>
+            <div className="dashboard">
+                <div className="main-content">
+                    <div className="header">
+                        <h2>Reporte General</h2>
+                        <div className="user-info">
+                            <input type="text" className="search-bar" placeholder="Buscar..." />
+                            <i className="fas fa-bell" style={{ marginLeft: '20px', fontSize: '20px', color: '#666' }}></i>
+                        </div>
+                    </div>
+                    <div className="widget-container">
+                        <div className="widget">
+                            <div className="widget-title">Total Ventas</div>
+                            <div className="widget-value">S/. 4,710.00</div>
+                            <span className="trend trend-up"><i className="fas fa-arrow-up"></i> 33%</span>
+                        </div>
+                        <div className="widget">
+                            <div className="widget-title">Total Compras</div>
+                            <div className="widget-value">S/. 3,721.00</div>
+                            <span className="trend trend-down"><i className="fas fa-arrow-down"></i> 2%</span>
+                        </div>
+                        <div className="widget">
+                            <div className="widget-title">Total Products</div>
+                            <div className="widget-value">350</div>
+                            <span className="trend trend-up"><i className="fas fa-arrow-up"></i> 12%</span>
+                        </div>
+                        <div className="widget">
+                            <div className="widget-title">Clientes</div>
+                            <div className="widget-value">1,500</div>
+                            <span className="trend trend-up"><i className="fas fa-arrow-up"></i> 22%</span>
+                        </div>
+                    </div>
+                    <div className="sales-report">
+                        <div className="report-header">
+                            <h3>Reporte de Ventas</h3>
+                            <div>
+                                <span className="date-range"><i className="far fa-calendar-alt"></i> 5 nov, 2022 - 5 dic, 2022</span>
+                                <button className="btn" style={{ marginLeft: '10px' }}>Recargar Datos</button>
+                            </div>
+                        </div>
+                        <div>
+                            <span style={{ fontWeight: 500, fontSize: '18px', marginRight: '20px' }}>$15,000</span>
+                            <span style={{ color: '#888' }}>Mes Actual</span>
+                            <span style={{ fontWeight: 500, fontSize: '18px', margin: '0 20px 0 40px' }}>$10,000</span>
+                            <span style={{ color: '#888' }}>Mes Anterior</span>
+                            <select style={{ marginLeft: '40px', padding: '5px', borderRadius: '5px' }}>
+                                <option>Filtrar por categoría</option>
+                            </select>
+                        </div>
+                        <div className="chart-container">
+                            <div className="chart-placeholder">Gráfico de Ventas</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Reseñas de clientes */}
-      <section className="mb-16 text-center">
-        <h2 className="text-4xl font-bold mb-6 text-gray-900">Reseñas de Nuestros Clientes</h2>
-        <div className="flex flex-col md:flex-row md:justify-around">
-          {[1, 2, 3].map((id) => (
-            <div key={id} className="bg-white border border-gray-300 rounded-lg p-6 shadow-lg mb-6 md:mb-0 md:w-1/3">
-              <p className="text-gray-800 mb-4">
-                "Excelente servicio y productos de alta calidad. Definitivamente volveré a comprar aquí. - Cliente {id}"
-              </p>
-              <h4 className="font-semibold text-gray-900">Cliente {id}</h4>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Preguntas o atención */}
-      <section className="mb-16">
-        <h2 className="text-4xl font-bold text-center mb-6 text-gray-900">Preguntas o Atención</h2>
-        <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
-          <h3 className="text-2xl font-semibold mb-4 text-gray-900">¿Tienes alguna pregunta?</h3>
-          <p className="text-lg text-gray-800 mb-4">Estamos aquí para ayudarte. Puedes contactarnos para resolver cualquier duda o solicitar atención.</p>
-          <form className="space-y-4">
-            <input type="text" placeholder="Nombre" className="w-full p-3 border border-gray-300 rounded-lg" />
-            <input type="email" placeholder="Correo electrónico" className="w-full p-3 border border-gray-300 rounded-lg" />
-            <textarea placeholder="Tu mensaje" className="w-full p-3 border border-gray-300 rounded-lg h-32"></textarea>
-            <button type="submit" className="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors w-full">Enviar Mensaje</button>
-          </form>
-        </div>
-      </section>
-    </div>
-  );
+        </>
+    );
 };
 
 export default Home;
