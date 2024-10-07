@@ -78,12 +78,12 @@ function Layout({ children }){
 
 
       {/* Main Content */}
-      <main className="flex-grow w-full h-full p-6">
+      <main className="flex-grow w-full h-full"> 
         {children}
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white shadow-md mt-8">
+      <footer className="bg-gray-900 text-white shadow-md mt-1">
         <div className="max-w-7xl mx-auto py-4 text-center">
           <p className="text-sm">&copy; 2024 Mi Tienda. Todos los derechos reservados.</p>
           <div className="mt-2 flex justify-center space-x-4">
