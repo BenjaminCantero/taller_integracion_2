@@ -44,7 +44,7 @@ function Layout({ children }){
                   {( rolState === 1)&& (
                     <>
                     <Link href="/Grafics" className="hover:text-gray-400 transition-colors focus:outline-none">Graficos</Link>
-                      <Link href="/" className="hover:text-gray-400 transition-colors focus:outline-none">Inicio</Link>
+                      <Link href="/Dashboard" className="hover:text-gray-400 transition-colors focus:outline-none">Inicio</Link>
                       <Link href="/products/" className="hover:text-gray-400 transition-colors focus:outline-none">Productos</Link>
                       <Link href="/sales/" className="hover:text-gray-400 transition-colors focus:outline-none">Ventas</Link>
                       <Link href="/inventory/" className="hover:text-gray-400 transition-colors focus:outline-none">Inventario</Link>
