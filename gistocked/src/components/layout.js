@@ -6,6 +6,7 @@ import Button_Navigation_Menu from "./Button_Navigation_Menu";
 import { useUser } from "@/app/globalsUsers"; // Asegúrate de que la ruta sea correcta
 import MenuItem from "./MenuItem"; // Importa el componente del menú
 
+
 function Layout({ children }) {
   const { rolState, userInfo } = useUser(); // Usar el hook para acceder al contexto
 
