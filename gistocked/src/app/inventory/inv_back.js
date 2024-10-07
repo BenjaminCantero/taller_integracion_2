@@ -4,6 +4,40 @@ const prisma = new PrismaClient();
 const app = express();
 const port = 3000;
 
+app.get('/api/inventory/search', async (req, res) => {
+  const { name, category, subcategory } = req.query;
+
+  try {
+    const filters = {};
+
+    if (name) {
+      filters.name = {
+        contains: name,
+        mode: 'insensitive',
+      };
+    }
+    if (category) {
+      filters.category = {
+        equals: category,
+        mode: 'insensitive',
+      };
+    }
+    if (subcategory) {
+      filters.subcategory = {
+        equals: subcategory,
+        mode: 'insensitive',
+      };
+    }
+
+    const products = await prisma.product.findMany({
+      where: filters,
+    });
+
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al buscar los productos' });
+  }
+});
 // Ruta para buscar productos por nombre
 app.get('/api/inve ntory/search', async (req, res) => {
   const { name } = req.query;

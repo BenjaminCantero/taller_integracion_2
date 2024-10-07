@@ -2,44 +2,67 @@
 import { useState, useEffect } from "react";
 import "./inv_stile.css";
 
-// Componente React (front-end)
 export default function Home() {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]); // Estado para almacenar las categorías
   const [newProduct, setNewProduct] = useState({ name: "", category: "", quantity: "", price: "" });
   const [editingIndex, setEditingIndex] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 5;
+
+  // Estados para los filtros de búsqueda
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchCategory, setSearchCategory] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+
+  // Función de búsqueda con filtros (nombre, categoría, rango de precios)
   const handleSearch = async () => {
     try {
-      const response = await fetch(`/api/inventory/search?name=${searchTerm}`);
+      const query = new URLSearchParams({
+        name: searchTerm,
+        category: searchCategory,
+        minPrice: minPrice || undefined,
+        maxPrice: maxPrice || undefined,
+      });
+
+      const response = await fetch(`/api/inventory/search?${query}`);
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
+
       const products = await response.json();
-      setProducts(products);    
+      setProducts(products);
     } catch (error) {
       console.error("Error al buscar productos:", error);
     }
-  }; 
+  };
 
+  // Obtener productos y categorías al montar el componente
   useEffect(() => {
-    // Llamada para obtener los productos desde la base de datos
     async function fetchProducts() {
       try {
-        const response = await fetch('/api/inventory'); // Asegúrate de que la ruta es correcta.
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status}`);
+        const productResponse = await fetch('/api/inventory');
+        if (!productResponse.ok) {
+          throw new Error(`Error: ${productResponse.status}`);
         }
-        const products = await response.json();
-        setProducts(products); // Actualizar el estado con los productos obtenidos
+        const products = await productResponse.json();
+        setProducts(products);
+
+        // Obtener categorías dinámicamente (si tienes una API para eso)
+        const categoryResponse = await fetch('/api/inventory/categories'); // Cambia esto si tienes una ruta específica para categorías
+        if (!categoryResponse.ok) {
+          throw new Error(`Error: ${categoryResponse.status}`);
+        }
+        const categories = await categoryResponse.json();
+        setCategories(categories); // Guardar las categorías en el estado
       } catch (error) {
-        console.error("Error al obtener los productos:", error);
+        console.error("Error al obtener los productos o categorías:", error);
       }
     }
 
-    fetchProducts(); // Invocar la función
-  }, []); // Se ejecuta cuando el componente se monta
+    fetchProducts();
+  }, []);
 
   // Función para agregar o editar un producto
   const handleSubmit = async (e) => {
@@ -58,7 +81,6 @@ export default function Home() {
 
     try {
       if (editingIndex === null) {
-        // Agregar un nuevo producto
         const response = await fetch('/api/inventory', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -68,7 +90,6 @@ export default function Home() {
           throw new Error(`Error: ${response.status}`);
         }
       } else {
-        // Editar un producto existente
         const response = await fetch(`/api/inventory/${products[editingIndex].id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -80,7 +101,6 @@ export default function Home() {
         setEditingIndex(null);
       }
 
-      // Refresca los productos desde la base de datos
       const refreshResponse = await fetch('/api/inventory');
       const data = await refreshResponse.json();
       setProducts(data);
@@ -134,6 +154,8 @@ export default function Home() {
   return (
     <main className="flex flex-col min-h-screen items-center p-12 bg-gray-100">
       <h1 className="text-4xl font-bold mb-8 text-center">Gestión de Stock</h1>
+
+      {/* Formulario de búsqueda */}
       <div className="w-full max-w-6xl mb-4">
         <input
           type="text"
@@ -142,6 +164,35 @@ export default function Home() {
           placeholder="Buscar producto por nombre"
           className="w-full p-3 border border-gray-300 rounded-lg"
         />
+        <select
+          value={searchCategory}
+          onChange={(e) => setSearchCategory(e.target.value)}
+          className="w-full p-3 border border-gray-300 rounded-lg mt-2"
+        >
+          <option value="">Seleccione Categoría</option>
+          {categories.map((category, index) => (
+            <option key={index} value={category}>
+              {category}
+            </option>
+          ))}
+        </select>
+        {/* Rango de precios */}
+        <input
+          type="number"
+          value={minPrice}
+          onChange={(e) => setMinPrice(e.target.value)}
+          placeholder="Precio Mínimo"
+          className="w-full p-3 border border-gray-300 rounded-lg mt-2"
+          min="0"
+        />
+        <input
+          type="number"
+          value={maxPrice}
+          onChange={(e) => setMaxPrice(e.target.value)}
+          placeholder="Precio Máximo"
+          className="w-full p-3 border border-gray-300 rounded-lg mt-2"
+          min="0"
+        />
         <button
           onClick={handleSearch}
           className="w-full mt-2 p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -149,6 +200,8 @@ export default function Home() {
           Buscar
         </button>
       </div>
+
+      {/* Listado de productos */}
       <div className="w-full max-w-6xl grid grid-cols-2 gap-8">
         {/* Formulario de agregar/editar producto */}
         <div className="bg-white p-6 rounded-lg shadow-md">
@@ -169,8 +222,11 @@ export default function Home() {
               required
             >
               <option value="">Seleccione Categoría</option>
-              <option value="Alimentos">Alimentos</option>
-              <option value="Bebidas">Bebidas</option>
+              {categories.map((category, index) => (
+                <option key={index} value={category}>
+                  {category}
+                </option>
+              ))}
             </select>
             <input
               type="number"
@@ -178,7 +234,7 @@ export default function Home() {
               onChange={(e) => setNewProduct({ ...newProduct, quantity: e.target.value })}
               placeholder="Cantidad"
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              min="1" // Mínimo valor aceptado
+              min="1"
               required
             />
             <input
@@ -187,8 +243,8 @@ export default function Home() {
               onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
               placeholder="Precio"
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              min="0.01" // Mínimo valor aceptado
-              step="0.01" // Incrementos de centavos
+              min="0.01"
+              step="0.01"
               required
             />
             <button type="submit" className="w-full p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
