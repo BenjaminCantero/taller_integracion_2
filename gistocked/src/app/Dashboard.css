@@ -1,0 +1,206 @@
+:root {
+    --primary-color: #3f51b5;
+    --secondary-color: #f0f2f5;
+    --text-color: #333;
+    --light-text: #888;
+    --white: #ffffff;
+    --shadow: 0 4px 6px rgba(2, 1, 1, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    display: flex;
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    height: 100vh; /* Se asegura de ocupar toda la altura de la ventana */
+}
+
+.dashboard {
+    display: flex;
+    width: 100vw; /* Asegura que ocupe todo el ancho de la ventana */
+    height: 100vh; /* Mantiene la altura de la ventana */
+    overflow: hidden; /* Evita el desbordamiento */
+}
+
+.sidebar {
+    width: 250px; /* Ajusta según tus necesidades */
+    height: 100vh; /* Asegura que ocupe toda la altura de la ventana */
+    background-color: var(--primary-color);
+    color: var(--white);
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.logo i {
+    margin-right: 10px;
+}
+
+.menu-item {
+    padding: 12px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+}
+
+.menu-item i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+.menu-item:hover,
+.menu-item.active {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.main-content {
+    flex-grow: 1; /* Permite que el contenido principal ocupe el espacio restante */
+    padding: 30px;
+    overflow-y: auto; /* Permite el desplazamiento vertical */
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.search-bar {
+    padding: 10px 15px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    width: 300px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.search-bar:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.2);
+}
+
+.widget-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap; /* Permite que los widgets se ajusten en varias filas */
+    margin-bottom: 30px;
+}
+
+.widget {
+    background-color: var(--white);
+    padding: 20px;
+    border-radius: 10px;
+    width: calc(50% - 10px); /* Ajusta el ancho para tener un margen */
+    margin-bottom: 20px; /* Espaciado inferior entre widgets */
+    box-shadow: var(--shadow);
+    transition: all 0.3s ease;
+}
+
+.widget:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.widget-title {
+    font-size: 14px;
+    color: var(--light-text);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.widget-value {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.trend {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.trend i {
+    margin-right: 5px;
+}
+
+.trend-up {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: #4caf50;
+}
+
+.trend-down {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+}
+
+.sales-report {
+    background-color: var(--white);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+}
+
+.report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.date-range {
+    font-size: 12px;
+    color: var(--light-text);
+}
+
+.btn {
+    background-color: var(--primary-color);
+    color: var(--white);
+    border: none;
+    border-radius: 5px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #3949ab;
+}
+
+.chart-container {
+    height: 300px;
+    background-color: #f7f7f7;
+    border-radius: 10px;
+    position: relative;
+}
+
+.chart-placeholder {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--light-text);
+    font-size: 18px;
+}

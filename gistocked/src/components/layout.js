@@ -78,10 +78,9 @@ function Layout({ children }){
 
 
       {/* Main Content */}
-      <main className="flex-grow max-w-7xl mx-auto p-6">
+      <main className="flex-grow w-full h-full p-6">
         {children}
       </main>
-
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white shadow-md mt-8">
