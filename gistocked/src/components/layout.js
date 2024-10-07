@@ -6,7 +6,6 @@ import Button_Navigation_Menu from "./Button_Navigation_Menu";
 import { useUser } from "@/app/globalsUsers"; // Asegúrate de que la ruta sea correcta
 import MenuItem from "./MenuItem"; // Importa el componente del menú
 
-
 function Layout({ children }) {
   const { rolState, userInfo } = useUser(); // Usar el hook para acceder al contexto
 
@@ -66,6 +65,12 @@ function Layout({ children }) {
                   href="/worker_management" 
                   iconClass="fas fa-users-cog" 
                   text="Gestión de Trabajadores"
+                  className="block py-3 px-5 rounded-lg hover:bg-blue-700 hover:shadow-lg transform hover:scale-105 transition-all duration-200 ease-in-out"
+                />
+                <MenuItem 
+                  href="/perfil" 
+                  iconClass="fas fa-users-cog" 
+                  text="Editar perfil"
                   className="block py-3 px-5 rounded-lg hover:bg-blue-700 hover:shadow-lg transform hover:scale-105 transition-all duration-200 ease-in-out"
                 />
               </nav>
@@ -130,6 +135,17 @@ function Layout({ children }) {
         <main className="flex-grow w-full h-full p-6">
           {children}
         </main>
+
+        {/* Footer */}
+        <footer className="bg-gray-900 text-white p-4">
+          <div className="text-center">
+            <p>&copy; 2024 Gistocked. Todos los derechos reservados.</p>
+            <div className="flex justify-center space-x-4 mt-2">
+              <Link href="/privacidad" className="text-indigo-300 hover:underline">Política de Privacidad</Link>
+              <Link href="/terminos" className="text-indigo-300 hover:underline">Términos de Servicio</Link>
+            </div>
+          </div>
+        </footer>
       </div>
     </div>
   );
