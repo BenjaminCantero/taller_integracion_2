@@ -14,17 +14,32 @@ datasource db {
 }
 
 model Rol {
-  id_rol Int      @id @default(autoincrement())
-  rol    String   @unique
-  usuarios Usuario[]
+  id            Int @id @default(autoincrement())
+  rol           String @unique
+  administradores Administradores[]
+  vendedores    Vendedores[]
 }
 
-model Usuario {
-  id_usuarios Int   @id @default(autoincrement())
-  rolId       Int
-  nombre      String
-  correo      String @unique
-  contrasena  String
+model Administradores {
+  id                       Int @id @default(autoincrement())
+  rol                      Int
+  nombre                   String
+  correo                   String @unique
+  contrasena               String
+  vendedoresSupervisados   Int
 
-  role Rol @relation(fields: [rolId], references: [id_rol])
+  role Rol @relation(fields: [rol], references: [id])
+  vendedoresAsociados Vendedores[] @relation("AdministradorVendedores")
+}
+
+model Vendedores {
+  id                       Int @id @default(autoincrement())
+  rol                      Int
+  nombre                   String
+  correo                   String @unique
+  contrasena               String
+  administradorAsociado    Int?
+
+  role Rol @relation(fields: [rol], references: [id])
+  administrador Administradores? @relation("AdministradorVendedores", fields: [administradorAsociado], references: [id])
 }

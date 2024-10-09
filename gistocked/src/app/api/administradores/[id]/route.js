@@ -2,11 +2,11 @@ import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export async function GET(request, { params }) {
-    const rol = parseInt(params.id);
+    const rolDetectado = parseInt(params.id);
 
     try {
-        const usuario = await prisma.usuario.findMany({
-            where: { rolId: rol },
+        const usuario = await prisma.administradores.findMany({
+            where: { rol: rolDetectado },
         });
 
         if (!usuario){
@@ -19,11 +19,11 @@ export async function GET(request, { params }) {
 }
 
 export async function DELETE(request, { params }) {
-    const id = parseFloat(params.id)
+    const idDetectado = parseFloat(params.id)
 
     try{
-        const result = await prisma.usuario.delete({
-            where: { id_usuarios: id },
+        const result = await prisma.administradores.delete({
+            where: { id: idDetectado },
         });
         return NextResponse.json({ message: result }, { status: 200 })
     } catch (error) {
@@ -32,7 +32,7 @@ export async function DELETE(request, { params }) {
 }
 
 export async function PUT(request, { params }) {
-    const id = parseInt(params.id);
+    const idDetectado = parseInt(params.id);
     const inputData = await request.json();
     const data = {};
 
@@ -50,8 +50,8 @@ export async function PUT(request, { params }) {
     }
 
     try {
-        const result = await prisma.usuario.update({
-            where: { id_usuarios: id },
+        const result = await prisma.administradores.update({
+            where: { id: idDetectado },
             data: data,
         });
 

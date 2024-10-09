@@ -1,28 +1,43 @@
-// NO BORRAR | ES LO MAS IMPORTANTE DEL CODIGO
-"use client"
 
+"use client"
 import Image from "next/image";
 import Link from "next/link";
 
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 
-export default function UserRegister( {setPagina} ) {
+export default function UserRegister( {setPagina, addAdministrador, addVendedor} ) {
 
     // Prepara las funciones importantes
     const { register, handleSubmit, setValue, formState: {errors} } = useForm();
-    const router = useRouter();
 
     // Función asociada al Formulario
     const onSubmit = handleSubmit( async (data) => {
-        // Envia los datos en formato JSON 
-        const res = await fetch("/api/usuario/", {method: "POST", body: JSON.stringify({nombre: data.nombre, correo:data.correo, contrasena: data.contrasena, rol: data.rol}), headers: {"Content-Type":"application/json"}});
+        let res
+        if (data.rol == 1) {
+          const additionalData = {vendedoresAsignados:0};
+          const finalData = {...data, ...additionalData};
 
-        // Luego de registrarse exitosamente redirige al Login
-        if (res.ok) {
-            router.push("../auth/UserLogin/")
+          addAdministrador(finalData);
+          setPagina(1);
+          //res = await fetch("/api/administradores/", {method: "POST", body: JSON.stringify({nombre: data.nombre, correo:data.correo, contrasena: data.contrasena, rol: data.rol}), headers: {"Content-Type":"application/json"}});
+        } else if (data.rol == 2) {
+          const additionalData = {administradorAsignado:null};
+          const finalData = {...data, ...additionalData};
+
+          addVendedor(finalData);
+          setPagina(1)
+          //res = await fetch("/api/vendedores/", {method: "POST", body: JSON.stringify({nombre: data.nombre, correo:data.correo, contrasena: data.contrasena, rol: data.rol}), headers: {"Content-Type":"application/json"}});
+        } else {
+          console.log('NO se pudo crear al Usuario')
         }
+        
+        /* 
+        Luego de registrarse exitosamente redirige al Login
+        if (res.ok) {
+            setPagina(1)
+        }
+        */
     });
 
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -36,10 +51,12 @@ export default function UserRegister( {setPagina} ) {
       setAccountType(type);
       setDropdownOpen(false);
 
-      if (type == "Admin") {
+      if (type == "Administrador") {
         setValue("rol", 1);
-      } else {
+      } else if (type == "Vendedor"){
         setValue("rol", 2);
+      } else {
+        console.log('rol no valido')
       }
     };
 
@@ -127,7 +144,7 @@ export default function UserRegister( {setPagina} ) {
                           onClick={() => handleAccountTypeChange("Administrador")}
                         >
                           
-                          Iniciar como Vendedor
+                          Administrador
                         </button>
                       </li>
                       <li>
@@ -135,7 +152,7 @@ export default function UserRegister( {setPagina} ) {
                           className="block px-4 py-2 text-black text-center hover:bg-gray-200 w-full text-left"
                           onClick={() => handleAccountTypeChange("Vendedor")}
                         >
-                          Iniciar como Admin
+                          Vendedor
                         </button>
                       </li>
                     </ul>
@@ -145,7 +162,7 @@ export default function UserRegister( {setPagina} ) {
 
               <li>
                 <div className="ss:h-12 2xl:h-16 bg-Colores_Login-3 rounded-md text-black text-center 2xl:text-3xl">
-                  <button onClick={e => setPagina(1)} type="submit" className="w-full h-full">Registrarse</button>
+                  <button type="submit" className="w-full h-full">Registrarse</button>
                 </div>
               </li>
             </ul>

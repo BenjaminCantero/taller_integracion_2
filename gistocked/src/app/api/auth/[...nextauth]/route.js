@@ -12,26 +12,52 @@ export const authOptions = {
                            rol: {label: "rol", type: "text"},
             },
             async authorize(credentials, req) {
-                const userFound = await prisma.usuario.findUnique({
-                    where: {
-                        correo: credentials.email
+                if (credentials.rol == 1) {
+                    const userFound = await prisma.administradores.findUnique({
+                        where: {
+                            correo: credentials.email
+                        }
+                    })
+    
+                    if (!userFound) throw new Error("Correo y/o Constraseña invalidos")
+    
+                    if (parseInt(userFound.rol) != parseInt(credentials.rol)) throw new Error("Tipo de rol invalido")
+                    
+                    const matchPassword = await bcrypt.compare(credentials.password, userFound.contrasena)
+    
+                    if (!matchPassword) throw new Error("Correo y/o Constraseña invalidos")
+    
+                    return {
+                        id: userFound.id,
+                        rol: userFound.rol,
+                        name: userFound.nombre,
+                        email: userFound.correo,
                     }
-                })
-
-                if (!userFound) throw new Error("Correo y/o Constraseña invalidos")
-
-                if (parseInt(userFound.rolId) != parseInt(credentials.rol)) throw new Error("Tipo de rol invalido")
-                
-                const matchPassword = await bcrypt.compare(credentials.password, userFound.contrasena)
-
-                if (!matchPassword) throw new Error("Correo y/o Constraseña invalidos")
-
-                return {
-                    id: userFound.id_usuarios,
-                    rol: userFound.rolId,
-                    name: userFound.nombre,
-                    email: userFound.correo,
+                } else if (credentials.rol == 2) {
+                    const userFound = await prisma.vendedores.findUnique({
+                        where: {
+                            correo: credentials.email
+                        }
+                    })
+    
+                    if (!userFound) throw new Error("Correo y/o Constraseña invalidos")
+    
+                    if (parseInt(userFound.rol) != parseInt(credentials.rol)) throw new Error("Tipo de rol invalido")
+                    
+                    const matchPassword = await bcrypt.compare(credentials.password, userFound.contrasena)
+    
+                    if (!matchPassword) throw new Error("Correo y/o Constraseña invalidos")
+    
+                    return {
+                        id: userFound.id,
+                        rol: userFound.rol,
+                        name: userFound.nombre,
+                        email: userFound.correo,
+                    }
+                } else {
+                    console.log('A ocurrido un error con el Login')
                 }
+                
             },
         }),
     ],

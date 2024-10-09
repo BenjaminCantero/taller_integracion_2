@@ -16,12 +16,13 @@ export async function POST(request) {
         // const rolEncriptado = await bcrypt.hash(data.rol, 10)
 
         // Envia los datos encriptados a la base de datos
-        const usuario = await prisma.usuario.create(({
+        const usuario = await prisma.vendedores.create(({
             data: {
                 nombre: data.nombre,
-                rolId: data.rol,
+                rol: data.rol,
                 correo: data.correo,
                 contrasena: contrasenaEncriptado,
+                //administradorAsociado: null,
             }
         }))
         return new NextResponse(JSON.stringify(usuario), {
