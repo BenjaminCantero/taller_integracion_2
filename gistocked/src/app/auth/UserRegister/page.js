@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 
-export default function UserRegister() {
+export default function UserRegister( {setPagina} ) {
 
     // Prepara las funciones importantes
     const { register, handleSubmit, setValue, formState: {errors} } = useForm();
@@ -46,7 +46,7 @@ export default function UserRegister() {
 
   // Codigo HTML 
   return (
-    <main className="ss:min-h-[600px] flex justify-center items-center">
+    <main className="ss:min-h-[600px] h-screen bg-gray-100 flex justify-center items-center">
         <form onSubmit={onSubmit} className="p-10 bg-Colores_Login-2 rounded-lg font-racing_sans_one">
             <ul className="grid grid-cols-1 grid-rows-7 gap-6 2xl:gap-2">
               <li>
@@ -123,8 +123,8 @@ export default function UserRegister() {
                     <ul className="py-1">
                       <li>
                         <button
-                          className="block px-4 py-2 text-black hover:bg-gray-200 w-full text-left"
-                          onClick={() => handleAccountTypeChange("Vendedor")}
+                          className="block px-4 py-2 text-black text-center hover:bg-gray-200 w-full text-left"
+                          onClick={() => handleAccountTypeChange("Administrador")}
                         >
                           
                           Iniciar como Vendedor
@@ -132,8 +132,8 @@ export default function UserRegister() {
                       </li>
                       <li>
                         <button
-                          className="block px-4 py-2 text-black hover:bg-gray-200 w-full text-left"
-                          onClick={() => handleAccountTypeChange("Admin")}
+                          className="block px-4 py-2 text-black text-center hover:bg-gray-200 w-full text-left"
+                          onClick={() => handleAccountTypeChange("Vendedor")}
                         >
                           Iniciar como Admin
                         </button>
@@ -145,7 +145,7 @@ export default function UserRegister() {
 
               <li>
                 <div className="ss:h-12 2xl:h-16 bg-Colores_Login-3 rounded-md text-black text-center 2xl:text-3xl">
-                  <button type="submit" className="w-full h-full">Registrarse</button>
+                  <button onClick={e => setPagina(1)} type="submit" className="w-full h-full">Registrarse</button>
                 </div>
               </li>
             </ul>

@@ -1,56 +1,48 @@
+
 "use client"
 import { useForm } from "react-hook-form";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { useState } from "react";
-
-import { useUser } from '@/app/globalsUsers';
 
 import Image from "next/image";
 import Link from "next/link";
 
-export default function UserLogin() {
+export default function UserLogin( { administradores, vendedores, setUsuarioActivo, setPagina } ) {
   const { register, handleSubmit, setValue, formState: {errors} } = useForm();
-  const router = useRouter();
+  // const router = useRouter();
   const [error, setError] = useState(null)
 
-  const { updateRolState } = useUser();
 
-  const staticUsers = [
-    {name: "admin", email: "admin@gmail.com", password: "123", rol:1},
-    {name: "vendedor", email: "vendedor@gmail.com", password: "123", rol:2},
-  ]
+  const onSubmit = handleSubmit(async data => {  
 
-  const onSubmit = handleSubmit(async data => {
-    // Usuarios estático
-  
     // Verifica si el usuario está en los usuarios estáticos
-    const staticUser = staticUsers.find(u => u.email === data.correo && u.password === data.contrasena && u.rol === data.rol);
+    const usuarioAdmin = Object.values(administradores).find(u => u.correo === data.correo && u.contrasena === data.contrasena && u.rol === data.rol);
+    const usuarioVendedor = Object.values(vendedores).find(u => u.correo === data.correo && u.contrasena === data.contrasena && u.rol === data.rol)
 
-    if (staticUser) {
-      if (staticUser.rol == 1){
-        updateRolState(1)
+    try {
+      if (usuarioAdmin && Object.keys(usuarioAdmin).length > 0) {
+          setUsuarioActivo(usuarioAdmin);
+      } else if (usuarioVendedor && Object.keys(usuarioVendedor).length > 0) {
+          setUsuarioActivo(usuarioVendedor);
       } else {
-        updateRolState(2)
-      }
-
-      router.push("/");
-      router.refresh();
-    } else {
-      // Si no se encuentra, proceder a consultar la base de datos
-      const res = await signIn("credentials", {
-        email: data.correo,
-        password: data.contrasena,
-        rol: data.rol,
-        redirect: false
-      });
+          // Si no se encuentra, proceder a consultar la base de datos
+          const res = await signIn("credentials", {
+              email: data.correo,
+              password: data.contrasena,
+              rol: data.rol,
+              redirect: false
+          });
   
-      if (res.error) {
-        setError(res.error);
-      } else {
-        router.push("/");
-        router.refresh();
+          if (res.error) {
+              setError(res.error);
+          } else {
+              setUsuarioActivo(data);
+          }
       }
+    } catch (error) {
+        console.error('Error al intentar iniciar sesión:', error);
+        setError('Ocurrió un error inesperado. Por favor, inténtalo de nuevo.');
     }
   });
 
@@ -65,15 +57,17 @@ export default function UserLogin() {
     setAccountType(type);
     setDropdownOpen(false);
 
-    if (type == "Admin") {
-      setValue("rol", 1);
+    if (type == "Administrador") {
+      setValue('rol', 1)
+    } else if (type == "Vendedor") {
+      setValue('rol', 2)
     } else {
-      setValue("rol", 2);
+      console.log('Rol no encontrado')
     }
   };
 
   return (
-    <div className="ss:min-h-[600px] flex justify-center items-center">
+    <div className="ss:min-h-[600px] h-screen bg-gray-100 flex justify-center items-center">
         <form onSubmit={onSubmit} className="p-10 bg-Colores_Login-2 rounded-lg font-racing_sans_one">
             <ul className="grid grid-cols-1 grid-rows-7 gap-6 2xl:gap-2">
               <li>
@@ -145,19 +139,18 @@ export default function UserLogin() {
                     <ul className="py-1">
                       <li>
                         <button
-                          className="block px-4 py-2 text-black hover:bg-gray-200 w-full text-left"
-                          onClick={() => handleAccountTypeChange("Vendedor")}
+                          className="block px-4 py-2 text-black text-center hover:bg-gray-200 w-full text-left"
+                          onClick={() => handleAccountTypeChange("Administrador")}
                         >
-                          
-                          Iniciar como Vendedor
+                          Administrador
                         </button>
                       </li>
                       <li>
                         <button
-                          className="block px-4 py-2 text-black hover:bg-gray-200 w-full text-left"
-                          onClick={() => handleAccountTypeChange("Admin")}
+                          className="block px-4 py-2 text-black text-center hover:bg-gray-200 w-full text-left"
+                          onClick={() => handleAccountTypeChange("Vendedor")}
                         >
-                          Iniciar como Admin
+                          Vendedor
                         </button>
                       </li>
                     </ul>
@@ -173,7 +166,7 @@ export default function UserLogin() {
 
               <li>
                 <div className="ss:h-12 2xl:h-16 text-white 2xl:text-3xl">
-                  <Link href="../../auth/UserRegister/">Registrarse</Link>
+                  <Link href="/auth/UserRegister/" onClick={e => setPagina(2)}>Registrarse</Link>
                 </div>
               </li>
             </ul>
