@@ -1,120 +1,260 @@
 "use client";
-
 import React, { useState } from 'react';
-import { CURRENCY, DEFAULT_TOTAL } from '../../constants';
 
 const Venta = () => {
   const [productos, setProductos] = useState([
-    { id: 1, nombre: 'Guantes Quirúrgicos', precio: 1500, cantidad: 10 },
-    { id: 2, nombre: 'Mascarillas N95', precio: 2500, cantidad: 20 },
-    { id: 3, nombre: 'Jeringas 5ml', precio: 500, cantidad: 50 },
-    { id: 4, nombre: 'Batas Desechables', precio: 3000, cantidad: 15 },
-    { id: 5, nombre: 'Alcohol Gel 500ml', precio: 3500, cantidad: 8 },
-    { id: 6, nombre: 'Termómetro Digital', precio: 7000, cantidad: 5 },
-    { id: 7, nombre: 'Oxímetro de Pulso', precio: 9500, cantidad: 3 },
-    { id: 8, nombre: 'Venda Elástica', precio: 1200, cantidad: 12 }
+    { id: 1, nombre: 'Guantes Quirúrgicos', precio: 1500, stock: 50 },
+    { id: 2, nombre: 'Mascarillas N95', precio: 2500, stock: 50 },
+    { id: 3, nombre: 'Jeringas 5ml', precio: 500, stock: 10 },
   ]);
 
-  const eliminarProducto = (id) => {
-    setProductos(productos.filter(producto => producto.id !== id));
+  const [tablaVentas, setTablaVentas] = useState({});
+  const [total, setTotal] = useState(0);
+  const [codigoBarras, setCodigoBarras] = useState('');
+  const [escanerVisible, setEscanerVisible] = useState(false);
+  const [formaPago, setFormaPago] = useState('');
+  const [tipoComprobante, setTipoComprobante] = useState('');
+
+  const agregarProductoAVenta = (producto) => {
+    if (producto.stock > 0) {
+      setTablaVentas(prev => {
+        const nuevoTotal = prev[producto.nombre] ? prev[producto.nombre].cantidad + 1 : 1;
+        
+        // Verificamos que el nuevo total no exceda el stock
+        if (nuevoTotal <= producto.stock) {
+          return {
+            ...prev,
+            [producto.nombre]: {
+              ...producto,
+              cantidad: nuevoTotal,
+            }
+          };
+        } else {
+          console.log('No se puede agregar más productos, stock insuficiente.');
+          return prev;
+        }
+      });
+      setTotal(total + producto.precio);
+    } else {
+      console.log("Producto sin stock");
+    }
   };
 
-  const [total, setTotal] = useState(DEFAULT_TOTAL);
-  const [paymentOptionsVisible, setPaymentOptionsVisible] = useState(false);
-  const [documentOptionsVisible, setDocumentOptionsVisible] = useState(false);
+  const eliminarProductoDeVenta = (nombreProducto) => {
+    setTablaVentas(prev => {
+      const { [nombreProducto]: producto, ...resto } = prev;
 
-  const togglePaymentOptions = () => {
-    setPaymentOptionsVisible(!paymentOptionsVisible);
+      if (producto) {
+        // Reducir el total en función de la cantidad del producto eliminado
+        const nuevoTotal = total - (producto.precio * producto.cantidad);
+        setTotal(nuevoTotal);
+      }
+      
+      return resto;
+    });
   };
 
-  const toggleDocumentOptions = () => {
-    setDocumentOptionsVisible(!documentOptionsVisible);
+  const reducirCantidadProducto = (nombreProducto) => {
+    setTablaVentas(prev => {
+      const producto = prev[nombreProducto];
+
+      if (producto) {
+        if (producto.cantidad > 1) {
+          const nuevoTotal = total - producto.precio;
+          setTotal(nuevoTotal);
+          return {
+            ...prev,
+            [nombreProducto]: {
+              ...producto,
+              cantidad: producto.cantidad - 1,
+            }
+          };
+        } else {
+          eliminarProductoDeVenta(nombreProducto);
+        }
+      }
+      return prev;
+    });
+  };
+
+  const venderProducto = () => {
+    const arrayCopiaProductos = [...productos];
+
+    const productosEnVenta = Object.values(tablaVentas);
+    for (const producto of productosEnVenta) {
+      const indice = arrayCopiaProductos.findIndex(p => p.id === producto.id);
+      if (indice !== -1) {
+        arrayCopiaProductos[indice].stock -= producto.cantidad;
+      }
+    }
+
+    console.log(arrayCopiaProductos);
+    setProductos(arrayCopiaProductos);
+    setTablaVentas({});
+    setTotal(0); // Resetea el total después de la venta
+  };
+
+  const manejarEscaneo = (e) => {
+    if (e.key === 'Enter' && codigoBarras.trim() !== '') {
+      const producto = productos.find(p => p.id.toString() === codigoBarras);
+      if (producto) {
+        agregarProductoAVenta(producto);
+        setCodigoBarras('');
+      } else {
+        alert('Producto no encontrado.');
+      }
+    }
+  };
+
+  const seleccionarFormaPago = (pago) => {
+    setFormaPago(pago);
+  };
+
+  const seleccionarComprobante = (comprobante) => {
+    setTipoComprobante(comprobante);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 text-black">
-      {/* Encabezado */}
-      <div className="bg-gray-800 text-white py-4 px-6">
-        <div className="container mx-auto flex justify-between items-center">
-          <button className="text-white">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-          </button>
+    <div className="min-h-screen flex flex-col bg-gray-50 text-black">
+      <div className="bg-gray-800 text-white py-4 px-6 w-full">
+        <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Venta</h1>
         </div>
       </div>
 
-      <div className="container mx-auto py-10 px-4">
-        {/* Barra de búsqueda */}
+      <div className="flex-grow container mx-auto py-10 px-4">
         <div className="flex items-center mb-6">
           <input
             type="text"
-            placeholder="Buscar"
+            placeholder="Buscar o escanear código de barras"
             className="border border-gray-300 rounded-lg p-3 w-full mr-4"
+            value={codigoBarras}
+            onChange={(e) => setCodigoBarras(e.target.value)}
+            onKeyDown={manejarEscaneo}
           />
           <button className="bg-gray-200 p-3 rounded-lg text-black">Escáner QR</button>
-          <button className="ml-2 bg-gray-200 p-3 rounded-lg text-black">Escáner de Barra</button>
+          <button 
+            className="ml-2 bg-gray-200 p-3 rounded-lg text-black"
+            onClick={() => setEscanerVisible(!escanerVisible)}
+          >
+            Escáner de Barra
+          </button>
         </div>
 
-        {/* Lista de productos */}
-        <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
+        {escanerVisible && (
+          <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
+            <h2 className="font-bold text-lg mb-4">Escanear Código de Barras</h2>
+            <input
+              type="text"
+              placeholder="Introduce el código o usa el lector"
+              className="border border-gray-300 rounded-lg p-3 w-full"
+              value={codigoBarras}
+              onChange={(e) => setCodigoBarras(e.target.value)}
+              onKeyDown={manejarEscaneo}
+            />
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10 w-full">
           {productos.map((producto) => (
-            <div key={producto.id} className="flex justify-between items-center mb-4 border-b pb-2">
-              <span className="font-medium">{producto.nombre}</span>
-              <span>{CURRENCY}{producto.precio}</span>
-              <span>{producto.cantidad}</span>
-              <button className="text-red-500" onClick={() => eliminarProducto(producto.id)}>
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
+            <div key={producto.id} className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-xl font-bold mb-2">{producto.nombre}</h3>
+              <p className="text-gray-700">Precio: ${producto.precio}</p>
+              <p className="text-gray-700">Cantidad en stock: {producto.stock}</p>
+              <button
+                className="mt-4 bg-blue-500 text-white p-2 rounded-lg"
+                onClick={() => agregarProductoAVenta(producto)}
+              >
+                Agregar a la venta
               </button>
             </div>
           ))}
         </div>
 
-        {/* Métodos de pago */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <button className="bg-gray-200 p-4 rounded-lg text-black" onClick={togglePaymentOptions}>
-            {paymentOptionsVisible ? 'Cerrar Métodos de Pago' : 'Método de Pago'}
+        <div className="bg-white p-6 rounded-lg shadow-md w-full">
+          <h2 className="text-2xl font-bold mb-4">Resumen de la Venta</h2>
+          <table className="table-auto w-full text-left">
+            <thead>
+              <tr>
+                <th className="px-4 py-2">Producto</th>
+                <th className="px-4 py-2">Cantidad</th>
+                <th className="px-4 py-2">Precio</th>
+                <th className="px-4 py-2">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(tablaVentas).map(([nombre, producto]) => (
+                <tr key={nombre}>
+                  <td className="border px-4 py-2">{nombre}</td>
+                  <td className="border px-4 py-2">{producto.cantidad}</td>
+                  <td className="border px-4 py-2">${producto.precio}</td>
+                  <td className="border px-4 py-2">
+                    <div className="flex space-x-2">
+                      <button
+                        className="bg-red-500 text-white p-1 rounded-lg"
+                        onClick={() => eliminarProductoDeVenta(nombre)}
+                      >
+                        Eliminar
+                      </button>
+                      <button
+                        className="bg-yellow-500 text-white p-1 rounded-lg"
+                        onClick={() => reducirCantidadProducto(nombre)}
+                      >
+                        ▼
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <div className="mt-6">
+            <h3 className="text-xl font-bold mb-2">Forma de Pago:</h3>
+            <div className="flex space-x-4">
+              <button
+                className={`p-2 rounded-lg ${formaPago === 'Efectivo' ? 'bg-green-500 text-white' : 'bg-gray-200 text-black'}`}
+                onClick={() => seleccionarFormaPago('Efectivo')}
+              >
+                Efectivo
+              </button>
+              <button
+                className={`p-2 rounded-lg ${formaPago === 'Tarjeta' ? 'bg-green-500 text-white' : 'bg-gray-200 text-black'}`}
+                onClick={() => seleccionarFormaPago('Tarjeta')}
+              >
+                Tarjeta
+              </button>
+              <button
+                className={`p-2 rounded-lg ${formaPago === 'Transferencia' ? 'bg-green-500 text-white' : 'bg-gray-200 text-black'}`}
+                onClick={() => seleccionarFormaPago('Transferencia')}
+              >
+                Transferencia
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <h3 className="text-xl font-bold mb-2">Tipo de Comprobante:</h3>
+            <div className="flex space-x-4">
+              <button
+                className={`p-2 rounded-lg ${tipoComprobante === 'Factura' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}`}
+                onClick={() => seleccionarComprobante('Factura')}
+              >
+                Factura
+              </button>
+              <button
+                className={`p-2 rounded-lg ${tipoComprobante === 'Boleta' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}`}
+                onClick={() => seleccionarComprobante('Boleta')}
+              >
+                Boleta
+              </button>
+            </div>
+          </div>
+
+          <h3 className="text-2xl font-bold mt-4">Total: ${total}</h3>
+          <button className="mt-6 bg-green-500 text-white p-2 rounded-lg" onClick={venderProducto}>
+            Realizar Venta
           </button>
-          <button className="bg-gray-200 p-4 rounded-lg text-black" onClick={toggleDocumentOptions}>
-            {documentOptionsVisible ? 'Cerrar Opciones de Documento' : 'Boleta/Factura'}
-          </button>
-        </div>
-
-        {/* Opciones de pago */}
-        {paymentOptionsVisible && (
-          <div className="bg-white p-4 rounded-lg shadow-lg mb-6">
-            <h2 className="font-bold text-lg mb-4">Seleccionar Método de Pago</h2>
-            <button className="bg-blue-500 text-white p-3 rounded-lg w-full mb-2">Crédito</button>
-            <button className="bg-green-500 text-white p-3 rounded-lg w-full mb-2">Débito</button>
-            <button className="bg-yellow-500 text-white p-3 rounded-lg w-full mb-2">Depósito</button>
-            <button className="bg-gray-500 text-white p-3 rounded-lg w-full">Cheque</button>
-          </div>
-        )}
-
-        {/* Opciones de documento */}
-        {documentOptionsVisible && (
-          <div className="bg-white p-4 rounded-lg shadow-lg mb-6">
-            <h2 className="font-bold text-lg mb-4">Seleccionar Documento</h2>
-            <button className="bg-blue-500 text-white p-3 rounded-lg w-full mb-2">Boleta</button>
-            <button className="bg-green-500 text-white p-3 rounded-lg w-full">Factura</button>
-          </div>
-        )}
-
-        {/* Total y botones */}
-        <div className="bg-gray-800 text-white p-6 rounded-lg shadow-lg mb-6">
-          <div className="flex justify-between items-center">
-            <span className="text-2xl font-bold">Total:</span>
-            <span className="text-2xl font-bold">{CURRENCY}{total}</span>
-          </div>
-        </div>
-
-        {/* Botones de acción */}
-        <div className="grid grid-cols-2 gap-4">
-          <button className="bg-red-500 text-white p-4 rounded-lg">Cancelar</button>
-          <button className="bg-green-500 text-white p-4 rounded-lg">Vender</button>
         </div>
       </div>
     </div>

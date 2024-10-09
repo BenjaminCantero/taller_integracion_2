@@ -6,23 +6,42 @@ import Link from "next/link";
 
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { useState } from "react";
 
 export default function UserRegister() {
 
     // Prepara las funciones importantes
-    const { register, handleSubmit } = useForm();
+    const { register, handleSubmit, setValue, formState: {errors} } = useForm();
     const router = useRouter();
 
     // Función asociada al Formulario
     const onSubmit = handleSubmit( async (data) => {
         // Envia los datos en formato JSON 
-        const res = await fetch("/api/usuario/", {method: "POST", body: JSON.stringify({nombre: data.nombre, correo:data.correo, contrasena: data.contrasena}), headers: {"Content-Type":"application/json"}});
+        const res = await fetch("/api/usuario/", {method: "POST", body: JSON.stringify({nombre: data.nombre, correo:data.correo, contrasena: data.contrasena, rol: data.rol}), headers: {"Content-Type":"application/json"}});
 
         // Luego de registrarse exitosamente redirige al Login
         if (res.ok) {
-            router.push("../../")
+            router.push("../auth/UserLogin/")
         }
     });
+
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [accountType, setAccountType] = useState("Tipo de cuenta");
+
+    const toggleDropdown = () => {
+      setDropdownOpen(!dropdownOpen);
+    };
+
+    const handleAccountTypeChange = (type) => {
+      setAccountType(type);
+      setDropdownOpen(false);
+
+      if (type == "Admin") {
+        setValue("rol", 1);
+      } else {
+        setValue("rol", 2);
+      }
+    };
 
 
   // Codigo HTML 
@@ -59,20 +78,69 @@ export default function UserRegister() {
 
               <li>
                 <div className="ss:h-12 2xl:h-16 rounded-md text-black 2xl:text-3xl">
-                  <input {...register("nombre", {require: true})} type="text" placeholder="Nombre de Usuario" className="px-5 w-full h-full rounded-md bg-Colores_Login-3"></input>
+                  <input {...register("nombre", {required: {value:true, message: "El nombre de usuario es requerido"}})} type="text" placeholder="Nombre de Usuario" className="px-5 w-full h-full rounded-md bg-Colores_Login-3"></input>
+                  {
+                    errors.nombre && ( <span className="text-red-500"> {errors.nombre.message} </span> )
+                  }
                 </div>
               </li>
 
               <li>
                 <div className="ss:h-12 2xl:h-16 rounded-md text-black 2xl:text-3xl">
-                  <input {...register("correo", {require: true})} type="email" placeholder="Correo" className="px-5 w-full h-full rounded-md bg-Colores_Login-3"></input>
+                  <input {...register("correo", {required: {value:true, message: "El correo es requerido"}})} type="email" placeholder="Correo" className="px-5 w-full h-full rounded-md bg-Colores_Login-3"></input>
+                  {
+                    errors.correo && ( <span className="text-red-500"> {errors.correo.message} </span> )
+                  }
                 </div>
               </li>
 
               <li>
                 <div className="ss:h-12 2xl:h-16 rounded-md text-black 2xl:text-3xl">
-                  <input {...register("contrasena", {require: true})} type="password" placeholder="Contraseña" className="px-5 w-full h-full rounded-md bg-Colores_Login-3"></input>
+                  <input {...register("contrasena", {required: {value:true, message: "La contraseña es requerida"}})} type="password" placeholder="Contraseña" className="px-5 w-full h-full rounded-md bg-Colores_Login-3"></input>
+                  {
+                    errors.contrasena && ( <span className="text-red-500"> {errors.contrasena.message} </span> )
+                  }
                 </div>
+              </li>
+
+              {/* Botón para seleccionar tipo de cuenta */}
+              <li className="relative">
+                <button
+                  type="button"
+                  className="bg-Colores_Login-3 text-black px-4 py-2 rounded-md 2xl:text-3xl w-full"
+                  onClick={toggleDropdown}
+                  {...register("rol", {required: {value:true, message: "El rol es requerido"}})}
+                >
+                  {accountType}
+                </button>
+                {
+                  errors.rol && ( <span className="text-red-500"> {errors.rol.message} </span> )
+                }
+
+                {/* Dropdown */}
+                {dropdownOpen && (
+                  <div className="absolute mt-2 w-full bg-white rounded-md shadow-lg z-10">
+                    <ul className="py-1">
+                      <li>
+                        <button
+                          className="block px-4 py-2 text-black hover:bg-gray-200 w-full text-left"
+                          onClick={() => handleAccountTypeChange("Vendedor")}
+                        >
+                          
+                          Iniciar como Vendedor
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className="block px-4 py-2 text-black hover:bg-gray-200 w-full text-left"
+                          onClick={() => handleAccountTypeChange("Admin")}
+                        >
+                          Iniciar como Admin
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                )}
               </li>
 
               <li>

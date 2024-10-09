@@ -31,12 +31,13 @@ export default async function handler(req, res) {
 
 
 export async function GET(request, { params }) {
-    const nombre = params.id;
+    const rol = parseInt(params.id);
 
     try {
-        const usuario = await prisma.Usuario_Main_2.findFirst({
-            where: { nombre: nombre },
+        const usuario = await prisma.usuario.findMany({
+            where: { rolId: rol },
         });
+
         if (!usuario){
             return new NextResponse("Usuario NO Encontrado", { status: 404 })
         }
@@ -47,34 +48,47 @@ export async function GET(request, { params }) {
 }
 
 export async function DELETE(request, { params }) {
-    const nombre = params.id
+    const id = parseFloat(params.id)
 
     try{
-        const result = await prisma.Usuario_Main_2.delete({
-            where: { nombre: nombre },
+        const result = await prisma.usuario.delete({
+            where: { id_usuarios: id },
         });
-        return NextResponse.json({ message: result }, { status: 200 });
-    } catch (errror) {
-        return new NextResponse(error.menssage, {status: 500})
+        return NextResponse.json({ message: result }, { status: 200 })
+    } catch (error) {
+        return new NextResponse(error.menssage, {status: 500});
     }
 }
 
 export async function PUT(request, { params }) {
-    console.log(params.id)
-    const nombre = params.id
-    const data = await request.json();
+    const id = parseInt(params.id);
+    const inputData = await request.json();
+    const data = {};
+
+    // Condicionales para agregar solo campos no vacíos
+    if (inputData.nombre && inputData.nombre.trim() !== "") {
+        data.nombre = inputData.nombre;
+    }
+
+    if (inputData.correo && inputData.correo.trim() !== "") {
+        data.correo = inputData.correo;
+    }
+
+    if (inputData.contrasena && inputData.contrasena.trim() !== "") {
+        data.contrasena = inputData.contrasena;
+    }
 
     try {
-        const result = await prisma.Usuario_Main_2.update({
-            where: { nombre: nombre },
+        const result = await prisma.usuario.update({
+            where: { id_usuarios: id },
             data: data,
         });
 
         if (!result) {
-            return new NextResponse("Usuario NO Encontrado", { status: 404,});
+            return new NextResponse("Usuario NO Encontrado", { status: 404 });
         }
-        return NextResponse.json({message:result}, {status:200})
+        return NextResponse.json({ message: result }, { status: 200 });
     } catch (error) {
-        return new NextResponse(error.message, {status: 500})
+        return new NextResponse(error.message, { status: 500 });
     }
 }
