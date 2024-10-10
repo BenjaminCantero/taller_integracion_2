@@ -5,6 +5,7 @@ import UserLogin from './auth/UserLogin/page';
 import { useState, useEffect } from 'react';
 import './globals.css';
 import UserRegister from './auth/UserRegister/page';
+import Login from './auth/login/page';
 
 export default function RootLayout({ children }) {
   const [pagina, setPagina] = useState(1);
@@ -62,6 +63,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es">
       <body>
+        <Login></Login>
+      {/*
       {
         Object.keys(usuarioActivo).length === 0 && pagina == 1
         ? <UserLogin 
@@ -80,6 +83,7 @@ export default function RootLayout({ children }) {
             )
         )
       }
+      */}
       </body>
     </html>
   );
