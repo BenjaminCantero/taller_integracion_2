@@ -1,18 +1,19 @@
-// src/app/layout.js
+"use client";
+
 import './globals.css';
-import Layout from './components/layout';
+import Sidebar from './components/sidebar';
 
-export const metadata = {
-  title: 'Gistoked',
-  description: 'Zona de ventas',
-};
-
-export default function RootLayout({ children }) {
+const Layout = ({ children }) => {
   return (
     <html lang="es">
-      <body>
-        <Layout>{children}</Layout>
+      <body className="flex min-h-screen">
+        <Sidebar />
+        <div className="flex-1 p-6 bg-gray-100">
+          {children}
+        </div>
       </body>
     </html>
   );
-}
+};
+
+export default Layout;
