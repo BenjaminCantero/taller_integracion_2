@@ -1,6 +1,9 @@
-// components/Sidebar.js
-"use client"; // Indica que este es un componente de cliente
+// src/app/components/sidebar.js
+"use client"; // Marcamos que este es un Client Component
+
 import Link from 'next/link';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHome, faTachometerAlt, faUsers, faBoxes, faShoppingCart, faCog, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 
 const Sidebar = () => {
   return (
@@ -17,42 +20,42 @@ const Sidebar = () => {
           <li>
             <Link href="/">
               <span className="flex items-center p-3 text-lg hover:bg-gray-700 hover:text-yellow-400 rounded-lg transition-colors">
-                <i className="fas fa-home mr-4"></i> Inicio
+                <FontAwesomeIcon icon={faHome} className="mr-4" /> Inicio
               </span>
             </Link>
           </li>
           <li>
             <Link href="/dashboard">
               <span className="flex items-center p-3 text-lg hover:bg-gray-700 hover:text-yellow-400 rounded-lg transition-colors">
-                <i className="fas fa-tachometer-alt mr-4"></i> Dashboard
+                <FontAwesomeIcon icon={faTachometerAlt} className="mr-4" /> Dashboard
               </span>
             </Link>
           </li>
           <li>
             <Link href="/usuarios">
               <span className="flex items-center p-3 text-lg hover:bg-gray-700 hover:text-yellow-400 rounded-lg transition-colors">
-                <i className="fas fa-users mr-4"></i> Usuarios
+                <FontAwesomeIcon icon={faUsers} className="mr-4" /> Usuarios
               </span>
             </Link>
           </li>
           <li>
             <Link href="/productos">
               <span className="flex items-center p-3 text-lg hover:bg-gray-700 hover:text-yellow-400 rounded-lg transition-colors">
-                <i className="fas fa-boxes mr-4"></i> Productos
+                <FontAwesomeIcon icon={faBoxes} className="mr-4" /> Productos
               </span>
             </Link>
           </li>
           <li>
             <Link href="/ventas">
               <span className="flex items-center p-3 text-lg hover:bg-gray-700 hover:text-yellow-400 rounded-lg transition-colors">
-                <i className="fas fa-shopping-cart mr-4"></i> Ventas
+                <FontAwesomeIcon icon={faShoppingCart} className="mr-4" /> Ventas
               </span>
             </Link>
           </li>
           <li>
             <Link href="/configuracion">
               <span className="flex items-center p-3 text-lg hover:bg-gray-700 hover:text-yellow-400 rounded-lg transition-colors">
-                <i className="fas fa-cog mr-4"></i> Configuración
+                <FontAwesomeIcon icon={faCog} className="mr-4" /> Configuración
               </span>
             </Link>
           </li>
@@ -63,7 +66,7 @@ const Sidebar = () => {
       <div className="user-info">
         <p className="mb-4">Bienvenido, Admin</p>
         <button className="logout-btn flex items-center p-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">
-          <i className="fas fa-sign-out-alt mr-2"></i> Cerrar Sesión
+          <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" /> Cerrar Sesión
         </button>
       </div>
     </div>
