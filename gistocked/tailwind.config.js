@@ -28,6 +28,10 @@ module.exports = {
 
       fontFamily: {
         racing_sans_one: ["Racing Sans One"]
+      },
+
+      transitionDuration: {
+        '2000': '2000ms',
       }
     },
   },

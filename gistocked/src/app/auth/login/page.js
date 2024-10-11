@@ -19,7 +19,7 @@ export default function Login() {
             id.classList.add('visible', 'opacity-0');
     
             setTimeout(() => {
-                id.classList.add('transition', 'duration-1000', 'ease-linear', 'opacity-100');
+                id.classList.add('transition', 'duration-2000', 'ease-linear', 'delay-150', 'opacity-100');
             }, 10);
     
             // Oculta los métodos de inicio de sesión
@@ -43,7 +43,7 @@ export default function Login() {
             id.classList.add('visible', 'opacity-0');
     
             setTimeout(() => {
-                id.classList.add('transition', 'duration-1000', 'ease-linear', 'opacity-100');
+                id.classList.add('transition', 'duration-2000', 'ease-linear', 'delay-150', 'opacity-100');
             }, 10);
     
             if (sesion.classList.contains('visible')) {
@@ -62,7 +62,7 @@ export default function Login() {
             let sesion = document.getElementById('tipoSesion');
 
             if (id.classList.contains('visible') && id.classList.contains('opacity-100')) {
-                id.classList.remove('visible', 'transition', 'duration-1000', 'ease-linear', 'opacity-100');
+                id.classList.remove('visible', 'transition', 'duration-2000', 'ease-linear', 'delay-150', 'opacity-100', 'opacity-0');
                 id.classList.add('invisible', 'hidden');
 
                 if (sesion.classList.contains('invisible') && sesion.classList.contains('hidden')) {
@@ -76,7 +76,7 @@ export default function Login() {
             let sesion = document.getElementById('tipoSesion');
 
             if (id.classList.contains('visible') && id.classList.contains('opacity-100')) {
-                id.classList.remove('visible', 'transition', 'duration-1000', 'ease-linear', 'opacity-100');
+                id.classList.remove('visible', 'transition', 'duration-2000', 'ease-linear', 'delay-150', 'opacity-100', 'opacity-0');
                 id.classList.add('invisible', 'hidden');
 
                 if (sesion.classList.contains('invisible') && sesion.classList.contains('hidden')) {
@@ -149,23 +149,22 @@ export default function Login() {
     return (
         
         <div className='h-screen flex items-center justify-center bg-gray-100'>
-            <main className='p-5 border border-black rounded-md bg-white'>
-                <div id='tipoSesion' className='visible'>
-                    <ul className='space-y-6 text-black'>
-                        {/* ------------------------------------------------------------- */}
-                        {/* ------------------- Bienvenida al Cliente ------------------- */}
-                        {/* ------------------------------------------------------------- */}
+            <main className='p-5 shadow-lg shadow-blue-950 rounded-md bg-gray-800'>
+                {/* ------------------------------------------------------------- */}
+                {/* -------------------- Aciones del usuario -------------------- */}
+                {/* ------------------------------------------------------------- */}
+                <div id='tipoSesion' className='p-8 visible'>
+                    <ul className='space-y-6 text-white'>
+                         {/* ------------------ Bienvenida al cliente ------------------- */}
                         <li className='font-racing_sans_one text-center'>
                             <div>
                                 <h2 className='text-4xl'>Bienvenido a Gistocked</h2>
                             </div>
                         </li>
 
-                        {/* ------------------------------------------------------------- */}
                         {/* --------------------- Inicio de Sesion  --------------------- */}
-                        {/* ------------------------------------------------------------- */}
                         <li className='font-racing_sans_one text-center text-lg'>
-                            <div className='py-1 border border-black rounded-xl'>
+                            <div className='py-1 border border-white rounded-xl'>
                                 <button
                                 onClick={iniciarSesionCorreo}
                                 className='w-full'
@@ -175,11 +174,9 @@ export default function Login() {
                             </div> 
                         </li>
 
-                        {/* ------------------------------------------------------------- */}
                         {/* --------------------- Crear nueva Cuenta -------------------- */}
-                        {/* ------------------------------------------------------------- */}
                         <li className='font-racing_sans_one text-center text-lg'>
-                            <div className='py-1 border border-black rounded-xl'>
+                            <div className='py-1 border border-white rounded-xl'>
                                 <button
                                 onClick={crearCuentaNueva}
                                 className='w-full'
@@ -191,11 +188,10 @@ export default function Login() {
                     </ul>
                 </div>
 
-
                 {/* ------------------------------------------------------------- */}
                 {/* ------------ Formulario Inicio de sesion con Correo---------- */}
                 {/* ------------------------------------------------------------- */}
-                <div id='Login' className='p-5 rounded-md bg-green-500 invisible hidden'>
+                <div id='Login' className='p-5 rounded-md invisible hidden'>
                     <div className='text-white text-right'>
                         <button type='button' onClick={cerrarFormularios}>
                             <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' className='bi bi-x-lg' viewBox='0 0 16 16'>
@@ -212,7 +208,7 @@ export default function Login() {
 
                             <li className='mx-10 font-racing_sans_one text-lg relative'>
                                 <input 
-                                    className='w-full bg-[#22C55E] focus:outline-none placeholder-transparent border-b-2 peer'
+                                    className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer'
                                     id='inputCorreoForm1'
                                     type='email' 
                                     placeholder=' '
@@ -228,7 +224,7 @@ export default function Login() {
 
                             <li className='mx-10 font-racing_sans_one text-lg relative'>
                                 <input 
-                                    className='w-full bg-[#22C55E] focus:outline-none placeholder-transparent border-b-2 peer'
+                                    className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer'
                                     id='inputContrasenaForm1'
                                     type='password' 
                                     placeholder=' '
@@ -254,7 +250,7 @@ export default function Login() {
                 {/* ------------------------------------------------------------- */}
                 {/* -------------- Formulario Crear sesion con Correo------------ */}
                 {/* ------------------------------------------------------------- */}
-                <div id='Register' className='p-5 rounded-md bg-blue-500 invisible hidden'>
+                <div id='Register' className='p-5 rounded-md invisible hidden'>
                     <div className='text-white text-right'>
                         <button type='button' onClick={cerrarFormularios}>
                             <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' className='bi bi-x-lg' viewBox='0 0 16 16'>
@@ -271,7 +267,7 @@ export default function Login() {
 
                             <li className='mx-10 font-racing_sans_one text-lg relative'>
                                 <input 
-                                    className='w-full bg-[#3B82F6] focus:outline-none placeholder-transparent border-b-2 peer'
+                                    className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer'
                                     id='inputNombreForm2'
                                     type='text' 
                                     placeholder=' '
@@ -287,7 +283,7 @@ export default function Login() {
 
                             <li className='mx-10 font-racing_sans_one text-lg relative'>
                                 <input 
-                                    className='w-full bg-[#3B82F6] focus:outline-none placeholder-transparent border-b-2 peer'
+                                    className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer'
                                     id='inputCorreoForm2'
                                     type='email' 
                                     placeholder=' '
@@ -303,7 +299,7 @@ export default function Login() {
 
                             <li className='mx-10 font-racing_sans_one text-lg relative'>
                                 <input 
-                                    className='w-full bg-[#3B82F6] focus:outline-none placeholder-transparent border-b-2 peer'
+                                    className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer'
                                     id='inputContrasenaForm2'
                                     type='password' 
                                     placeholder=' '
