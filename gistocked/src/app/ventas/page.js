@@ -1,4 +1,4 @@
-'use client'; // Esto indica que este componente es un Client Component
+'use client';
 
 import React, { useState } from 'react';
 import SalesTable from '../components/SalesTable';
@@ -12,47 +12,57 @@ const SalesPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isInvoice, setIsInvoice] = useState(false);
   const [paymentMethodModal, setPaymentMethodModal] = useState(false);
-  
-  // Nuevo estado para manejar el formulario de nueva venta
+  const [isNewSaleModalOpen, setIsNewSaleModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingSale, setEditingSale] = useState(null);
+
   const [newSaleData, setNewSaleData] = useState({
     id: sales.length + 1,
     producto: '',
     cantidad: 1,
     total: 0,
-    fecha: new Date().toLocaleDateString('es-ES'), // Cambiado para formato español
-    precio: 0, // Precio del producto
+    fecha: new Date().toLocaleDateString('es-ES'),
+    precio: 0,
   });
-  
-  const [isNewSaleModalOpen, setIsNewSaleModalOpen] = useState(false);
 
   const handleNewSale = () => {
-    // Abre el modal para registrar nueva venta
     setIsNewSaleModalOpen(true);
   };
 
   const handleNewSaleSubmit = (e) => {
     e.preventDefault();
     
-    // Agrega la nueva venta a la tabla
     const newSale = {
       ...newSaleData,
-      total: newSaleData.cantidad * newSaleData.precio, // Calcula el total basado en cantidad y precio
+      total: newSaleData.cantidad * newSaleData.precio,
     };
 
     setSales([...sales, newSale]);
     setNewSaleData({
-      id: sales.length + 2, // Aumenta el ID basado en la longitud actual (más 1 porque se empieza desde 1)
+      id: sales.length + 2,
       producto: '',
       cantidad: 1,
       total: 0,
-      fecha: new Date().toLocaleDateString('es-ES'), // Cambiado para formato español
+      fecha: new Date().toLocaleDateString('es-ES'),
       precio: 0,
     });
-    setIsNewSaleModalOpen(false); // Cierra el modal
+    setIsNewSaleModalOpen(false);
   };
 
   const handleEditSale = (id) => {
-    alert(`Editar venta con ID: ${id}`);
+    const saleToEdit = sales.find(sale => sale.id === id);
+    setEditingSale(saleToEdit);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = (e) => {
+    e.preventDefault();
+    const updatedSales = sales.map(sale => 
+      sale.id === editingSale.id ? editingSale : sale
+    );
+    setSales(updatedSales);
+    setIsEditModalOpen(false);
+    setEditingSale(null);
   };
 
   const handleDeleteSale = (id) => {
@@ -77,24 +87,23 @@ const SalesPage = () => {
   };
 
   const handleSelectDocumentType = () => {
-    setIsModalOpen(true); // Abre el modal para seleccionar Boleta o Factura
+    setIsModalOpen(true);
   };
 
   const handleInvoiceSubmit = (e) => {
     e.preventDefault();
-    alert(`Factura generada para RUT: ${invoiceData.rut}, Razón Social: ${invoiceData.razonSocial}`);
-    setIsModalOpen(false); // Cierra el modal
+    alert(`Factura generada para RUT: ${e.target.rut.value}, Razón Social: ${e.target.razonSocial.value}`);
+    setIsModalOpen(false);
   };
 
   const handleSelectPaymentMethod = () => {
-    setPaymentMethodModal(true); // Abre el modal para seleccionar el medio de pago
+    setPaymentMethodModal(true);
   };
 
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Gestión de Ventas</h1>
 
-      {/* Botón para registrar nueva venta */}
       <div className="mb-6">
         <button 
           className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
@@ -104,11 +113,10 @@ const SalesPage = () => {
         </button>
       </div>
 
-      {/* Tabla de ventas */}
       <SalesTable
         sales={sales.map(sale => ({
           ...sale,
-          fecha: new Date(sale.fecha).toLocaleDateString('es-ES'), // Formatear fecha a día/mes/año
+          fecha: new Date(sale.fecha).toLocaleDateString('es-ES'),
         }))}
         handleEditSale={handleEditSale}
         handleDeleteSale={handleDeleteSale}
@@ -116,32 +124,36 @@ const SalesPage = () => {
         handleDecreaseQuantity={handleDecreaseQuantity}
       />
 
-      {/* Modal para registrar nueva venta */}
       {isNewSaleModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setIsNewSaleModalOpen(false)}>
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
             <h2 className="text-2xl font-bold mb-4">Registrar Nueva Venta</h2>
             <form onSubmit={handleNewSaleSubmit}>
-              <label className="block mb-2">ID:</label>
-              <input 
-                type="number" 
-                value={newSaleData.id}
-                className="border rounded w-full py-2 px-3 mb-4"
-                readOnly // Hacerlo solo lectura, ya que se asigna automáticamente
-              />
+              {/* ... (campos del formulario de nueva venta) ... */}
+              <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Agregar Venta</button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isEditModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setIsEditModalOpen(false)}>
+          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-2xl font-bold mb-4">Editar Venta</h2>
+            <form onSubmit={handleEditSubmit}>
               <label className="block mb-2">Producto:</label>
               <input 
                 type="text" 
-                value={newSaleData.producto}
-                onChange={(e) => setNewSaleData({ ...newSaleData, producto: e.target.value })}
+                value={editingSale.producto}
+                onChange={(e) => setEditingSale({ ...editingSale, producto: e.target.value })}
                 className="border rounded w-full py-2 px-3 mb-4"
                 required
               />
               <label className="block mb-2">Cantidad:</label>
               <input 
                 type="number" 
-                value={newSaleData.cantidad}
-                onChange={(e) => setNewSaleData({ ...newSaleData, cantidad: Math.max(1, e.target.value) })}
+                value={editingSale.cantidad}
+                onChange={(e) => setEditingSale({ ...editingSale, cantidad: Math.max(1, parseInt(e.target.value)) })}
                 className="border rounded w-full py-2 px-3 mb-4"
                 min="1"
                 required
@@ -149,8 +161,8 @@ const SalesPage = () => {
               <label className="block mb-2">Precio:</label>
               <input 
                 type="number" 
-                value={newSaleData.precio}
-                onChange={(e) => setNewSaleData({ ...newSaleData, precio: Math.max(0, e.target.value) })}
+                value={editingSale.total / editingSale.cantidad}
+                onChange={(e) => setEditingSale({ ...editingSale, total: e.target.value * editingSale.cantidad })}
                 className="border rounded w-full py-2 px-3 mb-4"
                 min="0"
                 required
@@ -158,18 +170,17 @@ const SalesPage = () => {
               <label className="block mb-2">Fecha:</label>
               <input 
                 type="date" 
-                value={newSaleData.fecha}
-                onChange={(e) => setNewSaleData({ ...newSaleData, fecha: e.target.value })}
+                value={editingSale.fecha}
+                onChange={(e) => setEditingSale({ ...editingSale, fecha: e.target.value })}
                 className="border rounded w-full py-2 px-3 mb-4"
                 required
               />
-              <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Agregar Venta</button>
+              <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Guardar Cambios</button>
             </form>
           </div>
         </div>
       )}
 
-      {/* Botones para seleccionar documento y medio de pago debajo de la tabla */}
       <div className="mt-6 flex justify-start space-x-4">
         <button 
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
@@ -185,7 +196,6 @@ const SalesPage = () => {
         </button>
       </div>
 
-      {/* Modal para seleccionar tipo de documento (Boleta o Factura) */}
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setIsModalOpen(false)}>
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
@@ -214,23 +224,21 @@ const SalesPage = () => {
         </div>
       )}
 
-      {/* Modal para generar factura */}
       {isInvoice && isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setIsModalOpen(false)}>
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/2" onClick={(e) => e.stopPropagation()}>
             <h2 className="text-2xl font-bold mb-4">Datos de la Factura</h2>
             <form onSubmit={handleInvoiceSubmit}>
               <label className="block mb-2">RUT:</label>
-              <input type="text" className="border rounded w-full py-2 px-3 mb-4" />
+              <input name="rut" type="text" className="border rounded w-full py-2 px-3 mb-4" />
               <label className="block mb-2">Razón Social:</label>
-              <input type="text" className="border rounded w-full py-2 px-3 mb-4" />
+              <input name="razonSocial" type="text" className="border rounded w-full py-2 px-3 mb-4" />
               <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Generar Factura</button>
             </form>
           </div>
         </div>
       )}
 
-      {/* Modal para seleccionar medio de pago */}
       {paymentMethodModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setPaymentMethodModal(false)}>
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
