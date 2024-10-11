@@ -11,25 +11,26 @@ export default function Login() {
     // Muestra el formulario de Inicio de Session
     const iniciarSesionCorreo = () => {
         let id = document.getElementById('Login');
-        let sesion = document.getElementById('tipoSesion')
-
+        let sesion = document.getElementById('tipoSesion');
+    
         // Muestra el formulario
         if (id.classList.contains('invisible') && id.classList.contains('hidden')) {
-            id.classList.remove('invisible');
-            id.classList.remove('hidden');
-            id.classList.add('visible');
-
-             // Oculta los metodos de inicio de sesión
+            id.classList.remove('invisible', 'hidden');
+            id.classList.add('visible', 'opacity-0');
+    
+            setTimeout(() => {
+                id.classList.add('transition', 'duration-1000', 'ease-linear', 'opacity-100');
+            }, 10);
+    
+            // Oculta los métodos de inicio de sesión
             if (sesion.classList.contains('visible')) {
-            sesion.classList.remove('visible');
-            sesion.classList.add('invisible');
-            sesion.classList.add('hidden');
+                sesion.classList.remove('visible');
+                sesion.classList.add('invisible', 'hidden');
             }
-
+    
             formulario = '1';
         }
-        return
-    }
+    };
 
     // Muestra el formulario de Crear Nueva Session
     const crearCuentaNueva = () => {
@@ -38,15 +39,16 @@ export default function Login() {
 
         // Muestra el formulario
         if (id.classList.contains('invisible') && id.classList.contains('hidden')) {
-            id.classList.remove('invisible');
-            id.classList.remove('hidden');
-            id.classList.add('visible');
-
-            // Oculta los metodos de inicio de sesión
+            id.classList.remove('invisible', 'hidden');
+            id.classList.add('visible', 'opacity-0');
+    
+            setTimeout(() => {
+                id.classList.add('transition', 'duration-1000', 'ease-linear', 'opacity-100');
+            }, 10);
+    
             if (sesion.classList.contains('visible')) {
-            sesion.classList.remove('visible');
-            sesion.classList.add('invisible');
-            sesion.classList.add('hidden');
+                sesion.classList.remove('visible');
+                sesion.classList.add('invisible', 'hidden');
             }
             formulario = '2';
         }
@@ -59,16 +61,12 @@ export default function Login() {
             let id = document.getElementById('Login');
             let sesion = document.getElementById('tipoSesion');
 
-            // Muestra las acciones al usuario
-            if (id.classList.contains('visible')) {
-                id.classList.remove('visible');
-                id.classList.add('invisible');
-                id.classList.add('hidden');
+            if (id.classList.contains('visible') && id.classList.contains('opacity-100')) {
+                id.classList.remove('visible', 'transition', 'duration-1000', 'ease-linear', 'opacity-100');
+                id.classList.add('invisible', 'hidden');
 
-                // Oculta los metodos de inicio de sesión
                 if (sesion.classList.contains('invisible') && sesion.classList.contains('hidden')) {
-                    sesion.classList.remove('invisible');
-                    sesion.classList.remove('hidden');
+                    sesion.classList.remove('invisible', 'hidden');
                     sesion.classList.add('visible');
                     }
                 formulario = '0';
@@ -77,16 +75,12 @@ export default function Login() {
             let id = document.getElementById('Register');
             let sesion = document.getElementById('tipoSesion');
 
-            // Muestra las acciones al usuario
-            if (id.classList.contains('visible')) {
-                id.classList.remove('visible');
-                id.classList.add('invisible');
-                id.classList.add('hidden');
+            if (id.classList.contains('visible') && id.classList.contains('opacity-100')) {
+                id.classList.remove('visible', 'transition', 'duration-1000', 'ease-linear', 'opacity-100');
+                id.classList.add('invisible', 'hidden');
 
-                // Oculta los metodos de inicio de sesión
                 if (sesion.classList.contains('invisible') && sesion.classList.contains('hidden')) {
-                    sesion.classList.remove('invisible');
-                    sesion.classList.remove('hidden');
+                    sesion.classList.remove('invisible', 'hidden');
                     sesion.classList.add('visible');
                     }
                 formulario = '0';
