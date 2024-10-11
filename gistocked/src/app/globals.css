@@ -2,24 +2,57 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Personalizaciones globales */
+body {
+  @apply bg-gray-50 font-sans leading-normal tracking-normal;
+}
 
-/* Diseño general */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  body {
-    font-family: 'Poppins', sans-serif;
-    font-size: 16px;
-    line-height: 1.5;
-    background-color: #E5E5EA;
-  }
-  
-  .container {
-    display: flex;
-    height: 100vh;
-    padding: 20px;
-  }
-  
+/* Contenedor principal */
+.container {
+  @apply mx-auto p-6;
+}
+
+/* Títulos */
+h1 {
+  @apply text-3xl font-bold mb-6 text-gray-800;
+}
+
+/* Estilos generales para botones */
+button {
+  @apply font-bold py-2 px-4 rounded transition-all duration-300 ease-in-out;
+}
+
+/* Variantes de botones */
+button.green {
+  @apply bg-green-500 hover:bg-green-700 text-white;
+}
+
+button.blue {
+  @apply bg-blue-500 hover:bg-blue-700 text-white;
+}
+
+button.red {
+  @apply bg-red-500 hover:bg-red-700 text-white;
+}
+
+button.gray {
+  @apply bg-gray-500 hover:bg-gray-700 text-white;
+}
+
+/* Estilos para inputs y formularios */
+input {
+  @apply w-full py-2 px-3 border rounded-lg border-gray-300 focus:outline-none focus:border-blue-500 mb-4;
+}
+
+/* Estilos para tablas */
+table {
+  @apply table-auto w-full border-collapse bg-white shadow-md;
+}
+
+thead th {
+  @apply px-4 py-2 text-left font-bold border-b border-gray-200; /* Se mantiene el color original del encabezado */
+}
+
+tbody td {
+  @apply px-4 py-2 border-b;
+}

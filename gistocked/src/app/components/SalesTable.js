@@ -21,14 +21,14 @@ const SalesTable = ({ sales, handleEditSale, handleDeleteSale, handleIncreaseQua
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => handleDecreaseQuantity(sale.id)}
-                    className="bg-gray-300 hover:bg-gray-400 text-black px-2 py-1 rounded"
+                    className="bg-red-400 hover:bg-gray-400 text-black px-2 py-1 rounded"
                   >
                     -
                   </button>
                   <span>{sale.cantidad}</span>
                   <button
                     onClick={() => handleIncreaseQuantity(sale.id)}
-                    className="bg-gray-300 hover:bg-gray-400 text-black px-2 py-1 rounded"
+                    className="bg-green-400 hover:bg-gray-400 text-black px-2 py-1 rounded"
                   >
                     +
                   </button>
