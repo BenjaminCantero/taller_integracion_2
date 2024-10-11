@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+<<<<<<< HEAD
 :root {
   --primary-color: #3f51b5; /* Azul clásico */
   --secondary-color: #f0f2f5; /* Amarillo dorado */
@@ -15,17 +16,16 @@
   --white: #ffffff;
   --shadow: 0 4px 6px rgba(2, 1, 1, 0.1);
 }
+=======
+>>>>>>> comits-nuevo
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --primary-color: #2ecc71; /* Verde esmeralda */
-    --secondary-color: #e74c3c; /* Rojo fuerte */
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 30, 30, 30;
-    --background-end-rgb: 50, 50, 50;
-    --shadow-color: rgba(255, 255, 255, 0.2); /* Sombra suave en modo oscuro */
-    --border-color: rgba(255, 255, 255, 0.1); /* Borde suave en modo oscuro */
+/* Diseño general */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
   }
+<<<<<<< HEAD
 }
 
 body {
@@ -215,11 +215,22 @@ body {
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+=======
+  
+  body {
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    background-color: #E5E5EA;
+>>>>>>> comits-nuevo
   }
-
-  .hover-shadow {
-    transition: box-shadow 0.3s ease-in-out;
+  
+  .container {
+    display: flex;
+    height: 100vh;
+    padding: 20px;
   }
+<<<<<<< HEAD
 
   .hover-shadow:hover {
     box-shadow: 0 8px 12px var(--shadow-color);
@@ -584,3 +595,6 @@ body {
     @apply bg-gray-900;
   }
 }
+=======
+  
+>>>>>>> comits-nuevo
