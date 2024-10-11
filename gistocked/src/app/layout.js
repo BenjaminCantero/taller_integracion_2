@@ -1,11 +1,13 @@
 
 'use client'
-import Layout from '@/components/layout';
-import UserLogin from './auth/UserLogin/page';
-import { useState, useEffect } from 'react';
 import './globals.css';
-import UserRegister from './auth/UserRegister/page';
+
+//import Layout from '@/components/layout';
+//import UserLogin from './auth/UserLogin/page';
+//import UserRegister from './auth/UserRegister/page';
 import Login from './auth/login/page';
+
+import { useState, useEffect } from 'react';
 
 export default function RootLayout({ children }) {
   const [pagina, setPagina] = useState(1);

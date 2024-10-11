@@ -1,61 +1,105 @@
 
-import Link from 'next/link';
-import { useState } from 'react';
-
 export default function Login() {
     /* 
     Tipos de Formularios soportados:
     1: Inicio de sesión con Google
-    2: Inicio de sesión con correo
+    2: Crear sesión con un Correo
     */
-    const [formulario, setFormulario] = useState('')
-
-    // Muestra el formulario de Inicio de Session
-    const iniciarSesionGoogle = () => {
-        let id = document.getElementById('Google')
-        if (id.classList.contains('invisible')) {
-            id.classList.remove('invisible');
-            id.classList.add('visible');
-            setFormulario('1');
-        } else {
-            id.classList.remove('visible');
-            id.classList.add('invisible');
-            setFormulario('');
-        }
-        return
-    }
+    let formulario = '0'
 
     // Muestra el formulario de Inicio de Session
     const iniciarSesionCorreo = () => {
-        let id = document.getElementById('Correo');
-        if (id.classList.contains('invisible')) {
+        let id = document.getElementById('Login');
+        let sesion = document.getElementById('tipoSesion')
+
+        // Muestra el formulario
+        if (id.classList.contains('invisible') && id.classList.contains('hidden')) {
             id.classList.remove('invisible');
+            id.classList.remove('hidden');
             id.classList.add('visible');
-            setFormulario('2');
+
+             // Oculta los metodos de inicio de sesión
+            if (sesion.classList.contains('visible')) {
+            sesion.classList.remove('visible');
+            sesion.classList.add('invisible');
+            sesion.classList.add('hidden');
+            }
+
+            formulario = '1';
+
         } else {
             id.classList.remove('visible');
             id.classList.add('invisible');
-            setFormulario('');
+            formulario = '0';
         }
         return
     }
 
+    // Muestra el formulario de Crear Nueva Session
+    const crearCuentaNueva = () => {
+        let id = document.getElementById('Register');
+        let sesion = document.getElementById('tipoSesion')
+
+        // Muestra el formulario
+        if (id.classList.contains('invisible') && id.classList.contains('hidden')) {
+            id.classList.remove('invisible');
+            id.classList.remove('hidden');
+            id.classList.add('visible');
+
+            // Oculta los metodos de inicio de sesión
+            if (sesion.classList.contains('visible')) {
+            sesion.classList.remove('visible');
+            sesion.classList.add('invisible');
+            sesion.classList.add('hidden');
+            }
+            formulario = '2';
+
+        } else {
+            id.classList.remove('visible');
+            id.classList.add('invisible');
+            formulario = '0';
+        }
+        return
+    }
+
+    // Cierra Formularios
     const cerrarFormularios = () => {
         if (formulario == '1') {
-            let id = document.getElementById('Google');
+            let id = document.getElementById('Login');
+            let sesion = document.getElementById('tipoSesion');
+
+            // Muestra las acciones al usuario
             if (id.classList.contains('visible')) {
                 id.classList.remove('visible');
                 id.classList.add('invisible');
-                setFormulario('');
+                id.classList.add('hidden');
+
+                // Oculta los metodos de inicio de sesión
+                if (sesion.classList.contains('invisible') && sesion.classList.contains('hidden')) {
+                    sesion.classList.remove('invisible');
+                    sesion.classList.remove('hidden');
+                    sesion.classList.add('visible');
+                    }
+                formulario = '0';
             }
 
         } else if (formulario == '2') {
-            console.log('funciona')
-            let id = document.getElementById('Correo');
+            let id = document.getElementById('Register');
+            let sesion = document.getElementById('tipoSesion');
+
+            // Muestra las acciones al usuario
             if (id.classList.contains('visible')) {
                 id.classList.remove('visible');
                 id.classList.add('invisible');
-                setFormulario('');
+                id.classList.add('hidden');
+
+                // Oculta los metodos de inicio de sesión
+                if (sesion.classList.contains('invisible') && sesion.classList.contains('hidden')) {
+                    sesion.classList.remove('invisible');
+                    sesion.classList.remove('hidden');
+                    sesion.classList.add('visible');
+                    }
+                formulario = '0';
             }
         }
         return
@@ -63,43 +107,16 @@ export default function Login() {
 
     return (
         
-        <div className='h-screen bg-gray-100'>
-            <main className='h-screen container mx-auto flex items-center justify-center'>
-                <div className='p-5 border border-black rounded-md'>
+        <div className='h-screen flex items-center justify-center bg-gray-100'>
+            <main className='p-5 border border-black rounded-md'>
+                <div id='tipoSesion' className='visible'>
                     <ul className='space-y-6 text-black'>
-
-                        {/* ------------------------------------------------------------- */}
-                        {/* ------------------- Nombre de la Empresa -------------------- */}
-                        {/* ------------------------------------------------------------- */}
-                        {/*
-                        <li className='font-racing_sans_one text-center'>
-                            <h1 className='text-4xl '>
-                                GISTOKED
-                            </h1>
-
-                        </li>
-                        */}
-
                         {/* ------------------------------------------------------------- */}
                         {/* ------------------- Bienvenida al Cliente ------------------- */}
                         {/* ------------------------------------------------------------- */}
                         <li className='font-racing_sans_one text-center'>
                             <div>
-                                <h2 
-                                    className='text-4xl'> 
-                                    Bienvenido de vuelta
-                                </h2>
-                            </div>
-                        </li>
-
-                        {/* ------------------------------------------------------------- */}
-                        {/* --------------------- Inicio con Google --------------------- */}
-                        {/* ------------------------------------------------------------- */}
-                        <li className='font-racing_sans_one text-center text-lg'>
-                            <div className='py-1 border border-black rounded-xl'> 
-                                <button onClick={iniciarSesionGoogle}>
-                                    Iniciar sesión con Google
-                                </button>
+                                <h2 className='text-4xl'>Bienvenido a Gistocked</h2>
                             </div>
                         </li>
 
@@ -108,7 +125,10 @@ export default function Login() {
                         {/* ------------------------------------------------------------- */}
                         <li className='font-racing_sans_one text-center text-lg'>
                             <div className='py-1 border border-black rounded-xl'>
-                                <button onClick={iniciarSesionCorreo}>
+                                <button
+                                onClick={iniciarSesionCorreo}
+                                className='w-full'
+                                >
                                     Iniciar sesión con Correo
                                 </button>
                             </div> 
@@ -118,63 +138,113 @@ export default function Login() {
                         {/* --------------------- Crear Cuenta nueva -------------------- */}
                         {/* ------------------------------------------------------------- */}
                         <li className='font-racing_sans_one text-center text-lg'>
-                            <div>
-                                <p className='inline-block'>No tienes una cuenta?</p>
-                                <Link
-                                    href='#' 
-                                    className='ml-2 inline-block text-blue-700'>
-                                    Crea una
-                                </Link>
-                            </div>
+                            <div className='py-1 border border-black rounded-xl'>
+                                <button
+                                onClick={crearCuentaNueva}
+                                className='w-full'
+                                >
+                                    Crear sesión con Correo
+                                </button>
+                            </div> 
                         </li>
                     </ul>
                 </div>
 
-                {/* ------------------------------------------------------------- */}
-                {/* ----------- Formulario Inicio de sesion con Google ---------- */}
-                {/* ------------------------------------------------------------- */}
-                <div id='Google' className='p-5 fixed border border-black rounded-md bg-red-500 invisible'>
-                    <form className='space-y-6 text-black'>
-                        <h1>
-                            Google
-                        </h1>
-                    </form>
-                </div>
 
                 {/* ------------------------------------------------------------- */}
                 {/* ------------ Formulario Inicio de sesion con Correo---------- */}
                 {/* ------------------------------------------------------------- */}
-                <div id='Correo' className='p-2 fixed flex items-center justify-center border border-black rounded-md bg-green-500 invisible'>
-                    <div className='text-black text-right'>
-                        <button type='button' onClick={cerrarFormularios} className=''>
+                <div id='Login' className='p-5 rounded-md bg-green-500 invisible hidden'>
+                    <div className='text-white text-right'>
+                        <button type='button' onClick={cerrarFormularios}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-x-lg" viewBox="0 0 16 16">
                                 <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" stroke="currentColor" strokeWidth="1" fill="none"/>
                             </svg>
                         </button>
                     </div>
 
-                    <form className='space-y-6 text-white'>
-                        <ul>
-                            <li className='mx-10 font-racing_sans_one text-center text-4xl'>
-                                <h3>Iniciando sesión con un Correo</h3>
+                    <form>
+                        <ul className='space-y-8 text-white'>
+                            <li className='mx-10 font-racing_sans_one text-center'>
+                                <h3 className='text-4xl'>Iniciando sesión con un Correo</h3>
                             </li>
 
-                            <li className='mx-10 font-racing_sans_one'>
+                            <li className='mx-10 font-racing_sans_one text-lg'>
                                 <label className='block'>Correo</label>
                                 <input 
-                                className='block w-full bg-[#22C55E] rounded-md px-4 py-2 focus:outline-none placeholder-white' 
-                                type="email" 
-                                placeholder="Correo"
+                                className='block w-full bg-[#22C55E] rounded-md focus:outline-none placeholder-white' 
+                                type='email' 
+                                placeholder='Ingrese su correo'
                                 />
                             </li>
 
-                            <li className='font-racing_sans_one text-center text-lg'>
+                            <li className='mx-10 font-racing_sans_one text-lg'>
+                                <label className='block'>Contraseña</label>
+                                <input 
+                                className='block w-full bg-[#22C55E] rounded-md focus:outline-none placeholder-white' 
+                                type='password' 
+                                placeholder='Ingrese su contraseña'
+                                />
                             </li>
 
-                            <li className='font-racing_sans_one text-center text-lg'> 
+                            <li className='mx-10 font-racing_sans_one text-lg text-center'>
+                                <button>
+                                    <p>Aceptar</p>
+                                </button>
+                            </li>
+                        </ul>
+                    </form>
+                </div>
+
+                {/* ------------------------------------------------------------- */}
+                {/* -------------- Formulario Crear sesion con Correo------------ */}
+                {/* ------------------------------------------------------------- */}
+                <div id='Register' className='p-5 rounded-md bg-blue-500 invisible hidden'>
+                    <div className='text-white text-right'>
+                        <button type='button' onClick={cerrarFormularios}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-x-lg" viewBox="0 0 16 16">
+                                <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" stroke="currentColor" strokeWidth="1" fill="none"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <form>
+                        <ul className='space-y-8 text-white'>
+                            <li className='mx-10 font-racing_sans_one text-center'>
+                                <h3 className='text-4xl'>Creando sesión con un Correo</h3>
                             </li>
 
-                            <li className='font-racing_sans_one text-center text-lg'>
+                            <li className='mx-10 font-racing_sans_one text-lg'>
+                                <label className='block'>Nombre</label>
+                                <input 
+                                className='block w-full bg-[#3B82F6] rounded-md focus:outline-none placeholder-white' 
+                                type='text' 
+                                placeholder='Ingrese un nombre de usuario'
+                                />
+                            </li>
+
+                            <li className='mx-10 font-racing_sans_one text-lg'>
+                                <label className='block'>Correo</label>
+                                <input 
+                                className='block w-full bg-[#3B82F6] rounded-md focus:outline-none placeholder-white' 
+                                type='email' 
+                                placeholder='Ingrese su correo'
+                                />
+                            </li>
+
+                            <li className='mx-10 font-racing_sans_one text-lg'>
+                                <label className='block'>Contraseña</label>
+                                <input 
+                                className='block w-full bg-[#3B82F6] rounded-md focus:outline-none placeholder-white' 
+                                type='password' 
+                                placeholder='Ingrese su contraseña'
+                                />
+                            </li>
+
+                            <li className='mx-10 font-racing_sans_one text-lg text-center'>
+                                <button>
+                                    <p>Registrarse</p>
+                                </button>
                             </li>
                         </ul>
                     </form>
