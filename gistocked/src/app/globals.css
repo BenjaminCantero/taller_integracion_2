@@ -2,24 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
-
 /* Diseño general */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  body {
-    font-family: 'Poppins', sans-serif;
-    font-size: 16px;
-    line-height: 1.5;
-    background-color: #E5E5EA;
-  }
-  
-  .container {
-    display: flex;
-    height: 100vh;
-    padding: 20px;
-  }
-  
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  background-color: #E5E5EA;
+}
+
+.container {
+  padding: 20px;
+}
+
+/* Opcional: Evitar que el contenido principal se vea cortado */
+.main-content {
+  overflow-y: auto;
+}

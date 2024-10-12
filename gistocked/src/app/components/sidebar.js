@@ -1,4 +1,3 @@
-// src/app/components/sidebar.js
 "use client"; // Marcamos que este es un Client Component
 
 import Link from 'next/link';
@@ -7,7 +6,7 @@ import { faHome, faTachometerAlt, faUsers, faBoxes, faShoppingCart, faCog, faSig
 
 const Sidebar = () => {
   return (
-    <div className="sidebar w-64 h-screen bg-gray-800 text-white flex flex-col justify-between p-6 shadow-lg">
+    <div className="fixed top-0 left-0 w-64 h-screen bg-gray-800 text-white flex flex-col justify-between p-6 shadow-lg overflow-y-auto">
       {/* Logo */}
       <div className="logo flex items-center mb-10">
         <img src="/logo.png" alt="Logo" className="w-12 h-12 mr-4 rounded-full" />
@@ -63,7 +62,7 @@ const Sidebar = () => {
       </nav>
 
       {/* Información del usuario */}
-      <div className="user-info">
+      <div className="user-info mt-4">
         <p className="mb-4">Bienvenido, Admin</p>
         <button className="logout-btn flex items-center p-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">
           <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" /> Cerrar Sesión
