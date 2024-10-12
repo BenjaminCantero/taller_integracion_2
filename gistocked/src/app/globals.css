@@ -16,11 +16,14 @@ body {
   background-color: #E5E5EA;
 }
 
-.container {
-  padding: 20px;
+html, body {
+  height: 100%;
 }
 
-/* Opcional: Evitar que el contenido principal se vea cortado */
-.main-content {
-  overflow-y: auto;
+#__next {
+  height: 100%;
+}
+
+.container {
+  padding: 20px;
 }

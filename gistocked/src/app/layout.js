@@ -2,21 +2,32 @@
 
 import './globals.css';
 import Sidebar from './components/sidebar';
+import { useState, useEffect } from 'react';
 
 const Layout = ({ children }) => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null; // or a loading spinner
+  }
+
   return (
     <html lang="es">
-      <body className="flex h-screen overflow-hidden">
-        {/* Sidebar fija */}
+      <body className="flex h-screen bg-gray-100">
         <Sidebar />
-        
-        {/* Contenido principal scrollable */}
-        <div className="flex-1 overflow-y-auto p-6 bg-gray-100">
-          {children}
-        </div>
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 ml-64">
+          <div className="container mx-auto px-6 py-8">
+            {children}
+          </div>
+        </main>
       </body>
     </html>
   );
 };
 
 export default Layout;
+

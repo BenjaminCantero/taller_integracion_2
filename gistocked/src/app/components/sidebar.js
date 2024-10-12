@@ -1,8 +1,41 @@
-"use client"; // Marcamos que este es un Client Component
+"use client";
 
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome, faTachometerAlt, faUsers, faBoxes, faShoppingCart, faCog, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+
+const navigationItems = [
+  {
+    icon: faHome,
+    label: 'Inicio',
+    href: '/'
+  },
+  {
+    icon: faTachometerAlt,
+    label: 'Dashboard',
+    href: '/dashboard'
+  },
+  {
+    icon: faUsers,
+    label: 'Usuarios',
+    href: '/usuarios'
+  },
+  {
+    icon: faBoxes,
+    label: 'Productos',
+    href: '/productos'
+  },
+  {
+    icon: faShoppingCart,
+    label: 'Ventas',
+    href: '/ventas'
+  },
+  {
+    icon: faCog,
+    label: 'Configuración',
+    href: '/configuracion'
+  }
+];
 
 const Sidebar = () => {
   return (
@@ -16,48 +49,15 @@ const Sidebar = () => {
       {/* Navegación */}
       <nav className="flex-grow">
         <ul className="space-y-6">
-          <li>
-            <Link href="/">
-              <span className="flex items-center p-3 text-lg hover:bg-gray-700 hover:text-yellow-400 rounded-lg transition-colors">
-                <FontAwesomeIcon icon={faHome} className="mr-4" /> Inicio
-              </span>
-            </Link>
-          </li>
-          <li>
-            <Link href="/dashboard">
-              <span className="flex items-center p-3 text-lg hover:bg-gray-700 hover:text-yellow-400 rounded-lg transition-colors">
-                <FontAwesomeIcon icon={faTachometerAlt} className="mr-4" /> Dashboard
-              </span>
-            </Link>
-          </li>
-          <li>
-            <Link href="/usuarios">
-              <span className="flex items-center p-3 text-lg hover:bg-gray-700 hover:text-yellow-400 rounded-lg transition-colors">
-                <FontAwesomeIcon icon={faUsers} className="mr-4" /> Usuarios
-              </span>
-            </Link>
-          </li>
-          <li>
-            <Link href="/productos">
-              <span className="flex items-center p-3 text-lg hover:bg-gray-700 hover:text-yellow-400 rounded-lg transition-colors">
-                <FontAwesomeIcon icon={faBoxes} className="mr-4" /> Productos
-              </span>
-            </Link>
-          </li>
-          <li>
-            <Link href="/ventas">
-              <span className="flex items-center p-3 text-lg hover:bg-gray-700 hover:text-yellow-400 rounded-lg transition-colors">
-                <FontAwesomeIcon icon={faShoppingCart} className="mr-4" /> Ventas
-              </span>
-            </Link>
-          </li>
-          <li>
-            <Link href="/configuracion">
-              <span className="flex items-center p-3 text-lg hover:bg-gray-700 hover:text-yellow-400 rounded-lg transition-colors">
-                <FontAwesomeIcon icon={faCog} className="mr-4" /> Configuración
-              </span>
-            </Link>
-          </li>
+          {navigationItems.map((item, index) => (
+            <li key={index}>
+              <Link href={item.href}>
+                <span className="flex items-center p-3 text-lg hover:bg-gray-700 hover:text-yellow-400 rounded-lg transition-colors">
+                  <FontAwesomeIcon icon={item.icon} className="mr-4" /> {item.label}
+                </span>
+              </Link>
+            </li>
+          ))}
         </ul>
       </nav>
 
