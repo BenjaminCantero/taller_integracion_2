@@ -24,3 +24,17 @@ body {
 .main-content {
   overflow-y: auto;
 }
+
+
+/* Login*/
+.inputsLogin:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px #1F2937 inset; 
+  box-shadow: 0 0 0 30px #1f2937 inset; 
+  -webkit-text-fill-color: #ffffff;
+}
+
+.inputsLogin:-moz-autofill {
+  background-color: #1F2937 !important; 
+  color: #ffffff !important; 
+  border: 1px solid #ffffff;
+}

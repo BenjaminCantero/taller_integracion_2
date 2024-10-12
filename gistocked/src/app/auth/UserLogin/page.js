@@ -239,10 +239,11 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
 
                           <li className='mx-10 font-racing_sans_one text-lg relative'>
                               <input 
-                                  className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer'
+                                  className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
                                   id='inputCorreoForm1'
                                   type='email' 
                                   placeholder=' '
+                                  autoComplete='email'
                                   onInput={moverLabel}
                               />
                               <label
@@ -255,7 +256,7 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
 
                           <li className='mx-10 font-racing_sans_one text-lg relative'>
                               <input 
-                                  className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer'
+                                  className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
                                   id='inputContrasenaForm1'
                                   type='password' 
                                   placeholder=' '
@@ -300,7 +301,7 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
 
                           <li className='mx-10 font-racing_sans_one text-lg relative'>
                               <input 
-                                  className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer'
+                                  className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
                                   id='inputNombreForm2'
                                   type='text' 
                                   placeholder=' '
@@ -316,7 +317,7 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
 
                           <li className='mx-10 font-racing_sans_one text-lg relative'>
                               <input 
-                                  className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer'
+                                  className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
                                   id='inputCorreoForm2'
                                   type='email' 
                                   placeholder=' '
@@ -332,7 +333,7 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
 
                           <li className='mx-10 font-racing_sans_one text-lg relative'>
                               <input 
-                                  className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer'
+                                  className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
                                   id='inputContrasenaForm2'
                                   type='password' 
                                   placeholder=' '
