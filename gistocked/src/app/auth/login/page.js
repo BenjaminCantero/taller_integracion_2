@@ -1,4 +1,5 @@
 
+
 export default function Login() {
     /* 
     Tipos de Formularios soportados:
@@ -91,6 +92,10 @@ export default function Login() {
         return
     }
 
+    const moverMain = () => {
+        return
+    }
+
     // Animaciones de los formularios
     const moverLabel = () => {
         if (formulario == '1') {
@@ -148,7 +153,10 @@ export default function Login() {
     }
     return (
         
-        <div className='h-screen flex items-center justify-center bg-gray-100'>
+        <div 
+        className='h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat'
+        style={{backgroundImage: 'url("/images/laptop.jpg")'}}
+        >
             <main className='p-5 shadow-lg shadow-blue-950 rounded-md bg-gray-800'>
                 {/* ------------------------------------------------------------- */}
                 {/* -------------------- Aciones del usuario -------------------- */}
