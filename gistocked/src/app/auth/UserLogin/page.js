@@ -4,6 +4,7 @@
 import { useState } from "react"
 
 export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
+    
     /* 
   Tipos de Formularios soportados:
   0: Opciones del usuario
@@ -32,13 +33,9 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
         event.preventDefault();
         for (let i=0; i<usuariosValidos.length; i++) {
             if (inputCorreoForm1 == usuariosValidos[i].correo && inputContrasenaForm1 == usuariosValidos[i].contrasena) {
-                console.log(usuariosValidos[i].correo );
-                console.log(usuariosValidos[i].contrasena );
-                setUsuarioActivo(true);
                 setUsuarioInfo(usuariosValidos[i]);
+                setUsuarioActivo(true);
                 break;
-            } else {
-                console.log('Usuario NO encontrado :(')
             }
         }
     }
@@ -172,7 +169,7 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
                       </button>
                   </div>
 
-                  <form onClick={validarUsuario}>
+                  <form onSubmit={validarUsuario}>
                       <ul className='space-y-9 text-white'>
                           <li className='mx-10 font-racing_sans_one text-center'>
                               <h3 className='text-4xl'>Iniciando sesión en Gistocked</h3>

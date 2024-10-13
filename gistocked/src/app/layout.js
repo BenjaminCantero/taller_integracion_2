@@ -1,50 +1,62 @@
+"use client";
 
-'use client';
 import './globals.css';
+import Autentificacion from './autentificacion';
 import Sidebar from './components/sidebar';
-import Login from './auth/UserLogin/page';
 
-import XD from './xd';
+import Home from './page';
+import Dasboard from './dashboard/page';
+import Usuarios from './usuarios/page';
+import Productos from './productos/page';
+import ProductManager from './ventas/page';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const Layout = ({ children }) => {
+const Layout = () => {
   const [usuarioActivo, setUsuarioActivo] = useState(false);
   const [usuarioInfo, setUsuarioInfo] = useState({});
+  const [pagina, setPagina] = useState('');
 
-  if (!usuarioActivo) {
-    return (
-      <html lang='es'>
-        <body>
-          <div className='visible h-screen'>
-            <Login
+  useEffect(() => {
+    setPagina('Home'); // Esto se ejecutará solo una vez al montar el componente
+  }, []);
+
+  const renderPage = () => {
+    if (pagina === 'Home') {
+      return <Home usuarioInfo={usuarioInfo} />
+    } else if (pagina === 'Dashboard') {
+      return <Dasboard />;
+    } else if (pagina === 'Usuarios') {
+      return <Usuarios />
+    } else if (pagina === 'Productos') {
+      return <Productos />
+    } else if (pagina === 'Ventas') {
+      return <ProductManager />
+    } 
+  };
+
+  return (
+    <html lang="es">
+      <body>
+        {
+          !usuarioActivo ? (
+            <Autentificacion
+              usuarioActivo={usuarioActivo}
               setUsuarioActivo={setUsuarioActivo}
               setUsuarioInfo={setUsuarioInfo}
-            ></Login>
-          </div>
-        </body>
-      </html>
-    )
-  } else {
-      return (
-        <html lang='es'>
-          <body>
-            <XD>
-              {children}
-            </XD>
-            {/*  
-              <Sidebar
-              usuarioInfo={usuarioInfo}
+            />
+          ) : (
+            <Sidebar 
+              usuarioInfo={usuarioInfo} 
+              setPagina={setPagina}
               >
-                <div className='flex-1 overflow-y-auto p-6 bg-gray-100'>
-                  {children}
-                </div>
-              </Sidebar>
-            */}
-          </body>
-        </html>
-      )
-    }
-  };
+                {renderPage()}
+            </Sidebar>
+          )
+        }
+      </body>
+    </html>
+  );
+};
 
 export default Layout;

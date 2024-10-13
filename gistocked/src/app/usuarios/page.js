@@ -1,7 +1,6 @@
 "use client"; // Indica que este es un componente de cliente
 
 import { useState } from 'react'; // Importa useState desde React
-import Layout from '../layout'; // Asegúrate de que la ruta sea correcta
 import UserTable from './UserTable'; // Importa el componente de la tabla
 import UserModal from './UserModal'; // Importa el componente del modal
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Para íconos
@@ -21,7 +20,6 @@ const Usuarios = () => {
   };
 
   return (
-    <Layout> {/* Componente Layout */}
       <main className="p-8"> {/* Contenido principal */}
         <h1 className="text-3xl font-semibold mb-6">Gestión de Usuarios</h1> {/* Título */}
         <button
@@ -34,7 +32,6 @@ const Usuarios = () => {
         <UserTable /> {/* Componente de la tabla */}
         {modalOpen && <UserModal onClose={handleCloseModal} />} {/* Componente del modal */}
       </main>
-    </Layout>
   );
 };
 
