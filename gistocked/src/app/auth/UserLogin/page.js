@@ -23,17 +23,17 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
     const [inputContrasenaForm2, setInputContrasenaForm2] = useState('');
 
     const [usuariosValidos, setUsuariosValidos] = useState([
-            { id: '1', rol: '1', nombre: 'admin1', correo: 'admin1@gmail.com', constrasena: '123' },
-            { id: '2', rol: '2', nombre: 'vendedor1', correo: 'vendedor1@gmail.com', constrasena: '123' }
+            { id: '1', rol: '1', nombre: 'admin1', correo: 'admin1@gmail.com', contrasena: '123' },
+            { id: '2', rol: '2', nombre: 'vendedor1', correo: 'vendedor1@gmail.com', contrasena: '123' }
         ]);
 
     // Validaciones de usuarios
     const validarUsuario = ( event ) => {
         event.preventDefault();
         for (let i=0; i<usuariosValidos.length; i++) {
-            if (inputCorreoForm1 == usuariosValidos[i].correo && inputContrasenaForm1 == usuariosValidos[i].constrasena) {
+            if (inputCorreoForm1 == usuariosValidos[i].correo && inputContrasenaForm1 == usuariosValidos[i].contrasena) {
                 console.log(usuariosValidos[i].correo );
-                console.log(usuariosValidos[i].constrasena );
+                console.log(usuariosValidos[i].contrasena );
                 setUsuarioActivo(true);
                 setUsuarioInfo(usuariosValidos[i]);
                 break;
@@ -43,51 +43,77 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
         }
     }
 
-  // Muestra el formulario de Inicio de Session
-  const iniciarSesionCorreo = () => {
-    setBaseForm(false);
-    setLoginForm(true); 
-  
-    /* 
-    setTimeout(() => {
-        id.classList.add('transition', 'duration-2000', 'ease-linear', 'delay-150', 'opacity-100');
-    }, 10);
-    */
-    setFormulario('1');
+    // Crear un nuevo usuario
+    const crearUsuario = () => {
+        let idNuevo = usuariosValidos.length + 1;
+        let usuarioNuevo = {
+            id: String(idNuevo),
+            rol: '1',
+            nombre: inputNombreForm2,
+            correo: inputCorreoForm2,
+            contrasena: inputContrasenaForm2
+        };
+    
+        setUsuariosValidos(prevUsuarios => [
+            ...prevUsuarios,
+            usuarioNuevo
+        ]);
 
-  };
+        console.log(usuariosValidos)
+    
+        // Limpiar los campos del formulario
+        setInputNombreForm2('');
+        setInputCorreoForm2('');
+        setInputContrasenaForm2('');
 
-  // Muestra el formulario de Crear Nueva Session
-  const crearCuentaNueva = () => {
-    setBaseForm(false);
-    setRegisterForm(true); 
-  
-    /* 
-    setTimeout(() => {
-        id.classList.add('transition', 'duration-2000', 'ease-linear', 'delay-150', 'opacity-100');
-    }, 10);
-    */
-    setFormulario('2');
-      return
-  }
+        cerrarFormularios();
+    };
 
-  // Cierra Formularios
-  const cerrarFormularios = () => {
-      if (formulario == '1') {
-        setBaseForm(true);
-        setLoginForm(false);
-        setFormulario('0');
+    // Muestra el formulario de Inicio de Session
+    const iniciarSesionCorreo = () => {
+        setBaseForm(false);
+        setLoginForm(true); 
+    
+        /* 
+        setTimeout(() => {
+            id.classList.add('transition', 'duration-2000', 'ease-linear', 'delay-150', 'opacity-100');
+        }, 10);
+        */
+        setFormulario('1');
 
-      } else if (formulario == '2') {
-        setBaseForm(true);
-        setRegisterForm(false);
-        setFormulario('0');
+    };
 
-      } else {
-        console.log('A ocurrido un error')
-      }
-      return
-  }
+    // Muestra el formulario de Crear Nueva Session
+    const crearCuentaNueva = () => {
+        setBaseForm(false);
+        setRegisterForm(true); 
+    
+        /* 
+        setTimeout(() => {
+            id.classList.add('transition', 'duration-2000', 'ease-linear', 'delay-150', 'opacity-100');
+        }, 10);
+        */
+        setFormulario('2');
+        return
+    }
+
+    // Cierra Formularios
+    const cerrarFormularios = () => {
+        if (formulario == '1') {
+            setBaseForm(true);
+            setLoginForm(false);
+            setFormulario('0');
+
+        } else if (formulario == '2') {
+            setBaseForm(true);
+            setRegisterForm(false);
+            setFormulario('0');
+
+        } else {
+            console.log('A ocurrido un error')
+        }
+        return
+    }
 
   return (
       
@@ -206,7 +232,10 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
                       </button>
                   </div>
 
-                  <form>
+                  <form onSubmit={(e) => {
+                      e.preventDefault();
+                      crearUsuario();
+                  }}>
                       <ul className='space-y-9 text-white'>
                           <li className='mx-10 font-racing_sans_one text-center'>
                               <h3 className='text-4xl'>Creando cuenta para Gistocked</h3>
@@ -249,6 +278,7 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
                                   className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
                                   type='password' 
                                   placeholder=' '
+                                  value={inputContrasenaForm2}
                                   onInput={(e) => setInputContrasenaForm2(e.target.value)}
                               />
                               <label
@@ -260,7 +290,9 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
                           </li>
 
                           <li className='mx-10 font-racing_sans_one text-lg text-center'>
-                              <button>
+                              <button
+                              type='submit'
+                              >
                                   <p>Registrarse</p>
                               </button>
                           </li>
