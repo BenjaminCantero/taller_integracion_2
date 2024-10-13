@@ -13,6 +13,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@prisma/client": "^5.19.0",
+    "@zxing/library": "^0.21.3",
     "autoprefixer": "^10.4.20",
     "bcrypt": "^5.1.1",
     "bootstrap": "^5.3.3",

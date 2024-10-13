@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { BarcodeScanner } from 'react-zxing';
 import SalesTable from '../components/SalesTable';
 
 const SalesPage = () => {
@@ -15,6 +16,7 @@ const SalesPage = () => {
   const [isNewSaleModalOpen, setIsNewSaleModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingSale, setEditingSale] = useState(null);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   const [newSaleData, setNewSaleData] = useState({
     id: sales.length + 1,
@@ -24,6 +26,13 @@ const SalesPage = () => {
     fecha: new Date().toLocaleDateString('es-ES'),
     precio: 0,
   });
+
+  // Base de datos de productos simulada
+  const productDatabase = {
+    '123456789': { name: 'Producto A', price: 10 },
+    '987654321': { name: 'Producto B', price: 20 },
+    // Agrega más productos según sea necesario
+  };
 
   const handleNewSale = () => {
     setIsNewSaleModalOpen(true);
@@ -100,16 +109,45 @@ const SalesPage = () => {
     setPaymentMethodModal(true);
   };
 
+  const handleScan = (result) => {
+    if (result) {
+      const scannedBarcode = result.getText();
+      const product = productDatabase[scannedBarcode];
+      
+      if (product) {
+        const newSale = {
+          id: sales.length + 1,
+          producto: product.name,
+          cantidad: 1,
+          total: product.price,
+          fecha: new Date().toLocaleDateString('es-ES'),
+          precio: product.price,
+        };
+        
+        setSales([...sales, newSale]);
+        setIsScannerOpen(false);
+      } else {
+        alert('Producto no encontrado en la base de datos');
+      }
+    }
+  };
+
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Gestión de Ventas</h1>
 
-      <div className="mb-6">
+      <div className="mb-6 space-x-4">
         <button 
           className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
           onClick={handleNewSale}
         >
           Registrar Nueva Venta
+        </button>
+        <button 
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          onClick={() => setIsScannerOpen(true)}
+        >
+          Escanear Código de Barras
         </button>
       </div>
 
@@ -210,6 +248,25 @@ const SalesPage = () => {
               />
               <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Guardar Cambios</button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {isScannerOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setIsScannerOpen(false)}>
+          <div className="bg-white p-6 rounded-lg shadow-lg" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-2xl font-bold mb-4">Escanear Código de Barras</h2>
+            <BarcodeScanner
+              onUpdate={(err, result) => {
+                if (result) handleScan(result);
+              }}
+            />
+            <button 
+              className="mt-4 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+              onClick={() => setIsScannerOpen(false)}
+            >
+              Cerrar Escáner
+            </button>
           </div>
         </div>
       )}
