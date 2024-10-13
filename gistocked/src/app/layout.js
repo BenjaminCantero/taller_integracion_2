@@ -1,17 +1,41 @@
 
+'use client';
 import './globals.css';
+import Sidebar from './components/sidebar';
+import Login from './auth/UserLogin/page';
+import Home from './page';
+import { useState } from 'react';
 
-import Rutas from './rutas';
+const Layout = ({ children }) => {
+  const [usuarioActivo, setUsuarioActivo] = useState(false);
+  const [usuarioInfo, setUsuarioInfo] = useState({});
 
-
-const Layout = () => {
-  return (
-    <html lang="es">
-      <body>
-        <Rutas />
-      </body>
-    </html>
-  );
-};
+  if (!usuarioActivo) {
+    return (
+      <html lang='es'>
+        <body>
+          <div className='visible h-screen'>
+            <Login
+              setUsuarioActivo={setUsuarioActivo}
+              setUsuarioInfo={setUsuarioInfo}
+            />
+          </div>
+        </body>
+      </html>
+    )
+  } else {
+      return (
+        <html lang='es'>
+          <body className='flex h-screen overflow-hidden'>
+              <Sidebar>
+                <div className='flex-1 overflow-y-auto p-6 bg-gray-100'>
+                  {children}
+                </div>
+              </Sidebar>
+          </body>
+        </html>
+      )
+    }
+  };
 
 export default Layout;
