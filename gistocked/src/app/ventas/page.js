@@ -129,7 +129,40 @@ const SalesPage = () => {
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
             <h2 className="text-2xl font-bold mb-4">Registrar Nueva Venta</h2>
             <form onSubmit={handleNewSaleSubmit}>
-              {/* ... (campos del formulario de nueva venta) ... */}
+              <label className="block mb-2">Producto:</label>
+              <input 
+                type="text" 
+                value={newSaleData.producto}
+                onChange={(e) => setNewSaleData({ ...newSaleData, producto: e.target.value })}
+                className="border rounded w-full py-2 px-3 mb-4"
+                required
+              />
+              <label className="block mb-2">Cantidad:</label>
+              <input 
+                type="number" 
+                value={newSaleData.cantidad}
+                onChange={(e) => setNewSaleData({ ...newSaleData, cantidad: Math.max(1, parseInt(e.target.value)) })}
+                className="border rounded w-full py-2 px-3 mb-4"
+                min="1"
+                required
+              />
+              <label className="block mb-2">Precio Unitario:</label>
+              <input 
+                type="number" 
+                value={newSaleData.precio}
+                onChange={(e) => setNewSaleData({ ...newSaleData, precio: parseFloat(e.target.value) })}
+                className="border rounded w-full py-2 px-3 mb-4"
+                min="0"
+                required
+              />
+              <label className="block mb-2">Fecha:</label>
+              <input 
+                type="date" 
+                value={newSaleData.fecha}
+                onChange={(e) => setNewSaleData({ ...newSaleData, fecha: e.target.value })}
+                className="border rounded w-full py-2 px-3 mb-4"
+                required
+              />
               <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Agregar Venta</button>
             </form>
           </div>
@@ -186,10 +219,10 @@ const SalesPage = () => {
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
           onClick={handleSelectDocumentType}
         >
-          Seleccionar Documento
+          Generar Factura/Boleta
         </button>
         <button 
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
           onClick={handleSelectPaymentMethod}
         >
           Seleccionar Medio de Pago
@@ -199,40 +232,22 @@ const SalesPage = () => {
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setIsModalOpen(false)}>
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-2xl font-bold mb-4">Seleccionar Tipo de Documento</h2>
-            <div className="flex justify-between">
-              <button
-                onClick={() => {
-                  setIsInvoice(false);
-                  setIsModalOpen(false);
-                }}
-                className="bg-gray-500 hover:bg-gray-700 text-white py-2 px-4 rounded mr-2"
-              >
-                Boleta
-              </button>
-              <button
-                onClick={() => {
-                  setIsInvoice(true);
-                  setIsModalOpen(false);
-                }}
-                className="bg-gray-500 hover:bg-gray-700 text-white py-2 px-4 rounded"
-              >
-                Factura
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isInvoice && isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setIsModalOpen(false)}>
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/2" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-2xl font-bold mb-4">Datos de la Factura</h2>
+            <h2 className="text-2xl font-bold mb-4">Datos de Factura</h2>
             <form onSubmit={handleInvoiceSubmit}>
               <label className="block mb-2">RUT:</label>
-              <input name="rut" type="text" className="border rounded w-full py-2 px-3 mb-4" />
+              <input 
+                type="text" 
+                name="rut"
+                className="border rounded w-full py-2 px-3 mb-4"
+                required
+              />
               <label className="block mb-2">Razón Social:</label>
-              <input name="razonSocial" type="text" className="border rounded w-full py-2 px-3 mb-4" />
+              <input 
+                type="text" 
+                name="razonSocial"
+                className="border rounded w-full py-2 px-3 mb-4"
+                required
+              />
               <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Generar Factura</button>
             </form>
           </div>
@@ -243,21 +258,19 @@ const SalesPage = () => {
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setPaymentMethodModal(false)}>
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
             <h2 className="text-2xl font-bold mb-4">Seleccionar Medio de Pago</h2>
-            <button
-              onClick={() => setPaymentMethodModal(false)}
-              className="bg-gray-500 hover:bg-gray-700 text-white py-2 px-4 rounded mr-2"
-            >
-              Efectivo
-            </button>
-            <button
-              onClick={() => setPaymentMethodModal(false)}
-              className="bg-gray-500 hover:bg-gray-700 text-white py-2 px-4 rounded"
-            >
-              Tarjeta
-            </button>
+            <form>
+              <label className="block mb-2">Medio de Pago:</label>
+              <select className="border rounded w-full py-2 px-3 mb-4">
+                <option value="efectivo">Efectivo</option>
+                <option value="tarjeta">Tarjeta</option>
+                <option value="transferencia">Transferencia</option>
+              </select>
+              <button type="button" className="bg-blue-500 text-white py-2 px-4 rounded" onClick={() => alert('Medio de pago seleccionado')}>Seleccionar</button>
+            </form>
           </div>
         </div>
       )}
+
     </div>
   );
 };
