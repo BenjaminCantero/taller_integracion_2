@@ -3,7 +3,9 @@
 import './globals.css';
 import Sidebar from './components/sidebar';
 import Login from './auth/UserLogin/page';
-import Home from './page';
+
+import XD from './xd';
+
 import { useState } from 'react';
 
 const Layout = ({ children }) => {
@@ -18,7 +20,7 @@ const Layout = ({ children }) => {
             <Login
               setUsuarioActivo={setUsuarioActivo}
               setUsuarioInfo={setUsuarioInfo}
-            />
+            ></Login>
           </div>
         </body>
       </html>
@@ -26,7 +28,11 @@ const Layout = ({ children }) => {
   } else {
       return (
         <html lang='es'>
-          <body className='flex h-screen overflow-hidden'>
+          <body>
+            <XD>
+              {children}
+            </XD>
+            {/*  
               <Sidebar
               usuarioInfo={usuarioInfo}
               >
@@ -34,6 +40,7 @@ const Layout = ({ children }) => {
                   {children}
                 </div>
               </Sidebar>
+            */}
           </body>
         </html>
       )
