@@ -1,25 +1,33 @@
-// src/app/layout.js
+"use client";
 
-import Layout from '@/components/layout';
 import './globals.css';
+import Sidebar from './components/sidebar';
+import { useState, useEffect } from 'react';
 
-import { UserProvider } from './globalsUsers';
+const Layout = ({ children }) => {
+  const [mounted, setMounted] = useState(false);
 
-export const metadata = {
-  title: 'Gistoked',
-  description: 'Zona de ventas',
-};
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-export default function RootLayout({ children }) {
+  if (!mounted) {
+    return null; // or a loading spinner
+  }
+
   return (
     <html lang="es">
-      <body>
-        <UserProvider>
-          <Layout>
+      <body className="flex h-screen bg-gray-100">
+        <Sidebar />
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 ml-64">
+          <div className="container mx-auto px-6 py-8">
             {children}
-          </Layout>
-        </UserProvider>
+          </div>
+        </main>
       </body>
     </html>
   );
-}
+};
+
+export default Layout;
+
