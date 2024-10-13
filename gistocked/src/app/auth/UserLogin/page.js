@@ -28,6 +28,8 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
             { id: '2', rol: '2', nombre: 'vendedor1', correo: 'vendedor1@gmail.com', contrasena: '123' }
         ]);
 
+    console.log(usuariosValidos);
+
     // Validaciones de usuarios
     const validarUsuario = ( event ) => {
         event.preventDefault();

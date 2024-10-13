@@ -46,8 +46,9 @@ const Layout = () => {
               setUsuarioInfo={setUsuarioInfo}
             />
           ) : (
-            <Sidebar 
-              usuarioInfo={usuarioInfo} 
+            <Sidebar
+              setUsuarioActivo={setUsuarioActivo}
+              setUsuarioInfo={setUsuarioInfo}
               setPagina={setPagina}
               >
                 {renderPage()}
