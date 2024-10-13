@@ -16,13 +16,32 @@ body {
   background-color: #E5E5EA;
 }
 
+html, body {
+  height: 100%;
+}
+
+#__next {
+  height: 100%;
+}
+
+/* Asegura que todos los contenedores relevantes tengan altura */
+.container, .h-full {
+  height: 100%; /* O usa 'auto' si no quieres que se estire */
+}
+
+/* Asegúrate de que los contenedores de gráficos tengan un tamaño mínimo */
+.chart-container {
+  min-height: 300px; /* Ajusta según sea necesario */
+}
+
+/* Espaciado general */
 .container {
   padding: 20px;
 }
 
-/* Opcional: Evitar que el contenido principal se vea cortado */
-.main-content {
-  overflow-y: auto;
+/* Ajustes específicos para flexbox */
+.flex {
+  display: flex; /* Asegúrate de que todos los elementos flex tengan este estilo */
 }
 
 

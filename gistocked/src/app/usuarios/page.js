@@ -20,18 +20,18 @@ const Usuarios = () => {
   };
 
   return (
-      <main className="p-8"> {/* Contenido principal */}
-        <h1 className="text-3xl font-semibold mb-6">Gestión de Usuarios</h1> {/* Título */}
-        <button
-          onClick={handleOpenModal}
-          className="add-user-btn bg-blue-600 text-white px-6 py-2 rounded-md flex items-center mb-4 hover:bg-blue-700 transition"
-        >
-          <FontAwesomeIcon icon={faUserPlus} className="mr-2" /> {/* Icono usando FontAwesome */}
-          Agregar Usuario
-        </button>
-        <UserTable /> {/* Componente de la tabla */}
-        {modalOpen && <UserModal onClose={handleCloseModal} />} {/* Componente del modal */}
-      </main>
+    <main className="p-8"> {/* Contenido principal */}
+      <h1 className="text-3xl font-semibold mb-6">Gestión de Usuarios</h1> {/* Título */}
+      <button
+        onClick={handleOpenModal}
+        className="add-user-btn bg-blue-600 text-white px-6 py-2 rounded-md flex items-center mb-4 hover:bg-blue-700 transition"
+      >
+        <FontAwesomeIcon icon={faUserPlus} className="mr-2" /> {/* Icono usando FontAwesome */}
+        Agregar Usuario
+      </button>
+      <UserTable /> {/* Componente de la tabla */}
+      {modalOpen && <UserModal onClose={handleCloseModal} />} {/* Componente del modal */}
+    </main>
   );
 };
 
