@@ -1,4 +1,4 @@
-"use client";
+"use client"; // Asegúrate de que esto esté presente
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
@@ -10,28 +10,38 @@ const SalesManager = () => {
     quantity: "",
   });
   const [isModalOpen, setModalOpen] = useState(false);
-  const [products, setProducts] = useState([]); // Para obtener la lista de productos
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState(""); // Mensajes de éxito/error
 
   useEffect(() => {
     fetchSales();
-    fetchProducts(); // Obtener productos disponibles para ventas
+    fetchProducts();
   }, []);
 
   const fetchSales = async () => {
+    setLoading(true); // Inicia el indicador de carga
     try {
-      const response = await axios.get("/api/sales"); // Consulta a la API de ventas
+      const response = await axios.get("/api/sales");
       setSales(response.data);
     } catch (error) {
       console.error("Error fetching sales:", error);
+      setMessage("Error al obtener las ventas");
+    } finally {
+      setLoading(false); // Detiene el indicador de carga
     }
   };
 
   const fetchProducts = async () => {
+    setLoading(true); // Inicia el indicador de carga
     try {
-      const response = await axios.get("/api/products"); // Consulta a la API de productos
+      const response = await axios.get("/api/products");
       setProducts(response.data);
     } catch (error) {
       console.error("Error fetching products:", error);
+      setMessage("Error al obtener los productos");
+    } finally {
+      setLoading(false); // Detiene el indicador de carga
     }
   };
 
@@ -45,23 +55,33 @@ const SalesManager = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // Inicia el indicador de carga
 
     try {
-      await axios.post("/api/sales", formData); // Crear nueva venta
-      fetchSales(); // Actualiza la lista después de agregar
-      setModalOpen(false); // Cierra el modal
-      setFormData({ customerName: "", productId: "", quantity: "" }); // Resetea el formulario
+      await axios.post("/api/sales", formData);
+      fetchSales();
+      setModalOpen(false);
+      setFormData({ customerName: "", productId: "", quantity: "" });
+      setMessage("Venta agregada con éxito");
     } catch (error) {
       console.error("Error adding sale:", error);
+      setMessage("Error al agregar la venta");
+    } finally {
+      setLoading(false); // Detiene el indicador de carga
     }
   };
 
   const handleDelete = async (id) => {
+    setLoading(true); // Inicia el indicador de carga
     try {
-      await axios.delete(`/api/sales/${id}`); // Eliminar venta
-      fetchSales(); // Actualiza la lista
+      await axios.delete(`/api/sales/${id}`);
+      fetchSales();
+      setMessage("Venta eliminada con éxito");
     } catch (error) {
       console.error("Error deleting sale:", error);
+      setMessage("Error al eliminar la venta");
+    } finally {
+      setLoading(false); // Detiene el indicador de carga
     }
   };
 
@@ -76,6 +96,13 @@ const SalesManager = () => {
           Agregar Venta
         </button>
 
+        {/* Mensaje de estado */}
+        {message && (
+          <div className="bg-yellow-200 text-yellow-800 p-2 rounded mb-4">
+            {message}
+          </div>
+        )}
+
         {/* Modal para agregar ventas */}
         {isModalOpen && (
           <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50">
@@ -83,6 +110,8 @@ const SalesManager = () => {
               <span
                 className="text-gray-600 cursor-pointer float-right text-xl"
                 onClick={() => setModalOpen(false)}
+                role="button"
+                aria-label="Cerrar"
               >
                 &times;
               </span>
@@ -133,8 +162,9 @@ const SalesManager = () => {
                 <button
                   type="submit"
                   className="bg-green-500 text-white px-4 py-2 rounded w-full"
+                  disabled={loading} // Deshabilita el botón mientras se carga
                 >
-                  Guardar
+                  {loading ? "Guardando..." : "Guardar"}
                 </button>
               </form>
             </div>
@@ -157,14 +187,15 @@ const SalesManager = () => {
               <tr key={sale.id}>
                 <td className="border px-4 py-2">{sale.id}</td>
                 <td className="border px-4 py-2">{sale.customerName}</td>
-                <td className="border px-4 py-2">{sale.productName}</td> {/* Asegúrate de que el API devuelve el nombre del producto */}
+                <td className="border px-4 py-2">{sale.productName}</td>
                 <td className="border px-4 py-2">{sale.quantity}</td>
                 <td className="border px-4 py-2">
                   <button
                     className="bg-red-500 text-white px-4 py-2 rounded"
                     onClick={() => handleDelete(sale.id)}
+                    disabled={loading} // Deshabilita el botón mientras se carga
                   >
-                    Eliminar
+                    {loading ? "Eliminando..." : "Eliminar"}
                   </button>
                 </td>
               </tr>

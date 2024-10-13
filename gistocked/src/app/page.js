@@ -1,3 +1,5 @@
+"use client"; // Asegúrate de que este está presente
+
 import Layout from './layout'; // Asegúrate de que la ruta sea correcta
 
 const Home = () => {

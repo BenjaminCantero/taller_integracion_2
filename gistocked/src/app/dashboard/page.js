@@ -1,17 +1,21 @@
-"use client";
+"use client"; // Asegúrate de que esta línea esté al principio
 
-import React from 'react';
+// Importamos las dependencias necesarias
+import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { PieChart, Pie, Cell } from 'recharts';
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
+import { FaShoppingCart, FaMoneyBill, FaUsers, FaBoxOpen } from 'react-icons/fa'; // Importando íconos
 
 // Datos de ejemplo
 const salesData = [
-  { month: 'Ene', sales: 30 },
-  { month: 'Feb', sales: 40 },
-  { month: 'Mar', sales: 45 },
-  { month: 'Abr', sales: 55 },
-  { month: 'May', sales: 50 },
-  { month: 'Jun', sales: 60 },
+  { period: 'Ene', sales: 30 },
+  { period: 'Feb', sales: 40 },
+  { period: 'Mar', sales: 45 },
+  { period: 'Abr', sales: 55 },
+  { period: 'May', sales: 50 },
+  { period: 'Jun', sales: 60 },
 ];
 
 const revenueData = [
@@ -27,13 +31,44 @@ const latestSales = [
   { id: 3, product: 'Teclado Logitech', quantity: 3, date: '06/10/2024' },
 ];
 
+// Función para descargar el gráfico como PDF
+const downloadChartAsPDF = (chartId, title) => {
+  const input = document.getElementById(chartId);
+
+  html2canvas(input).then((canvas) => {
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF();
+    pdf.addImage(imgData, 'PNG', 10, 10, 180, 160); // Posición e imagen
+    pdf.save(`${title}.pdf`);
+  });
+};
+
 const Dashboard = () => {
+  const [selectedPeriod, setSelectedPeriod] = useState('Mensual');
+
+  const getSalesData = () => {
+    switch (selectedPeriod) {
+      case 'Diario':
+        return salesData.slice(0, 1); // Solo un día como ejemplo
+      case 'Mensual':
+        return salesData;
+      case 'Anual':
+        return salesData; // Aquí deberías adaptar los datos para mostrar ventas anuales
+      default:
+        return salesData;
+    }
+  };
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
 
       <StatsGrid />
-      <ChartsGrid />
+      <ChartsGrid
+        selectedPeriod={selectedPeriod}
+        setSelectedPeriod={setSelectedPeriod}
+        getSalesData={getSalesData}
+      />
       <LatestSalesTable />
     </div>
   );
@@ -41,17 +76,32 @@ const Dashboard = () => {
 
 const StatsGrid = () => (
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-    <StatCard title="Cantidad de Ventas" value="13" icon={<SalesIcon />} />
-    <StatCard title="Ingresos por Ventas" value="$25,060" icon={<RevenueIcon />} />
-    <StatCard title="Usuarios Registrados" value="180" icon={<UserIcon />} />
-    <StatCard title="Productos Disponibles" value="60" icon={<ProductIcon />} />
+    <StatCard title="Cantidad de Ventas" value="13" icon={<FaShoppingCart />} />
+    <StatCard title="Ingresos por Ventas" value="$25,060" icon={<FaMoneyBill />} />
+    <StatCard title="Usuarios Registrados" value="180" icon={<FaUsers />} />
+    <StatCard title="Productos Disponibles" value="60" icon={<FaBoxOpen />} />
   </div>
 );
 
-const ChartsGrid = () => (
+const ChartsGrid = ({ selectedPeriod, setSelectedPeriod, getSalesData }) => (
   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <ChartCard title="Ventas Mensuales" chart={<SalesChart data={salesData} />} table={<SalesTable data={salesData} />} />
-    <ChartCard title="Ingresos por Producto" chart={<RevenueChart data={revenueData} />} table={<RevenueTable data={revenueData} />} />
+    <ChartCard
+      title={`Ventas ${selectedPeriod}`}
+      chart={<SalesChart data={getSalesData()} chartId="salesChart" />}
+      table={<SalesTable data={getSalesData()} />}
+      buttons={[
+        { label: 'Diario', onClick: () => setSelectedPeriod('Diario') },
+        { label: 'Mensual', onClick: () => setSelectedPeriod('Mensual') },
+        { label: 'Anual', onClick: () => setSelectedPeriod('Anual') },
+      ]}
+      onDownload={() => downloadChartAsPDF('salesChart', `Ventas_${selectedPeriod}`)}
+    />
+    <ChartCard
+      title="Ingresos por Producto"
+      chart={<RevenueChart data={revenueData} chartId="revenueChart" />}
+      table={<RevenueTable data={revenueData} />}
+      onDownload={() => downloadChartAsPDF('revenueChart', 'Ingresos_por_Producto')}
+    />
   </div>
 );
 
@@ -93,12 +143,31 @@ const StatCard = ({ title, value, icon }) => (
   </div>
 );
 
-const ChartCard = ({ title, chart, table }) => (
+const ChartCard = ({ title, chart, table, buttons, onDownload }) => (
   <div className="bg-white p-6 rounded-lg shadow">
- <h3 className="text-lg font-semibold mb-4">{title}</h3>
-    <div className="h-64">
-      {chart}
+    <h3 className="text-lg font-semibold mb-4">{title}</h3>
+
+    {/* Verificamos si buttons es un array antes de usar .map() */}
+    <div className="flex space-x-4 mb-4">
+      {Array.isArray(buttons) && buttons.map((button, index) => (
+        <button
+          key={index}
+          onClick={button.onClick}
+          className="px-4 py-2 bg-blue-500 text-white rounded"
+        >
+          {button.label}
+        </button>
+      ))}
     </div>
+
+    <div className="h-72">{chart}</div> {/* Ajustamos la altura aquí */}
+    
+    <button
+      onClick={onDownload}
+      className="mt-4 px-4 py-2 bg-green-500 text-white rounded"
+    >
+      Descargar Gráfico en PDF
+    </button>
     {table}
   </div>
 );
@@ -117,7 +186,7 @@ const SalesTable = ({ data }) => (
         <tbody>
           {data.map((item, index) => (
             <tr key={index} className="border-b">
-              <td className="p-2">{item.month}</td>
+              <td className="p-2">{item.period}</td>
               <td className="p-2">{item.sales}</td>
             </tr>
           ))}
@@ -142,7 +211,7 @@ const RevenueTable = ({ data }) => (
           {data.map((item, index) => (
             <tr key={index} className="border-b">
               <td className="p-2">{item.name}</td>
-              <td className="p-2">${item.value}</td>
+              <td className="p-2">{item.value}</td>
             </tr>
           ))}
         </tbody>
@@ -151,68 +220,30 @@ const RevenueTable = ({ data }) => (
   </div>
 );
 
-const SalesChart = ({ data }) => (
+const SalesChart = ({ data, chartId }) => (
   <ResponsiveContainer width="100%" height="100%">
-    <BarChart data={data}>
+    <BarChart data={data} id={chartId}>
       <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="month" />
+      <XAxis dataKey="period" />
       <YAxis />
       <Tooltip />
       <Legend />
-      <Bar dataKey="sales" fill="#3498db" />
+      <Bar dataKey="sales" fill="#8884d8" />
     </BarChart>
   </ResponsiveContainer>
 );
 
-const RevenueChart = ({ data }) => {
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
-
-  return (
-    <ResponsiveContainer width="100%" height="100%">
-      <PieChart>
-        <Pie
-          data={data}
-          cx="50%"
-          cy="50%"
-          labelLine={false}
-          outerRadius={80}
-          fill="#8884d8"
-          dataKey="value"
-        >
-          {data.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-          ))}
-        </Pie>
-        <Tooltip />
-        <Legend />
-      </PieChart>
-    </ResponsiveContainer>
-  );
-};
-
-// Iconos simples (puedes reemplazarlos con una librería de iconos si lo prefieres)
-const SalesIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-  </svg>
-);
-
-const RevenueIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2. 599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-  </svg>
-);
-
-const UserIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 111-8 0 4 4 0 01-8 0z" />
-  </svg>
-);
-
-const ProductIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-  </svg>
+const RevenueChart = ({ data, chartId }) => (
+  <ResponsiveContainer width="100%" height="100%">
+    <PieChart id={chartId}>
+      <Pie data={data} dataKey="value" nameKey="name" fill="#8884d8" label>
+        {data.map((entry, index) => (
+          <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#8884d8' : '#82ca9d'} />
+        ))}
+      </Pie>
+      <Tooltip />
+    </PieChart>
+  </ResponsiveContainer>
 );
 
 export default Dashboard;
