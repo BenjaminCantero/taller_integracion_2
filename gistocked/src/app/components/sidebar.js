@@ -102,7 +102,7 @@ const Sidebar = ( {children, setUsuarioActivo, setUsuarioInfo, usuarioInfo, setP
                                     className='w-full'
                                     >
                                         <span className='px-2 py-4 flex items-center hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-700'>
-                                            <FontAwesomeIcon icon={faCog} className='mx-5 text-lg' /> Configuración
+                                            <FontAwesomeIcon icon={faCog} className='mx-5 text-lg' /> Configuraciones
                                         </span>
                                     </button>
                                 </li>
