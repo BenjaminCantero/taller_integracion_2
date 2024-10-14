@@ -44,11 +44,13 @@ const Layout = () => {
               usuarioActivo={usuarioActivo}
               setUsuarioActivo={setUsuarioActivo}
               setUsuarioInfo={setUsuarioInfo}
+              usuarioInfo={usuarioInfo}
             />
           ) : (
             <Sidebar
               setUsuarioActivo={setUsuarioActivo}
               setUsuarioInfo={setUsuarioInfo}
+              usuarioInfo={usuarioInfo}
               setPagina={setPagina}
               >
                 {renderPage()}
