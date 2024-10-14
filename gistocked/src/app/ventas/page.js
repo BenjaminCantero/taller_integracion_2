@@ -6,7 +6,13 @@ import SalesTable from '../components/SalesTable';
 const SalesPage = () => {
   const [sales, setSales] = useState([
     { id: 1, producto: 'Monitor Samsung Curvo', cantidad: 2, total: 500, fecha: '08/10/2024' },
-    { id: 2, producto: 'Teclado Logitech Gamer', cantidad: 1, total: 100, fecha: '07/10/2024' }
+    { id: 2, producto: 'Teclado Logitech Gamer', cantidad: 1, total: 100, fecha: '07/10/2024' },
+    { id: 3, producto: 'Mouse Razer DeathAdder', cantidad: 3, total: 150, fecha: '06/10/2024' },
+    { id: 4, producto: 'Silla Gamer DXRacer', cantidad: 1, total: 300, fecha: '05/10/2024' },
+    { id: 5, producto: 'Auriculares HyperX Cloud', cantidad: 2, total: 200, fecha: '04/10/2024' },
+    { id: 6, producto: 'Tarjeta Gráfica RTX 3070', cantidad: 1, total: 700, fecha: '03/10/2024' },
+    { id: 7, producto: 'Procesador AMD Ryzen 9', cantidad: 1, total: 400, fecha: '02/10/2024' },
+    { id: 8, producto: 'Placa Madre ASUS ROG', cantidad: 1, total: 250, fecha: '01/10/2024' }
   ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
