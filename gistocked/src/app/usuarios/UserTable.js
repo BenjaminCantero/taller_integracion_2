@@ -1,15 +1,6 @@
 import React from 'react';
 
-const UserTable = () => {
-  // Ejemplo de datos de usuarios
-  const users = [
-    { id: 1, nombre: 'Juan Pérez', email: 'juan@example.com', rol: 'Admin' },
-    { id: 2, nombre: 'María López', email: 'maria@example.com', rol: 'Vendedor' },
-    { id: 3, nombre: 'Carlos González', email: 'carlos@example.com', rol: 'Vendedor' },
-    { id: 4, nombre: 'Ana Torres', email: 'ana@example.com', rol: 'Vendedor' },
-    { id: 5, nombre: 'Luis Fernández', email: 'luis@example.com', rol: 'Vendedor' },
-  ];
-
+const UserTable = ({ users, onEdit, onDelete }) => {
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full bg-white border border-gray-300 shadow-md">
@@ -30,8 +21,18 @@ const UserTable = () => {
               <td className="py-3 px-4 border-b">{user.email}</td>
               <td className="py-3 px-4 border-b">{user.rol}</td>
               <td className="py-3 px-4 border-b">
-                <button className="text-blue-500 hover:underline">Editar</button>
-                <button className="text-red-500 hover:underline ml-4">Eliminar</button>
+                <button
+                  className="text-blue-500 hover:underline"
+                  onClick={() => onEdit(user)} // Llama a la función para editar
+                >
+                  Editar
+                </button>
+                <button
+                  className="text-red-500 hover:underline ml-4"
+                  onClick={() => onDelete(user.id)} // Llama a la función para eliminar
+                >
+                  Eliminar
+                </button>
               </td>
             </tr>
           ))}
