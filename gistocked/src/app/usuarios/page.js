@@ -62,8 +62,8 @@ const Usuarios = () => {
   };
 
   return (
-    <main className="p-8">
-      <h1 className="text-3xl font-semibold mb-6">Gestión de Usuarios</h1>
+    <main className="p-8 bg-gray-100 min-h-screen">
+      <h1 className="text-3xl font-semibold mb-6 text-blue-600">Gestión de Usuarios</h1>
       <button
         onClick={handleOpenModal}
         className="add-user-btn bg-blue-600 text-white px-6 py-2 rounded-md flex items-center mb-4 hover:bg-blue-700 transition"
@@ -72,7 +72,14 @@ const Usuarios = () => {
         Agregar Usuario
       </button>
       <UserTable users={users} onEdit={handleEdit} onDelete={handleDelete} />
-      {modalOpen && <UserModal onClose={handleCloseModal} onAddUser={handleAddUser} onEditUser={editUser} onSaveEdit={handleSaveEdit} />}
+      {modalOpen && (
+        <UserModal
+          onClose={handleCloseModal}
+          onAddUser={handleAddUser}
+          onEditUser={editUser}
+          onSaveEdit={handleSaveEdit}
+        />
+      )}
     </main>
   );
 };

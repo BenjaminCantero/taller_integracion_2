@@ -3,33 +3,33 @@ import React from 'react';
 const UserTable = ({ users, onEdit, onDelete }) => {
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full bg-white border border-gray-300 shadow-md">
-        <thead className="bg-gray-800 text-white">
-          <tr>
-            <th className="py-3 px-4 border-b text-left text-sm font-medium">ID</th>
-            <th className="py-3 px-4 border-b text-left text-sm font-medium">Nombre</th>
-            <th className="py-3 px-4 border-b text-left text-sm font-medium">Email</th>
-            <th className="py-3 px-4 border-b text-left text-sm font-medium">Rol</th>
-            <th className="py-3 px-4 border-b text-left text-sm font-medium">Acciones</th>
+      <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
+        <thead>
+          <tr className="bg-gray-100 border-b">
+            <th className="text-left py-3 px-4">ID</th>
+            <th className="text-left py-3 px-4">Nombre</th>
+            <th className="text-left py-3 px-4">Email</th>
+            <th className="text-left py-3 px-4">Rol</th>
+            <th className="text-left py-3 px-4">Acciones</th>
           </tr>
         </thead>
         <tbody>
           {users.map(user => (
-            <tr key={user.id} className="hover:bg-gray-100">
-              <td className="py-3 px-4 border-b">{user.id}</td>
-              <td className="py-3 px-4 border-b">{user.nombre}</td>
-              <td className="py-3 px-4 border-b">{user.email}</td>
-              <td className="py-3 px-4 border-b">{user.rol}</td>
-              <td className="py-3 px-4 border-b">
+            <tr key={user.id} className="border-b hover:bg-gray-50">
+              <td className="py-2 px-4">{user.id}</td>
+              <td className="py-2 px-4">{user.nombre}</td>
+              <td className="py-2 px-4">{user.email}</td>
+              <td className="py-2 px-4">{user.rol}</td>
+              <td className="py-2 px-4 flex space-x-2">
                 <button
-                  className="text-blue-500 hover:underline"
-                  onClick={() => onEdit(user)} // Llama a la función para editar
+                  onClick={() => onEdit(user)}
+                  className="edit-btn bg-green-500 text-white px-4 py-1 rounded-md hover:bg-green-600 transition"
                 >
                   Editar
                 </button>
                 <button
-                  className="text-red-500 hover:underline ml-4"
-                  onClick={() => onDelete(user.id)} // Llama a la función para eliminar
+                  onClick={() => onDelete(user.id)}
+                  className="delete-btn bg-red-500 text-white px-4 py-1 rounded-md hover:bg-red-600 transition"
                 >
                   Eliminar
                 </button>

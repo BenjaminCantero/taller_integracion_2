@@ -45,14 +45,16 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
 
   return (
     <div className="modal fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="modal-content bg-white rounded-lg shadow-lg p-6">
+      <div className="modal-content bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
         <span
-          className="close-btn cursor-pointer text-gray-500 float-right"
+          className="close-btn cursor-pointer text-gray-500 float-right text-2xl"
           onClick={onClose}
         >
           &times;
         </span>
-        <h2 className="text-xl font-semibold mb-4">{onEditUser ? 'Editar Usuario' : 'Agregar Nuevo Usuario'}</h2>
+        <h2 className="text-xl font-semibold mb-4 text-blue-600">
+          {onEditUser ? 'Editar Usuario' : 'Agregar Nuevo Usuario'}
+        </h2>
         <form onSubmit={handleSubmit}>
           <label htmlFor="name" className="block text-gray-700 font-medium mb-1">Nombre</label>
           <input
@@ -62,7 +64,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
             required
             value={name}
             onChange={(e) => setName(e.target.value)} // Maneja el cambio en el campo de nombre
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-600"
           />
 
           <label htmlFor="email" className="block text-gray-700 font-medium mb-1">Email</label>
@@ -73,7 +75,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)} // Maneja el cambio en el campo de email
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-600"
           />
 
           <label htmlFor="role" className="block text-gray-700 font-medium mb-1">Rol</label>
@@ -82,7 +84,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
             name="role"
             value={role}
             onChange={(e) => setRole(e.target.value)} // Maneja el cambio en el campo de rol
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-600"
           >
             <option value="admin">Administrador</option>
             <option value="user">Usuario</option>
@@ -90,7 +92,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
 
           <button
             type="submit"
-            className="submit-btn bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
+            className="submit-btn bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition transform hover:scale-105"
           >
             {onEditUser ? 'Guardar Cambios' : 'Guardar'}
           </button>
