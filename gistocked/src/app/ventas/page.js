@@ -389,7 +389,6 @@ const SalesPage = () => {
         </div>
       )}
 
-
       {paymentMethodModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setPaymentMethodModal(false)}>
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
