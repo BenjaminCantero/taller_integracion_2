@@ -92,23 +92,6 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
               <option value="admin">Administrador</option>
               <option value="user">Usuario</option>
             </select>
-<<<<<<< HEAD
-            
-            <button 
-              type="submit" 
-              className="submit-btn bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
-            >
-              Guardar
-            </button>
-          </form>
-        </div>
-      </div>
-    );
-  };
-  
-  export default UserModal;
-  
-=======
           </div>
 
           <div className="flex justify-end space-x-4">
@@ -133,4 +116,3 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
 };
 
 export default UserModal;
->>>>>>> origin/Prueba1234
