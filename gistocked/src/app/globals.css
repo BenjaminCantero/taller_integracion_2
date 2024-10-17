@@ -1,8 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import './styles.css';
 
-<<<<<<< HEAD
 :root {
   --primary-color: #3f51b5; /* Azul clásico */
   --secondary-color: #f0f2f5; /* Amarillo dorado */
@@ -16,8 +16,6 @@
   --white: #ffffff;
   --shadow: 0 4px 6px rgba(2, 1, 1, 0.1);
 }
-=======
->>>>>>> comits-nuevo
 
 /* Diseño general */
 * {
@@ -25,8 +23,7 @@
     padding: 0;
     box-sizing: border-box;
   }
-<<<<<<< HEAD
-}
+
 
 body {
   font-family: 'Open Sans', sans-serif;
@@ -215,14 +212,6 @@ body {
 @layer utilities {
   .text-balance {
     text-wrap: balance;
-=======
-  
-  body {
-    font-family: 'Poppins', sans-serif;
-    font-size: 16px;
-    line-height: 1.5;
-    background-color: #E5E5EA;
->>>>>>> comits-nuevo
   }
   
   .container {
@@ -230,7 +219,6 @@ body {
     height: 100vh;
     padding: 20px;
   }
-<<<<<<< HEAD
 
   .hover-shadow:hover {
     box-shadow: 0 8px 12px var(--shadow-color);
@@ -595,6 +583,3 @@ body {
     @apply bg-gray-900;
   }
 }
-=======
-  
->>>>>>> comits-nuevo
