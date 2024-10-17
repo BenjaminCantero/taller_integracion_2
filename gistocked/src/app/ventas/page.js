@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { BarcodeScanner } from 'react-zxing';
+import { BarcodeScanner } from 'react-zxing'; // Asegúrate de que esta biblioteca esté instalada
 import SalesTable from '../components/SalesTable';
 import { PDFDocument, rgb } from 'pdf-lib';
 
@@ -28,45 +28,6 @@ const SalesPage = () => {
     precio: 0,
   });
 
-  // Base de datos de productos simulada
-  const productDatabase = {
-    '123456789': { name: 'Producto A', price: 10 },
-    '987654321': { name: 'Producto B', price: 20 },
-    // Agrega más productos según sea necesario
-  };
-
-  const generateInvoicePDF = async (venta) => {
-    const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage([600, 400]);
-    const { width, height } = page.getSize();
-  
-    page.drawText(`Boleta o Factura`, {
-      x: 50,
-      y: height - 50,
-      size: 20,
-      color: rgb(0, 0, 0),
-    });
-  
-    // Agrega detalles de la venta
-    page.drawText(`Producto: ${venta.producto}`, { x: 50, y: height - 80, size: 12 });
-    page.drawText(`Cantidad: ${venta.cantidad}`, { x: 50, y: height - 100, size: 12 });
-    page.drawText(`Total: ${venta.total}`, { x: 50, y: height - 120, size: 12 });
-  
-    const pdfBytes = await pdfDoc.save();
-    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-    const url = URL.createObjectURL(blob);
-  
-    // Descarga el PDF
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'boleta_o_factura.pdf';
-    link.click();
-  };
-  
-  const handleNewSale = () => {
-    setIsNewSaleModalOpen(true);
-  };
-
   const handleNewSaleSubmit = (e) => {
     e.preventDefault();
     
@@ -87,6 +48,71 @@ const SalesPage = () => {
     setIsNewSaleModalOpen(false);
   };
 
+  const handleScan = async (data) => {
+    if (data) {
+      const scannedBarcode = data;
+
+      try {
+        const response = await fetch(`/api/producto/${scannedBarcode}`);
+        const producto = await response.json();
+
+        if (response.ok) {
+          const newSale = {
+            id: sales.length + 1,
+            producto: producto.nombre,
+            cantidad: 1,
+            total: producto.precio,
+            fecha: new Date().toLocaleDateString('es-ES'),
+            precio: producto.precio,
+          };
+
+          setSales([...sales, newSale]);
+          setIsScannerOpen(false);
+        } else {
+          alert('Producto no encontrado en la base de datos');
+        }
+      } catch (error) {
+        alert('Error al conectar con la base de datos');
+      }
+    }
+  };
+
+  const handleError = (err) => {
+    console.error(err);
+  };
+
+  const generateInvoicePDF = async (venta) => {
+    const pdfDoc = await PDFDocument.create();
+    const page = pdfDoc.addPage([600, 400]);
+    const { width, height } = page.getSize();
+
+    page.drawText(`Boleta o Factura`, {
+      x: 50,
+      y: height - 50,
+      size: 20,
+      color: rgb(0, 0, 0),
+    });
+
+    // Agrega detalles de la venta
+    page.drawText(`Producto: ${venta.producto}`, { x: 50, y: height - 80, size: 12 });
+    page.drawText(`Cantidad: ${venta.cantidad}`, { x: 50, y: height - 100, size: 12 });
+    page.drawText(`Total: ${venta.total}`, { x: 50, y: height - 120, size: 12 });
+
+    const pdfBytes = await pdfDoc.save();
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+
+    // Descarga el PDF
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'boleta_o_factura.pdf';
+    link.click();
+  };
+
+  const handleNewSale = () => {
+    setIsNewSaleModalOpen(true);
+  };
+
   const handleGenerateDocument = (sale) => {
     if (isInvoice) {
       generateInvoicePDF(sale);
@@ -94,7 +120,6 @@ const SalesPage = () => {
       // Lógica para boleta
     }
   };
-  
 
   const handleEditSale = (id) => {
     const saleToEdit = sales.find(sale => sale.id === id);
@@ -111,12 +136,11 @@ const SalesPage = () => {
     setIsEditModalOpen(false);
     setEditingSale(null);
   };
+
   const handleIncreaseQuantity = async (id) => {
-    // Busca el producto en la base de datos
     const sale = sales.find((sale) => sale.id === id);
     const newQuantity = sale.cantidad + 1;
-  
-    // Actualiza la base de datos
+
     try {
       await fetch(`/api/producto/${sale.codigoBarras}`, {
         method: 'PATCH',
@@ -127,35 +151,33 @@ const SalesPage = () => {
           stock: sale.stock - 1,
         }),
       });
-  
+
       const updatedSales = sales.map((sale) =>
         sale.id === id
           ? { ...sale, cantidad: newQuantity, total: newQuantity * sale.precio }
           : sale
       );
-  
+
       setSales(updatedSales);
     } catch (error) {
       alert('Error al actualizar la cantidad');
     }
   };
-  
 
   const handleDeleteSale = async (id) => {
     const sale = sales.find((sale) => sale.id === id);
-  
+
     try {
       await fetch(`/api/ventas/${id}`, {
         method: 'DELETE',
       });
-  
+
       const updatedSales = sales.filter((sale) => sale.id !== id);
       setSales(updatedSales);
     } catch (error) {
       alert('Error al eliminar la venta');
     }
   };
-  
 
   const handleDecreaseQuantity = (id) => {
     const updatedSales = sales.map((sale) =>
@@ -168,8 +190,8 @@ const SalesPage = () => {
 
   const handleSelectDocumentType = (tipoDocumento) => {
     setIsInvoice(tipoDocumento === 'factura');
+    
   };
-  
 
   const handleInvoiceSubmit = (e) => {
     e.preventDefault();
@@ -180,36 +202,6 @@ const SalesPage = () => {
   const handleSelectPaymentMethod = () => {
     setPaymentMethodModal(true);
   };
-
-  const handleScan = async (result) => {
-    if (result) {
-      const scannedBarcode = result.getText();
-  
-      try {
-        const response = await fetch(`/api/producto/${scannedBarcode}`);
-        const producto = await response.json();
-  
-        if (response.ok) {
-          const newSale = {
-            id: sales.length + 1,
-            producto: producto.nombre,
-            cantidad: 1,
-            total: producto.precio,
-            fecha: new Date().toLocaleDateString('es-ES'),
-            precio: producto.precio,
-          };
-  
-          setSales([...sales, newSale]);
-          setIsScannerOpen(false);
-        } else {
-          alert('Producto no encontrado en la base de datos');
-        }
-      } catch (error) {
-        alert('Error al conectar con la base de datos');
-      }
-    }
-  };
-
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Gestión de Ventas</h1>
@@ -352,7 +344,10 @@ const SalesPage = () => {
       <div className="mt-6 flex justify-start space-x-4">
         <button 
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          onClick={handleSelectDocumentType}
+          onClick={() => {
+            setIsModalOpen(true);
+            setIsInvoice(false); // Inicialmente selecciona boleta
+          }}
         >
           Generar Factura/Boleta
         </button>
@@ -364,7 +359,36 @@ const SalesPage = () => {
         </button>
       </div>
 
-      {isInvoice && isModalOpen && (
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+            <h2 className="text-2xl font-bold mb-4">Seleccionar Tipo de Documento</h2>
+            <div className="mb-4">
+              <button 
+                className="bg-blue-500 text-white py-2 px-4 rounded mr-2" 
+                onClick={() => {
+                  setIsInvoice(true);
+                  setIsModalOpen(false);
+                }}
+              >
+                Factura
+              </button>
+              <button 
+                className="bg-green-500 text-white py-2 px-4 rounded" 
+                onClick={() => {
+                  setIsInvoice(false);
+                  setIsModalOpen(false);
+                  alert("Boleta generada.");
+                }}
+              >
+                Boleta
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isInvoice && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
             <h2 className="text-2xl font-bold mb-4">Datos de Factura</h2>
@@ -405,7 +429,6 @@ const SalesPage = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };

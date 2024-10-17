@@ -9,6 +9,7 @@
     "mysql": "^2.18.1",
     "mysql2": "^3.11.2",
     "pdf-lib": "^1.17.1",
+    "react-qr-barcode-scanner": "^2.0.0",
     "react-zxing": "^2.0.2"
   },
   "name": "maximo-orellana-",
