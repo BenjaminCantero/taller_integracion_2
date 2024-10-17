@@ -24,3 +24,11 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Producto {
+  id        Int    @id @default(autoincrement())
+  nombre    String
+  codigoBarras String @unique
+  precio    Float
+  stock     Int
+}
