@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { BarcodeScanner } from 'react-zxing'; // Asegúrate de que esta biblioteca esté instalada
+import BarcodeScanner from './components/BarcodeScannerModal';
 import SalesTable from '../components/SalesTable';
 import { PDFDocument, rgb } from 'pdf-lib';
+
 
 const SalesPage = () => {
   const [sales, setSales] = useState([
