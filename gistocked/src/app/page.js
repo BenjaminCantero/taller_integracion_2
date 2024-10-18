@@ -14,7 +14,7 @@ const Home = ( {usuarioInfo} ) => {
             <label className="block text-gray-700 font-medium mb-1">Nombre</label>
             <input 
               type="text" 
-              value={usuarioInfo.nombre || ''} 
+              value={usuarioInfo.nombre_usuario || ''} 
               readOnly 
               className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
@@ -24,7 +24,7 @@ const Home = ( {usuarioInfo} ) => {
             <label className="block text-gray-700 font-medium mb-1">Correo</label>
             <input 
               type="text" 
-              value={usuarioInfo.correo || ''}
+              value={usuarioInfo.email || ''}
               readOnly 
               className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
@@ -34,7 +34,7 @@ const Home = ( {usuarioInfo} ) => {
             <label className="block text-gray-700 font-medium mb-1">Rol</label>
             <input 
               type="text" 
-              value={usuarioInfo.rol || ''} 
+              value={usuarioInfo.id_rol || ''} 
               readOnly 
               className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />

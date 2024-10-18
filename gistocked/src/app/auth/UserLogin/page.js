@@ -17,28 +17,59 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
     const [loginForm, setLoginForm] = useState(false);
     const [inputCorreoForm1, setInputCorreoForm1] = useState('');
     const [inputContrasenaForm1, setInputContrasenaForm1] = useState('');
+    const [inputEmpresaForm1, setInputEmpresaForm1] = useState('');
 
     const [registerForm, setRegisterForm] = useState(false);
     const [inputNombreForm2, setInputNombreForm2] = useState('');
     const [inputCorreoForm2, setInputCorreoForm2] = useState('');
     const [inputContrasenaForm2, setInputContrasenaForm2] = useState('');
+    const [inputEmpresaForm2, setInputEmpresaForm2] = useState('');
 
     const [usuariosValidos, setUsuariosValidos] = useState([
-            { id: '1', rol: '1', nombre: 'admin1', correo: 'admin1@gmail.com', contrasena: '123' },
-            { id: '2', rol: '2', nombre: 'vendedor1', correo: 'vendedor1@gmail.com', contrasena: '123' }
-        ]);
+            { codigo_vendedor:-1, nombre_usuario: 'admin1', nombre_empresa: 'Empresa 0', password:'123', email:'admin1@gmail.com', id_rol:1, id_admin:-1},
+            { codigo_vendedor:-2, nombre_usuario: 'vendedor1', nombre_empresa: 'Empresa 0', password:'123', email:'vendedor1@gmail.com', id_rol:2, id_admin:-1}
+          ])
 
-    // Validaciones de usuarios
-    const validarUsuario = ( event ) => {
+    const validarUsuarioEstatico = (event) => {
         event.preventDefault();
-        for (let i=0; i<usuariosValidos.length; i++) {
-            if (inputCorreoForm1 == usuariosValidos[i].correo && inputContrasenaForm1 == usuariosValidos[i].contrasena) {
+        for (let i = 0; i < usuariosValidos.length; i++) {
+            if (inputCorreoForm1 === usuariosValidos[i].email && inputContrasenaForm1 === usuariosValidos[i].password) {
                 setUsuarioInfo(usuariosValidos[i]);
                 setUsuarioActivo(true);
-                break;
+                return true; // Retornar true si el usuario es válido
             }
         }
-    }
+        return false; // Retornar false si no se encontró un usuario válido
+    };
+    
+    const validarUsuarioBaseDeDatos = async () => {
+        const res = await fetch("/api/usuario/", {
+            method: "POST",
+            body: JSON.stringify({
+                tipoForm: '1',
+                nombre_empresa: inputEmpresaForm1,
+                password: inputContrasenaForm1,
+                email: inputCorreoForm1,
+            }),
+            headers: { "Content-Type": "application/json" },
+        });
+
+        console.log(res);
+
+        if (res.ok) {
+            const usuario = await res.json(); // Aquí obtienes la información del usuario
+            console.log(usuario);
+            setUsuarioActivo(true);
+            setUsuarioInfo(usuario); // Guardas la información del usuario en el estado
+        }
+    };
+    
+    const validarUsuario = async (event) => {
+        const esValido = validarUsuarioEstatico(event);
+        if (!esValido) {
+            await validarUsuarioBaseDeDatos();
+        }
+    };
 
     // Crear un nuevo usuario
     const crearUsuario = () => {
@@ -203,6 +234,21 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
                                   ${inputContrasenaForm1 ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
                               >
                                   Contraseña
+                              </label>
+                          </li>
+
+                          <li className='mx-10 font-racing_sans_one text-lg relative'>
+                              <input 
+                                  className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
+                                  type='text' 
+                                  placeholder=' '
+                                  onInput={(e) => setInputEmpresaForm1(e.target.value)}
+                              />
+                              <label
+                                  className={`absolute start-0 top-1/2 transform transition-all duration-500
+                                  ${inputEmpresaForm1 ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
+                              >
+                                  Empresa
                               </label>
                           </li>
 

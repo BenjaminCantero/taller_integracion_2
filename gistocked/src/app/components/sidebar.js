@@ -52,7 +52,7 @@ const Sidebar = ( {children, setUsuarioActivo, setUsuarioInfo, usuarioInfo, setP
             </li>
 
             {/* Redirección hacia Usuarios */}
-            {usuarioInfo.rol === '1' && (
+            {usuarioInfo.id_rol === 1 && (
               <>
                 {/* Redirección hacia Usuarios */}
                 <li className='w-full'>
@@ -80,7 +80,7 @@ const Sidebar = ( {children, setUsuarioActivo, setUsuarioInfo, usuarioInfo, setP
               </>
             )}
 
-            {(usuarioInfo.rol === '1' || usuarioInfo.rol === '2') && (
+            {(usuarioInfo.id_rol === 1 || usuarioInfo.id_rol === 2) && (
               <>
                 {/* Redirección hacia Ventas */}
                 <li className='w-full'>
