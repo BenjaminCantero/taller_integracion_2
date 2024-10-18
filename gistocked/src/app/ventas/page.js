@@ -81,44 +81,63 @@ const SalesPage = () => {
     console.error(err);
   };
 
-  const generateInvoicePDF = async (venta) => {
-    const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage([600, 400]);
-    const { width, height } = page.getSize();
 
-    page.drawText(`Boleta o Factura`, {
+  const generateInvoicePDF = async () => {
+    const pdfDoc = await PDFDocument.create();
+    const page = pdfDoc.addPage([600, 700]);
+    const { width, height } = page.getSize();
+    let yPosition = height - 50;
+
+    // Título del documento
+    page.drawText(isInvoice ? 'Factura' : 'Boleta', {
       x: 50,
-      y: height - 50,
+      y: yPosition,
       size: 20,
       color: rgb(0, 0, 0),
     });
 
-    // Agrega detalles de la venta
-    page.drawText(`Producto: ${venta.producto}`, { x: 50, y: height - 80, size: 12 });
-    page.drawText(`Cantidad: ${venta.cantidad}`, { x: 50, y: height - 100, size: 12 });
-    page.drawText(`Total: ${venta.total}`, { x: 50, y: height - 120, size: 12 });
+    yPosition -= 30;
+
+    // Encabezado de las columnas
+    page.drawText('Producto', { x: 50, y: yPosition, size: 12 });
+    page.drawText('Cantidad', { x: 200, y: yPosition, size: 12 });
+    page.drawText('Precio', { x: 300, y: yPosition, size: 12 });
+    page.drawText('Total', { x: 400, y: yPosition, size: 12 });
+
+    yPosition -= 20;
+
+    // Detalles de las ventas
+    let totalGeneral = 0;
+    sales.forEach((venta) => {
+      page.drawText(venta.producto, { x: 50, y: yPosition, size: 10 });
+      page.drawText(`${venta.cantidad}`, { x: 200, y: yPosition, size: 10 });
+      page.drawText(`${venta.total / venta.cantidad}`, { x: 300, y: yPosition, size: 10 });
+      page.drawText(`${venta.total}`, { x: 400, y: yPosition, size: 10 });
+      yPosition -= 20;
+
+      totalGeneral += venta.total;
+    });
+
+    // Total general
+    yPosition -= 20;
+    page.drawText(`Total: ${totalGeneral}`, { x: 400, y: yPosition, size: 12, color: rgb(0, 0, 0) });
 
     const pdfBytes = await pdfDoc.save();
     const blob = new Blob([pdfBytes], { type: 'application/pdf' });
     const url = URL.createObjectURL(blob);
 
-    // Descarga el PDF
+    // Descargar el PDF
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'boleta_o_factura.pdf';
+    link.download = isInvoice ? 'factura.pdf' : 'boleta.pdf';
     link.click();
   };
 
+  const handleGenerateDocument = () => {
+    generateInvoicePDF();
+  };
   const handleNewSale = () => {
     setIsNewSaleModalOpen(true);
-  };
-
-  const handleGenerateDocument = (sale) => {
-    if (isInvoice) {
-      generateInvoicePDF(sale);
-    } else {
-      // Lógica para boleta
-    }
   };
 
   const handleEditSale = (id) => {
@@ -205,7 +224,7 @@ const SalesPage = () => {
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Gestión de Ventas</h1>
-
+  
       <div className="mb-6 space-x-4">
         <button 
           className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
@@ -220,7 +239,7 @@ const SalesPage = () => {
           Escanear Código de Barras
         </button>
       </div>
-
+  
       <SalesTable
         sales={sales.map(sale => ({
           ...sale,
@@ -231,7 +250,7 @@ const SalesPage = () => {
         handleIncreaseQuantity={handleIncreaseQuantity}
         handleDecreaseQuantity={handleDecreaseQuantity}
       />
-
+  
       {isNewSaleModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setIsNewSaleModalOpen(false)}>
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
@@ -272,11 +291,18 @@ const SalesPage = () => {
                 required
               />
               <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Agregar Venta</button>
+              <button 
+                type="button" 
+                className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
+                onClick={() => setIsNewSaleModalOpen(false)}
+              >
+                Volver
+              </button>
             </form>
           </div>
         </div>
       )}
-
+  
       {isEditModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setIsEditModalOpen(false)}>
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
@@ -317,11 +343,18 @@ const SalesPage = () => {
                 required
               />
               <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Guardar Cambios</button>
+              <button 
+                type="button" 
+                className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
+                onClick={() => setIsEditModalOpen(false)}
+              >
+                Volver
+              </button>
             </form>
           </div>
         </div>
       )}
-
+  
       {isScannerOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setIsScannerOpen(false)}>
           <div className="bg-white p-6 rounded-lg shadow-lg" onClick={(e) => e.stopPropagation()}>
@@ -337,10 +370,17 @@ const SalesPage = () => {
             >
               Cerrar Escáner
             </button>
+            <button 
+              type="button" 
+              className="mt-4 bg-gray-500 text-white py-2 px-4 rounded ml-2"
+              onClick={() => setIsScannerOpen(false)}
+            >
+              Volver
+            </button>
           </div>
         </div>
       )}
-
+  
       <div className="mt-6 flex justify-start space-x-4">
         <button 
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
@@ -358,7 +398,7 @@ const SalesPage = () => {
           Seleccionar Medio de Pago
         </button>
       </div>
-
+  
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
@@ -383,11 +423,18 @@ const SalesPage = () => {
               >
                 Boleta
               </button>
+              <button 
+                type="button" 
+                className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
+                onClick={() => setIsModalOpen(false)}
+              >
+                Volver
+              </button>
             </div>
           </div>
         </div>
       )}
-
+  
       {isInvoice && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
@@ -408,11 +455,18 @@ const SalesPage = () => {
                 required
               />
               <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Generar Factura</button>
+              <button 
+                type="button" 
+                className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
+                onClick={() => setIsInvoice(false)}
+              >
+                Volver
+              </button>
             </form>
           </div>
         </div>
       )}
-
+  
       {paymentMethodModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setPaymentMethodModal(false)}>
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
@@ -425,12 +479,21 @@ const SalesPage = () => {
                 <option value="transferencia">Transferencia</option>
               </select>
               <button type="button" className="bg-blue-500 text-white py-2 px-4 rounded" onClick={() => alert('Medio de pago seleccionado')}>Seleccionar</button>
+              <button 
+                type="button" 
+                className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
+                onClick={() => setPaymentMethodModal(false)}
+              >
+                Volver
+              </button>
             </form>
           </div>
         </div>
       )}
     </div>
   );
+  
+  
 };
 
 export default SalesPage;
