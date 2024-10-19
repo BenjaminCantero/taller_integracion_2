@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 13-10-2024 a las 15:30:11
+-- Tiempo de generación: 12-10-2024 a las 20:07:48
 -- Versión del servidor: 8.0.39
 -- Versión de PHP: 8.2.12
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `gistoked_3`
+-- Base de datos: `gistoked_2`
 --
 
 -- --------------------------------------------------------
@@ -29,20 +29,19 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `categoria` (
   `id_categoria` int NOT NULL,
-  `nombre_categoria` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `id_empresa` int NOT NULL
+  `nombre_categoria` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `categoria`
 --
 
-INSERT INTO `categoria` (`id_categoria`, `nombre_categoria`, `id_empresa`) VALUES
-(1, 'carne', 0),
-(2, 'lacteo', 0),
-(3, 'cereal', 0),
-(4, 'verdura', 0),
-(5, 'fruta', 0);
+INSERT INTO `categoria` (`id_categoria`, `nombre_categoria`) VALUES
+(1, 'carne'),
+(2, 'lacteo'),
+(3, 'cereal'),
+(4, 'verdura'),
+(5, 'fruta');
 
 -- --------------------------------------------------------
 
@@ -56,9 +55,7 @@ CREATE TABLE `detalle_venta` (
   `id_producto` int NOT NULL,
   `cantidad` int NOT NULL,
   `precio_unitario` decimal(10,2) NOT NULL,
-  `precio_total` decimal(10,2) NOT NULL,
-  `id_empresa` int NOT NULL,
-  `nombre_producto` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL
+  `precio_total` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -85,38 +82,33 @@ CREATE TABLE `historial_productos` (
   `fecha_modificacion` datetime NOT NULL,
   `detalles_modificacion` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
   `id_usuario` int NOT NULL,
-  `nombre_producto` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `descripcion` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+  `nombre_producto` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `descripcion` text COLLATE utf8mb4_general_ci,
   `precio_compra` decimal(10,2) DEFAULT NULL,
-  `precio_neto` float NOT NULL,
   `precio_venta` decimal(10,2) DEFAULT NULL,
-  `precio_venta_final` float NOT NULL,
-  `cantidad` int DEFAULT NULL,
-  `id_empresa` int NOT NULL,
-  `descuento` decimal(5,2) DEFAULT '0.00',
-  `precio_descuento` decimal(10,2) DEFAULT '0.00',
-  `porcentaje_ganancia` decimal(5,2) DEFAULT '0.00'
+  `descuento` int DEFAULT NULL,
+  `cantidad` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `historial_productos`
 --
 
-INSERT INTO `historial_productos` (`id_historial`, `id_producto`, `accion`, `fecha_modificacion`, `detalles_modificacion`, `id_usuario`, `nombre_producto`, `descripcion`, `precio_compra`, `precio_neto`, `precio_venta`, `precio_venta_final`, `cantidad`, `id_empresa`, `descuento`, `precio_descuento`, `porcentaje_ganancia`) VALUES
-(3, NULL, 'agregar', '2024-10-12 13:35:51', 'Producto agregado', 1, NULL, NULL, NULL, 0, NULL, 0, NULL, 0, 0.00, 0.00, 0.00),
-(4, NULL, 'agregar', '2024-10-12 13:35:51', 'Producto agregado', 1, NULL, NULL, NULL, 0, NULL, 0, NULL, 0, 0.00, 0.00, 0.00),
-(5, NULL, 'agregar', '2024-10-12 13:35:51', 'Producto agregado', 1, NULL, NULL, NULL, 0, NULL, 0, NULL, 0, 0.00, 0.00, 0.00),
-(6, 4, 'agregar', '2024-10-12 13:35:51', 'Producto agregado', 1, NULL, NULL, NULL, 0, NULL, 0, NULL, 0, 0.00, 0.00, 0.00),
-(7, 5, 'agregar', '2024-10-12 13:35:51', 'Producto agregado', 1, NULL, NULL, NULL, 0, NULL, 0, NULL, 0, 0.00, 0.00, 0.00),
-(8, NULL, 'eliminar', '2024-10-12 13:36:06', 'Producto eliminado', 1, NULL, NULL, NULL, 0, NULL, 0, NULL, 0, 0.00, 0.00, 0.00),
-(12, NULL, 'eliminar', '2024-10-12 13:39:44', 'Producto eliminado', 1, NULL, NULL, NULL, 0, NULL, 0, NULL, 0, 0.00, 0.00, 0.00),
-(13, NULL, 'eliminar', '2024-10-12 13:39:48', 'Producto eliminado', 1, NULL, NULL, NULL, 0, NULL, 0, NULL, 0, 0.00, 0.00, 0.00),
-(14, NULL, 'agregar', '2024-10-12 13:40:06', 'Producto agregado', 1, NULL, NULL, NULL, 0, NULL, 0, NULL, 0, 0.00, 0.00, 0.00),
-(17, 4, 'editar', '2024-10-12 14:49:47', 'Producto editado', 2, 'Producto D', 'Descripción del Producto D', 200.00, 0, 280.00, 0, 20, 0, 0.00, 0.00, 0.00),
-(18, NULL, 'eliminar', '2024-10-12 14:58:39', 'Producto eliminado', 1, NULL, NULL, NULL, 0, NULL, 0, NULL, 0, 0.00, 0.00, 0.00),
-(19, 4, 'editar', '2024-10-12 15:07:21', 'Producto editado', 2, 'Producto D', 'Descripción del Producto D', 200.00, 0, 280.00, 0, 20, 0, 0.00, 0.00, 0.00),
-(20, NULL, 'agregar', '2024-10-12 15:07:31', 'Producto agregado', 2, 'Producto D', 'Descripción del Producto D', 200.00, 0, 280.00, 0, 20, 0, 0.00, 0.00, 0.00),
-(21, NULL, 'eliminar', '2024-10-12 15:07:37', 'Producto eliminado', 2, 'Producto D', 'Descripción del Producto D', 200.00, 0, 280.00, 0, 20, 0, 0.00, 0.00, 0.00);
+INSERT INTO `historial_productos` (`id_historial`, `id_producto`, `accion`, `fecha_modificacion`, `detalles_modificacion`, `id_usuario`, `nombre_producto`, `descripcion`, `precio_compra`, `precio_venta`, `descuento`, `cantidad`) VALUES
+(3, NULL, 'agregar', '2024-10-12 13:35:51', 'Producto agregado', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(4, NULL, 'agregar', '2024-10-12 13:35:51', 'Producto agregado', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(5, NULL, 'agregar', '2024-10-12 13:35:51', 'Producto agregado', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(6, 4, 'agregar', '2024-10-12 13:35:51', 'Producto agregado', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(7, 5, 'agregar', '2024-10-12 13:35:51', 'Producto agregado', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(8, NULL, 'eliminar', '2024-10-12 13:36:06', 'Producto eliminado', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(12, NULL, 'eliminar', '2024-10-12 13:39:44', 'Producto eliminado', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(13, NULL, 'eliminar', '2024-10-12 13:39:48', 'Producto eliminado', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(14, NULL, 'agregar', '2024-10-12 13:40:06', 'Producto agregado', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(17, 4, 'editar', '2024-10-12 14:49:47', 'Producto editado', 2, 'Producto D', 'Descripción del Producto D', 200.00, 280.00, 15, 20),
+(18, NULL, 'eliminar', '2024-10-12 14:58:39', 'Producto eliminado', 1, NULL, NULL, NULL, NULL, NULL, NULL),
+(19, 4, 'editar', '2024-10-12 15:07:21', 'Producto editado', 2, 'Producto D', 'Descripción del Producto D', 200.00, 280.00, 15, 20),
+(20, NULL, 'agregar', '2024-10-12 15:07:31', 'Producto agregado', 2, 'Producto D', 'Descripción del Producto D', 200.00, 280.00, 15, 20),
+(21, NULL, 'eliminar', '2024-10-12 15:07:37', 'Producto eliminado', 2, 'Producto D', 'Descripción del Producto D', 200.00, 280.00, 15, 20);
 
 -- --------------------------------------------------------
 
@@ -137,18 +129,16 @@ CREATE TABLE `inventario` (
   `codigo` int NOT NULL,
   `id_categoria` int NOT NULL,
   `descuento` int NOT NULL DEFAULT '0',
-  `precio_descuento` float NOT NULL,
-  `cantidad` int DEFAULT '0',
-  `id_empresa` int NOT NULL
+  `cantidad` int DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `inventario`
 --
 
-INSERT INTO `inventario` (`id_producto`, `img`, `nombre_producto`, `descripcion`, `precio_compra`, `porcentaje_de_ganancia`, `precio_neto`, `precio_venta`, `precio_venta_final`, `codigo`, `id_categoria`, `descuento`, `precio_descuento`, `cantidad`, `id_empresa`) VALUES
-(4, 'mage4.jpg', 'Producto D', 'Descripción del Producto D', 200, 30, 260, 280, 280, 98768, 4, 15, 0, 20, 0),
-(5, 'image5.jpg', 'Producto E', 'Descripción del Producto E', 50, 10, 55, 60, 60, 11111, 5, 0, 0, 100, 0);
+INSERT INTO `inventario` (`id_producto`, `img`, `nombre_producto`, `descripcion`, `precio_compra`, `porcentaje_de_ganancia`, `precio_neto`, `precio_venta`, `precio_venta_final`, `codigo`, `id_categoria`, `descuento`, `cantidad`) VALUES
+(4, 'mage4.jpg', 'Producto D', 'Descripción del Producto D', 200, 30, 260, 280, 280, 98768, 4, 15, 20),
+(5, 'image5.jpg', 'Producto E', 'Descripción del Producto E', 50, 10, 55, 60, 60, 11111, 5, 0, 100);
 
 --
 -- Disparadores `inventario`
@@ -156,10 +146,10 @@ INSERT INTO `inventario` (`id_producto`, `img`, `nombre_producto`, `descripcion`
 DELIMITER $$
 CREATE TRIGGER `after_insert_inventario` AFTER INSERT ON `inventario` FOR EACH ROW BEGIN
     INSERT INTO historial_productos (
-        id_producto, accion, fecha_modificacion, detalles_modificacion, id_usuario, nombre_producto, descripcion, precio_compra, precio_venta, descuento, cantidad,porcentaje_de_ganancia
+        id_producto, accion, fecha_modificacion, detalles_modificacion, id_usuario, nombre_producto, descripcion, precio_compra, precio_venta, descuento, cantidad
     )
     VALUES (
-        NEW.id_producto, 'agregar', NOW(), 'Producto agregado', 2, NEW.nombre_producto, NEW.descripcion, NEW.precio_compra, NEW.precio_venta, NEW.descuento, NEW.cantidad, NEW.porcentaje_de_ganancia
+        NEW.id_producto, 'agregar', NOW(), 'Producto agregado', 2, NEW.nombre_producto, NEW.descripcion, NEW.precio_compra, NEW.precio_venta, NEW.descuento, NEW.cantidad
     );
 END
 $$
@@ -167,10 +157,10 @@ DELIMITER ;
 DELIMITER $$
 CREATE TRIGGER `after_update_inventario` AFTER UPDATE ON `inventario` FOR EACH ROW BEGIN
     INSERT INTO historial_productos (
-        id_producto, accion, fecha_modificacion, detalles_modificacion, id_usuario, nombre_producto, descripcion, precio_compra, precio_venta, descuento, cantidad, porcentaje_de_ganancia
+        id_producto, accion, fecha_modificacion, detalles_modificacion, id_usuario, nombre_producto, descripcion, precio_compra, precio_venta, descuento, cantidad
     )
     VALUES (
-        NEW.id_producto, 'editar', NOW(), 'Producto editado', 2, NEW.nombre_producto, NEW.descripcion, NEW.precio_compra, NEW.precio_venta, NEW.descuento, NEW.cantidad, NEW.porcentaje_de_ganancia
+        NEW.id_producto, 'editar', NOW(), 'Producto editado', 2, NEW.nombre_producto, NEW.descripcion, NEW.precio_compra, NEW.precio_venta, NEW.descuento, NEW.cantidad
     );
 END
 $$
@@ -178,10 +168,10 @@ DELIMITER ;
 DELIMITER $$
 CREATE TRIGGER `before_delete_inventario` BEFORE DELETE ON `inventario` FOR EACH ROW BEGIN
     INSERT INTO historial_productos (
-        id_producto, accion, fecha_modificacion, detalles_modificacion, id_usuario, nombre_producto, descripcion, precio_compra, precio_venta, descuento, cantidad, porcentaje_de_ganancia
+        id_producto, accion, fecha_modificacion, detalles_modificacion, id_usuario, nombre_producto, descripcion, precio_compra, precio_venta, descuento, cantidad
     )
     VALUES (
-        OLD.id_producto, 'eliminar', NOW(), 'Producto eliminado', 2, OLD.nombre_producto, OLD.descripcion, OLD.precio_compra, OLD.precio_venta, OLD.descuento, OLD.cantidad, OLD.porcentaje_de_ganancia
+        OLD.id_producto, 'eliminar', NOW(), 'Producto eliminado', 2, OLD.nombre_producto, OLD.descripcion, OLD.precio_compra, OLD.precio_venta, OLD.descuento, OLD.cantidad
     );
 END
 $$
@@ -219,34 +209,17 @@ CREATE TABLE `usuario` (
   `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `id_rol` int NOT NULL,
-  `id_admin` int DEFAULT NULL,
-  `pin` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL
+  `id_admin` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `usuario`
 --
 
-INSERT INTO `usuario` (`codigo_vendedor`, `nombre_usuario`, `nombre_empresa`, `password`, `email`, `id_rol`, `id_admin`, `pin`) VALUES
-(1, 'Juan Perez', 'Empresa A', 'password123', 'juan@empresa.com', 2, 1, ''),
-(2, 'Ana Gómez', 'Empresa B', 'password456', 'ana@empresa.com', 1, 1, ''),
-(3, 'Carlos Ruiz', 'Empresa C', 'password789', 'carlos@empresa.com', 2, 1, '');
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `vendedores`
---
-
-CREATE TABLE `vendedores` (
-  `id_vendedores` int NOT NULL,
-  `nombres` varchar(100) NOT NULL,
-  `apellidos` varchar(100) NOT NULL,
-  `rut` varchar(12) NOT NULL,
-  `contraseña` varchar(255) NOT NULL,
-  `id_admin` int NOT NULL,
-  `nombre_empresa` varchar(100) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+INSERT INTO `usuario` (`codigo_vendedor`, `nombre_usuario`, `nombre_empresa`, `password`, `email`, `id_rol`, `id_admin`) VALUES
+(1, 'Juan Perez', 'Empresa A', 'password123', 'juan@empresa.com', 2, 1),
+(2, 'Ana Gómez', 'Empresa B', 'password456', 'ana@empresa.com', 1, 1),
+(3, 'Carlos Ruiz', 'Empresa C', 'password789', 'carlos@empresa.com', 2, 1);
 
 -- --------------------------------------------------------
 
@@ -257,9 +230,8 @@ CREATE TABLE `vendedores` (
 CREATE TABLE `ventas` (
   `id_venta` int NOT NULL,
   `codigo_vendedor` int NOT NULL,
-  `fecha_venta` datetime NOT NULL,
-  `id_empresa` int NOT NULL,
-  `venta_total` decimal(10,2) NOT NULL
+  `id_producto` int NOT NULL,
+  `fecha_venta` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -317,18 +289,12 @@ ALTER TABLE `usuario`
   ADD KEY `id_admin` (`id_admin`);
 
 --
--- Indices de la tabla `vendedores`
---
-ALTER TABLE `vendedores`
-  ADD PRIMARY KEY (`id_vendedores`),
-  ADD UNIQUE KEY `rut` (`rut`);
-
---
 -- Indices de la tabla `ventas`
 --
 ALTER TABLE `ventas`
   ADD PRIMARY KEY (`id_venta`),
-  ADD KEY `fk_ventas_usuario` (`codigo_vendedor`);
+  ADD KEY `fk_ventas_usuario` (`codigo_vendedor`),
+  ADD KEY `fk_id_producto` (`id_producto`);
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
@@ -377,12 +343,6 @@ ALTER TABLE `usuario`
   MODIFY `codigo_vendedor` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT de la tabla `vendedores`
---
-ALTER TABLE `vendedores`
-  MODIFY `id_vendedores` int NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT de la tabla `ventas`
 --
 ALTER TABLE `ventas`
@@ -423,6 +383,7 @@ ALTER TABLE `usuario`
 -- Filtros para la tabla `ventas`
 --
 ALTER TABLE `ventas`
+  ADD CONSTRAINT `fk_id_producto` FOREIGN KEY (`id_producto`) REFERENCES `inventario` (`codigo`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_ventas_usuario` FOREIGN KEY (`codigo_vendedor`) REFERENCES `usuario` (`codigo_vendedor`);
 COMMIT;
 

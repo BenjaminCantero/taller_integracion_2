@@ -3,12 +3,13 @@
     "@fortawesome/free-brands-svg-icons": "^6.6.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/react-fontawesome": "^0.2.2",
-    "@prisma/client": "^5.19.1",
+    "@prisma/client": "^5.21.1",
     "axios": "^1.7.7",
+    "body-parser": "^1.20.3",
     "cors": "^2.8.5",
     "create-next-app": "^14.2.7",
     "dotenv": "^16.4.5",
-    "express": "^4.21.0",
+    "express": "^4.21.1",
     "file-saver": "^2.0.5",
     "html2canvas": "^1.4.1",
     "jspdf": "^2.5.2",
@@ -34,6 +35,6 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "prisma": "^5.19.1"
+    "prisma": "^5.21.1"
   }
 }

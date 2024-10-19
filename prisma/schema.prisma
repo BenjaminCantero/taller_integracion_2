@@ -1,18 +1,23 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 model Product {
-  id       Int      @id @default(autoincrement())
-  name     String
-  category String?
-  netPrice Float
-  iva      Float
-  stock    Int
-  image    String?
+  id             Int      @id @default(autoincrement())
+  image          String
+  barcode        String
+  name           String
+  description    String
+  category       String
+  purchasePrice  Float
+  salePrice      Float
+  netPrice       Float
+  finalSalePrice Float
+  percentageSale Float
 }

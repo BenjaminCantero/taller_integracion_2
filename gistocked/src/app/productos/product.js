@@ -1,228 +1,94 @@
-import React, { useState, useEffect } from 'react';
-import Modal from './Modal'; // Asegúrate de que la ruta sea correcta
+const express = require('express');
+const { PrismaClient } = require('@prisma/client');
+const bodyParser = require('body-parser');
+const cors = require('cors');
 
-const ProductManager = () => {
-  const [products, setProducts] = useState([]);
-  const [formData, setFormData] = useState({ name: '', category: '', netPrice: '', iva: '', stock: '', image: '' });
-  const [isAddModalOpen, setAddModalOpen] = useState(false);
-  const [isEditModalOpen, setEditModalOpen] = useState(false);
-  const [productToEdit, setProductToEdit] = useState(null);
+const app = express();
+const prisma = new PrismaClient();
 
-  // Fetch products on page load
-  useEffect(() => {
-    async function fetchProducts() {
-      try {
-        const res = await fetch('/productos/products');
-        if (!res.ok) throw new Error('Error fetching products');
-        const data = await res.json();
-        setProducts(data);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    fetchProducts();
-  }, []);
+app.use(cors());
+app.use(bodyParser.json());
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+// Obtener todos los productos
+app.get('/products', async (req, res) => {
+  try {
+    const productos = await prisma.product.findMany();
+    res.json(productos);
+  } catch (error) {
+    console.error('Error al obtener productos:', error);
+    res.status(500).json({ error: 'Error al obtener productos' });
+  }
+});
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.name || !formData.netPrice || !formData.stock) {
-      alert('Por favor, completa los campos requeridos');
-      return;
-    }
+// Añadir un producto
+app.post('/products', async (req, res) => {
+  const { img, codigo, nombre_producto, descripcion, precio_compra, porcentaje_de_ganancia, precio_neto, precio_venta, precio_venta_final, descuento, cantidad, id_categoria } = req.body;
 
-    try {
-      const method = isEditModalOpen ? 'PUT' : 'POST';
-      const response = await fetch('/productos/products', {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(isEditModalOpen ? { ...formData, id: productToEdit.id } : formData),
-      });
-      if (!response.ok) throw new Error('Error en la solicitud');
+  // Validación básica de los datos
+  if (!codigo || !nombre_producto || !precio_venta) {
+    return res.status(400).json({ error: 'Faltan datos obligatorios' });
+  }
 
-      const updatedProduct = await response.json();
+  try {
+    const nuevoProducto = await prisma.product.create({
+      data: {
+        img,
+        codigo,
+        nombre_producto,
+        descripcion,
+        precio_compra,
+        porcentaje_de_ganancia,
+        precio_neto,
+        precio_venta,
+        precio_venta_final,
+        descuento,
+        cantidad,
+        id_categoria,
+      },
+    });
+    res.status(201).json(nuevoProducto); // Cambiado a 201 para indicar que se ha creado un nuevo recurso
+  } catch (error) {
+    console.error('Error al añadir producto:', error);
+    res.status(500).json({ error: 'Error al añadir producto' });
+  }
+});
 
-      if (isEditModalOpen) {
-        setProducts(products.map((p) => (p.id === updatedProduct.id ? updatedProduct : p)));
-      } else {
-        setProducts([...products, updatedProduct]);
-      }
+// Actualizar un producto
+app.put('/products/:id', async (req, res) => {
+  const { id } = req.params;
+  const data = req.body;
 
-      setAddModalOpen(false);
-      setEditModalOpen(false);
-      setFormData({ name: '', category: '', netPrice: '', iva: '', stock: '', image: '' });
-    } catch (error) {
-      console.error('Error al procesar la solicitud:', error);
-    }
-  };
+  try {
+    const productoActualizado = await prisma.product.update({
+      where: { id_producto: parseInt(id) },
+      data: {
+        ...data,
+      },
+    });
+    res.json(productoActualizado);
+  } catch (error) {
+    console.error('Error al actualizar producto:', error);
+    res.status(500).json({ error: 'Error al actualizar producto' });
+  }
+});
 
-  const openAddModal = () => setAddModalOpen(true);
+// Eliminar un producto
+app.delete('/products/:id', async (req, res) => {
+  const { id } = req.params;
 
-  const openEditModal = (product) => {
-    setProductToEdit(product);
-    setFormData(product);
-    setEditModalOpen(true);
-  };
+  try {
+    await prisma.product.delete({
+      where: { id_producto: parseInt(id) },
+    });
+    res.json({ message: 'Producto eliminado correctamente' });
+  } catch (error) {
+    console.error('Error al eliminar producto:', error);
+    res.status(500).json({ error: 'Error al eliminar producto' });
+  }
+});
 
-  const handleDelete = async (id) => {
-    try {
-      const res = await fetch('/productos/products', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id }),
-      });
-      if (!res.ok) throw new Error('Error al eliminar el producto');
-
-      setProducts(products.filter((product) => product.id !== id));
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  return (
-    <div>
-      <button onClick={openAddModal}>Agregar Producto</button>
-      <table>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Categoría</th>
-            <th>Precio Neto</th>
-            <th>IVA</th>
-            <th>Stock</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.map((product) => (
-            <tr key={product.id}>
-              <td>{product.name}</td>
-              <td>{product.category}</td>
-              <td>{product.netPrice}</td>
-              <td>{product.iva}</td>
-              <td>{product.stock}</td>
-              <td>
-                <button onClick={() => openEditModal(product)}>Editar</button>
-                <button onClick={() => handleDelete(product.id)}>Eliminar</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {/* Modal para agregar productos */}
-      {isAddModalOpen && (
-        <Modal isOpen={isAddModalOpen} onClose={() => setAddModalOpen(false)}>
-          <form onSubmit={handleSubmit}>
-            <input
-              type="text"
-              name="name"
-              placeholder="Nombre"
-              value={formData.name}
-              onChange={handleInputChange}
-              required
-            />
-            <input
-              type="text"
-              name="category"
-              placeholder="Categoría"
-              value={formData.category}
-              onChange={handleInputChange}
-            />
-            <input
-              type="number"
-              name="netPrice"
-              placeholder="Precio Neto"
-              value={formData.netPrice}
-              onChange={handleInputChange}
-              required
-            />
-            <input
-              type="number"
-              name="iva"
-              placeholder="IVA"
-              value={formData.iva}
-              onChange={handleInputChange}
-            />
-            <input
-              type="number"
-              name="stock"
-              placeholder="Stock"
-              value={formData.stock}
-              onChange={handleInputChange}
-              required
-            />
-            <input
-              type="text"
-              name="image"
-              placeholder="URL de la imagen"
-              value={formData.image}
-              onChange={handleInputChange}
-            />
-            <button type="submit">Agregar Producto</button>
-          </form>
-        </Modal>
-      )}
-
-      {/* Modal para editar productos */}
-      {isEditModalOpen && (
-        <Modal isOpen={isEditModalOpen} onClose={() => setEditModalOpen(false)}>
-          <form onSubmit={handleSubmit}>
-            <input
-              type="text"
-              name="name"
-              placeholder="Nombre"
-              value={formData.name}
-              onChange={handleInputChange}
-              required
-            />
-            <input
-              type="text"
-              name="category"
-              placeholder="Categoría"
-              value={formData.category}
-              onChange={handleInputChange}
-            />
-            <input
-              type="number"
-              name="netPrice"
-              placeholder="Precio Neto"
-              value={formData.netPrice}
-              onChange={handleInputChange}
-              required
-            />
-            <input
-              type="number"
-              name="iva"
-              placeholder="IVA"
-              value={formData.iva}
-              onChange={handleInputChange}
-            />
-            <input
-              type="number"
-              name="stock"
-              placeholder="Stock"
-              value={formData.stock}
-              onChange={handleInputChange}
-              required
-            />
-            <input
-              type="text"
-              name="image"
-              placeholder="URL de la imagen"
-              value={formData.image}
-              onChange={handleInputChange}
-            />
-            <button type="submit">Editar Producto</button>
-          </form>
-        </Modal>
-      )}
-    </div>
-  );
-};
-
-export default ProductManager;
+// Iniciar servidor en el puerto 3000
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Servidor corriendo en el puerto ${port}`);
+});
