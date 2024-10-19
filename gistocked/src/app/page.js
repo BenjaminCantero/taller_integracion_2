@@ -12,7 +12,7 @@ const Home = ({ usuarioInfo }) => {
           <label className="block text-gray-700 font-medium mb-2 text-lg">Nombre</label>
           <input 
             type="text" 
-            value={usuarioInfo.Nombre} 
+            value={usuarioInfo.nombre} 
             readOnly 
             className="w-full px-6 py-3 bg-white border border-gray-300 rounded-lg text-gray-700 text-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
