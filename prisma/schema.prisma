@@ -1,6 +1,6 @@
 datasource db {
-  provider = "mysql" // Puedes cambiarlo a "postgresql", "sqlite", etc., según tu base de datos
-  url      = env("DATABASE_URL") // Asegúrate de configurar la variable de entorno DATABASE_URL en tu archivo .env
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
@@ -8,9 +8,11 @@ generator client {
 }
 
 model Product {
-  id       Int     @id @default(autoincrement())
+  id       Int      @id @default(autoincrement())
   name     String
-  category String
-  quantity Int
-  price    Float
+  category String?
+  netPrice Float
+  iva      Float
+  stock    Int
+  image    String?
 }
