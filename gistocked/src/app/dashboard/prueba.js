@@ -1,5 +1,5 @@
-// Dashboard.js
-import React, { useState, useEffect } from 'react';
+"use client"; 
+import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { LineChart, Line } from 'recharts';
 import { jsPDF } from 'jspdf';
@@ -7,60 +7,53 @@ import html2canvas from 'html2canvas';
 import { FaShoppingCart, FaMoneyBill, FaUsers, FaBoxOpen } from 'react-icons/fa'; // Iconos
 import { saveAs } from 'file-saver';
 import Papa from 'papaparse'; // Librería para exportar CSV
-import { getSalesData, getRevenueData, getLatestSales } from './data'; // Asegúrate de importar las funciones
+
+// Datos de ejemplo
+const salesData = [
+  { period: 'Ene', sales: 30 },
+  { period: 'Feb', sales: 40 },
+  { period: 'Mar', sales: 45 },
+  { period: 'Abr', sales: 55 },
+  { period: 'May', sales: 50 },
+  { period: 'Jun', sales: 60 },
+];
+
+const revenueData = [
+  { name: 'Monitor Samsung', value: 1200 },
+  { name: 'Laptop HP', value: 1500 },
+  { name: 'Teclado Logitech', value: 300 },
+  { name: 'Mouse Razer', value: 200 },
+];
+
+const latestSales = [
+  { id: 1, product: 'Monitor Samsung', quantity: 2, date: '08/10/2024' },
+  { id: 2, product: 'Laptop HP', quantity: 1, date: '07/10/2024' },
+  { id: 3, product: 'Teclado Logitech', quantity: 3, date: '06/10/2024' },
+];
+
+// Función para descargar el gráfico como PDF
+const downloadChartAsPDF = (chartId, title) => {
+  const input = document.getElementById(chartId);
+
+  html2canvas(input).then((canvas) => {
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF();
+    pdf.addImage(imgData, 'PNG', 10, 10, 180, 160);
+    pdf.save(`${title}.pdf`);
+  });
+};
+
+// Función para descargar datos en CSV
+const downloadDataAsCSV = (data, filename) => {
+  const csv = Papa.unparse(data);
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  saveAs(blob, `${filename}.csv`);
+};
 
 const Dashboard = () => {
-  const [salesData, setSalesData] = useState([]);
-  const [revenueData, setRevenueData] = useState([]);
-  const [latestSales, setLatestSales] = useState([]);
   const [selectedPeriod, setSelectedPeriod] = useState('Mensual');
 
-  useEffect(() => {
-    // Obtener datos de ventas
-    getSalesData((err, data) => {
-      if (err) {
-        console.error('Error al obtener datos de ventas:', err);
-      } else {
-        setSalesData(data);
-      }
-    });
-
-    // Obtener datos de ingresos
-    getRevenueData((err, data) => {
-      if (err) {
-        console.error('Error al obtener datos de ingresos:', err);
-      } else {
-        setRevenueData(data);
-      }
-    });
-
-    // Obtener ventas más recientes
-    getLatestSales((err, data) => {
-      if (err) {
-        console.error('Error al obtener ventas recientes:', err);
-      } else {
-        setLatestSales(data);
-      }
-    });
-  }, []);
-
-  const downloadChartAsPDF = (chartId, title) => {
-    const input = document.getElementById(chartId);
-    html2canvas(input).then((canvas) => {
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF();
-      pdf.addImage(imgData, 'PNG', 10, 10, 180, 160);
-      pdf.save(`${title}.pdf`);
-    });
-  };
-
-  const downloadDataAsCSV = (data, filename) => {
-    const csv = Papa.unparse(data);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    saveAs(blob, `${filename}.csv`);
-  };
-
-  const getFilteredSalesData = () => {
+  const getSalesData = () => {
     switch (selectedPeriod) {
       case 'Diario':
         return salesData.slice(0, 1); // Solo un día como ejemplo
@@ -81,10 +74,7 @@ const Dashboard = () => {
       <ChartsGrid
         selectedPeriod={selectedPeriod}
         setSelectedPeriod={setSelectedPeriod}
-        getSalesData={getFilteredSalesData}
-        salesData={salesData}
-        revenueData={revenueData}
-        downloadChartAsPDF={downloadChartAsPDF}
+        getSalesData={getSalesData}
       />
       <LatestSalesTable data={latestSales} />
       <SummaryPanel salesData={salesData} />
@@ -172,7 +162,7 @@ const CustomerAnalysis = ({ latestSales }) => {
   );
 };
 
-const ChartsGrid = ({ selectedPeriod, setSelectedPeriod, getSalesData, salesData, revenueData, downloadChartAsPDF }) => (
+const ChartsGrid = ({ selectedPeriod, setSelectedPeriod, getSalesData }) => (
   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
     <ChartCard
       title={`Ventas ${selectedPeriod}`}
@@ -225,37 +215,48 @@ const RevenueChart = ({ data }) => (
   </ResponsiveContainer>
 );
 
-// Componente para comparar ventas
+// Gráfico de comparativa
 const SalesComparisonChart = ({ currentSalesData, previousSalesData }) => {
-  // Implementa la lógica para comparar las ventas actuales y anteriores
+  const currentSales = currentSalesData.reduce((acc, item) => acc + item.sales, 0);
+  const previousSales = previousSalesData.reduce((acc, item) => acc + item.sales, 0);
+  
+  const data = [
+    { name: 'Este Año', sales: currentSales },
+    { name: 'Año Pasado', sales: previousSales },
+  ];
+
   return (
-    <div>
-      <h2>Comparativa de Ventas</h2>
-      {/* Aquí podrías implementar un gráfico comparativo */}
-    </div>
+    <ResponsiveContainer width="100%" height={300}>
+      <BarChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        <Bar dataKey="sales" fill="#3b82f6" />
+      </BarChart>
+    </ResponsiveContainer>
   );
 };
 
-// Componente para mostrar el historial de ventas
+// Tabla de ventas recientes
 const LatestSalesTable = ({ data }) => (
   <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
-    <h3 className="text-xl font-bold mb-4">Últimas Ventas</h3>
-    <table className="min-w-full bg-white">
+    <h2 className="text-2xl font-bold mb-4">Ventas Recientes</h2>
+    <table className="min-w-full bg-white rounded-lg shadow-md">
       <thead>
-        <tr>
-          <th className="py-2 px-4 border-b">ID</th>
-          <th className="py-2 px-4 border-b">Producto</th>
-          <th className="py-2 px-4 border-b">Cantidad</th>
-          <th className="py-2 px-4 border-b">Fecha</th>
+        <tr className="bg-gray-200">
+          <th className="py-2 px-4 text-left">Producto</th>
+          <th className="py-2 px-4 text-left">Cantidad</th>
+          <th className="py-2 px-4 text-left">Fecha</th>
         </tr>
       </thead>
       <tbody>
         {data.map((sale) => (
-          <tr key={sale.id}>
-            <td className="py-2 px-4 border-b">{sale.id}</td>
-            <td className="py-2 px-4 border-b">{sale.product}</td>
-            <td className="py-2 px-4 border-b">{sale.quantity}</td>
-            <td className="py-2 px-4 border-b">{sale.date}</td>
+          <tr key={sale.id} className="border-t">
+            <td className="py-2 px-4">{sale.product}</td>
+            <td className="py-2 px-4">{sale.quantity}</td>
+            <td className="py-2 px-4">{sale.date}</td>
           </tr>
         ))}
       </tbody>
@@ -263,31 +264,28 @@ const LatestSalesTable = ({ data }) => (
   </div>
 );
 
+// Componente para las tarjetas de gráficos
 const ChartCard = ({ title, chart, buttons, onDownload }) => (
-  <div className="bg-white p-6 rounded-lg shadow-lg">
-    <h3 className="text-xl font-bold mb-4">{title}</h3>
-    {buttons && (
-      <div className="mb-4">
-        {buttons.map((btn) => (
-          <button
-            key={btn.label}
-            onClick={btn.onClick}
-            className="mr-2 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition duration-200"
-          >
+  <div className="bg-white rounded-lg shadow-lg p-6 transition-all duration-200 hover:shadow-xl">
+    <h2 className="text-xl font-bold mb-4">{title}</h2>
+    <div className="flex justify-between mb-4">
+      <div>
+        {buttons && buttons.map((btn, index) => (
+          <button 
+            key={index} 
+            onClick={btn.onClick} 
+            className="mr-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-200">
             {btn.label}
           </button>
         ))}
       </div>
-    )}
-    {chart}
-    {onDownload && (
-      <button
-        onClick={onDownload}
-        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-200"
-      >
+      <button 
+        onClick={onDownload} 
+        className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition duration-200">
         Descargar Gráfico
       </button>
-    )}
+    </div>
+    {chart}
   </div>
 );
 
