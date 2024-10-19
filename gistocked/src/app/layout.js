@@ -11,6 +11,7 @@ import Dasboard from './dashboard/page';
 import Usuarios from './usuarios/page';
 import Productos from './productos/page';
 import ProductManager from './ventas/page';
+import Configuraciones from './configuraciones/page';
 
 import { useState, useEffect } from 'react';
 
@@ -34,7 +35,9 @@ const Layout = () => {
       return <Productos />
     } else if (pagina === 'Ventas') {
       return <ProductManager />
-    } 
+    } else if  (pagina === 'Configuraciones') {
+      return <Configuraciones usuarioInfo={usuarioInfo} setUsuarioInfo={setUsuarioInfo}/>
+    }
   };
 
   return (
@@ -46,10 +49,13 @@ const Layout = () => {
               usuarioActivo={usuarioActivo}
               setUsuarioActivo={setUsuarioActivo}
               setUsuarioInfo={setUsuarioInfo}
+              usuarioInfo={usuarioInfo}
             />
           ) : (
-            <Sidebar 
-              usuarioInfo={usuarioInfo} 
+            <Sidebar
+              setUsuarioActivo={setUsuarioActivo}
+              setUsuarioInfo={setUsuarioInfo}
+              usuarioInfo={usuarioInfo}
               setPagina={setPagina}
               >
                 {renderPage()}
