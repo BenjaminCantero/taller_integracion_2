@@ -54,8 +54,6 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
             headers: { "Content-Type": "application/json" },
         });
 
-        console.log(res);
-
         if (res.ok) {
             const usuario = await res.json(); // Aquí obtienes la información del usuario
             console.log(usuario);
@@ -71,29 +69,66 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
         }
     };
 
-    // Crear un nuevo usuario
-    const crearUsuario = () => {
-        let idNuevo = usuariosValidos.length + 1;
-        let usuarioNuevo = {
-            id: String(idNuevo),
-            rol: '1',
-            nombre: inputNombreForm2,
-            correo: inputCorreoForm2,
-            contrasena: inputContrasenaForm2
-        };
-    
+
+    const crearUsuarioEstatico = (usuarioNuevo) => {
         setUsuariosValidos(prevUsuarios => [
             ...prevUsuarios,
             usuarioNuevo
         ]);
-
-        console.log(usuariosValidos)
+    };
+    
+    const crearUsuarioBaseDeDatos = async (usuarioNuevo) => {
+        try {
+            console.log(usuarioNuevo);
+            const res = await fetch("/api/usuario/", {
+                method: "POST",
+                body: JSON.stringify({
+                    tipoForm: '2',
+                    codigo_vendedor: 0,
+                    nombre_usuario: usuarioNuevo.nombre_usuario,
+                    nombre_empresa: usuarioNuevo.nombre_empresa,
+                    password: usuarioNuevo.password,
+                    email: usuarioNuevo.email,
+                    id_rol: 1,
+                    id_admin: -1,
+                }),
+                headers: { "Content-Type": "application/json" },
+            });
+    
+            if (res.ok) {
+                const usuario = await res.json(); // Aquí obtienes la información del usuario
+                cerrarFormularios();
+            } else {
+                throw new Error('Error al crear el usuario en la base de datos');
+            }
+        } catch (error) {
+            console.error(error);
+            // Aquí es donde manejamos el error guardando el usuario en la lista estática
+            crearUsuarioEstatico(usuarioNuevo);
+        }
+    };
+    
+    // Crear un nuevo usuario
+    const crearUsuario = async () => {
+        let usuarioNuevo = {
+            codigo_vendedor: 200,
+            nombre_usuario: inputNombreForm2,
+            nombre_empresa: inputEmpresaForm2,
+            password: inputContrasenaForm2,
+            email: inputCorreoForm2,
+            id_rol: 1,
+            id_admin: -1,
+        };
+    
+        // Intentamos crear el usuario en la base de datos
+        await crearUsuarioBaseDeDatos(usuarioNuevo);
     
         // Limpiar los campos del formulario
         setInputNombreForm2('');
         setInputCorreoForm2('');
         setInputContrasenaForm2('');
-
+        setInputEmpresaForm2('');
+    
         cerrarFormularios();
     };
 
@@ -115,12 +150,6 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
     const crearCuentaNueva = () => {
         setBaseForm(false);
         setRegisterForm(true); 
-    
-        /* 
-        setTimeout(() => {
-            id.classList.add('transition', 'duration-2000', 'ease-linear', 'delay-150', 'opacity-100');
-        }, 10);
-        */
         setFormulario('2');
         return
     }
@@ -329,6 +358,22 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
                                     ${inputContrasenaForm2 ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
                               >
                                   Contraseña
+                              </label>
+                          </li>
+
+                          <li className='mx-10 font-racing_sans_one text-lg relative'>
+                              <input 
+                                  className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
+                                  type='text' 
+                                  placeholder=' '
+                                  value={inputEmpresaForm2}
+                                  onInput={(e) => setInputEmpresaForm2(e.target.value)}
+                              />
+                              <label
+                                  className={`absolute start-0 top-1/2 transform transition-all duration-500
+                                    ${inputEmpresaForm2 ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
+                              >
+                                  Empresa
                               </label>
                           </li>
 

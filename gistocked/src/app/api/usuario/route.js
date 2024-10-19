@@ -7,17 +7,22 @@ export async function POST(request) {
         const data = await request.json();
         const form = data.tipoForm;
 
-        if (form === '2') {
+        if (form === '2') { 
+            const todosLosEmpleados = await prisma.usuario.findMany();
+            
+            // Asigna el codigo_vendedor como un número mayor que el total de empleados
+            let codigoVendedor = parseInt(todosLosEmpleados.length + 1);
+
             // Envia los datos encriptados a la base de datos
             const usuario = await prisma.usuario.create({
                 data: {
-                    codigo_vendedor: data.codigo_vendedor,
+                    codigo_vendedor: codigoVendedor,
                     nombre_usuario: data.nombre_usuario,
                     nombre_empresa: data.nombre_empresa,
                     password: data.password,
                     email: data.email,
-                    id_rol: data.id_rol,
-                    id_admin: data.id_admin,
+                    id_rol: 1,
+                    id_admin: -1,
                 }
             });
             return new NextResponse(JSON.stringify(usuario), {
