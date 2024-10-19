@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Diseño general */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  background-color: #E5E5EA;
+}
+
+html, body {
+  height: 100%;
+}
+
+#__next {
+  height: 100%;
+}
+
+/* Asegura que todos los contenedores relevantes tengan altura */
+.container, .h-full {
+  height: 100%; /* O usa 'auto' si no quieres que se estire */
+}
+
+/* Asegúrate de que los contenedores de gráficos tengan un tamaño mínimo */
+.chart-container {
+  min-height: 300px; /* Ajusta según sea necesario */
+}
+
+/* Espaciado general */
+.container {
+  padding: 20px;
+}
+
+/* Ajustes específicos para flexbox */
+.flex {
+  display: flex; /* Asegúrate de que todos los elementos flex tengan este estilo */
+}
+
+
+/* Login*/
+.inputsLogin:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px #1F2937 inset; 
+  box-shadow: 0 0 0 30px #1f2937 inset; 
+  -webkit-text-fill-color: #ffffff;
+}
+
+.inputsLogin:-moz-autofill {
+  background-color: #1F2937 !important; 
+  color: #ffffff !important; 
+  border: 1px solid #ffffff;
+}
