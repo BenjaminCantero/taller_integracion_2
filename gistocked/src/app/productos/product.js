@@ -1,19 +1,16 @@
 const express = require('express');
 const { PrismaClient } = require('@prisma/client');
-const bodyParser = require('body-parser');
-const cors = require('cors');
 
 const app = express();
 const prisma = new PrismaClient();
 
-app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
 // Obtener todos los productos
 app.get('/products', async (req, res) => {
   try {
-    const productos = await prisma.product.findMany();
-    res.json(productos);
+    const products = await prisma.product.findMany();
+    res.json(products);
   } catch (error) {
     console.error('Error al obtener productos:', error);
     res.status(500).json({ error: 'Error al obtener productos' });
@@ -22,7 +19,20 @@ app.get('/products', async (req, res) => {
 
 // Añadir un producto
 app.post('/products', async (req, res) => {
-  const { img, codigo, nombre_producto, descripcion, precio_compra, porcentaje_de_ganancia, precio_neto, precio_venta, precio_venta_final, descuento, cantidad, id_categoria } = req.body;
+  const {
+    img,
+    codigo,
+    nombre_producto,
+    descripcion,
+    precio_compra,
+    porcentaje_de_ganancia,
+    precio_neto,
+    precio_venta,
+    precio_venta_final,
+    descuento,
+    cantidad,
+    id_categoria
+  } = req.body;
 
   // Validación básica de los datos
   if (!codigo || !nombre_producto || !precio_venta) {
@@ -46,7 +56,7 @@ app.post('/products', async (req, res) => {
         id_categoria,
       },
     });
-    res.status(201).json(nuevoProducto); // Cambiado a 201 para indicar que se ha creado un nuevo recurso
+    res.status(201).json(nuevoProducto);
   } catch (error) {
     console.error('Error al añadir producto:', error);
     res.status(500).json({ error: 'Error al añadir producto' });
@@ -61,9 +71,7 @@ app.put('/products/:id', async (req, res) => {
   try {
     const productoActualizado = await prisma.product.update({
       where: { id_producto: parseInt(id) },
-      data: {
-        ...data,
-      },
+      data,
     });
     res.json(productoActualizado);
   } catch (error) {
