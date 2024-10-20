@@ -17,52 +17,118 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
     const [loginForm, setLoginForm] = useState(false);
     const [inputCorreoForm1, setInputCorreoForm1] = useState('');
     const [inputContrasenaForm1, setInputContrasenaForm1] = useState('');
+    const [inputEmpresaForm1, setInputEmpresaForm1] = useState('');
 
     const [registerForm, setRegisterForm] = useState(false);
     const [inputNombreForm2, setInputNombreForm2] = useState('');
     const [inputCorreoForm2, setInputCorreoForm2] = useState('');
     const [inputContrasenaForm2, setInputContrasenaForm2] = useState('');
+    const [inputEmpresaForm2, setInputEmpresaForm2] = useState('');
 
     const [usuariosValidos, setUsuariosValidos] = useState([
-            { id: '1', rol: '1', nombre: 'admin1', correo: 'admin1@gmail.com', contrasena: '123' },
-            { id: '2', rol: '2', nombre: 'vendedor1', correo: 'vendedor1@gmail.com', contrasena: '123' }
-        ]);
+            { codigo_vendedor:-1, nombre_usuario: 'admin1', nombre_empresa: 'Empresa 0', password:'123', email:'admin1@gmail.com', id_rol:1, id_admin:-1},
+            { codigo_vendedor:-2, nombre_usuario: 'vendedor1', nombre_empresa: 'Empresa 0', password:'123', email:'vendedor1@gmail.com', id_rol:2, id_admin:-1}
+          ])
 
-    // Validaciones de usuarios
-    const validarUsuario = ( event ) => {
+    const validarUsuarioEstatico = (event) => {
         event.preventDefault();
-        for (let i=0; i<usuariosValidos.length; i++) {
-            if (inputCorreoForm1 == usuariosValidos[i].correo && inputContrasenaForm1 == usuariosValidos[i].contrasena) {
+        for (let i = 0; i < usuariosValidos.length; i++) {
+            if (inputCorreoForm1 === usuariosValidos[i].email && inputContrasenaForm1 === usuariosValidos[i].password) {
                 setUsuarioInfo(usuariosValidos[i]);
                 setUsuarioActivo(true);
-                break;
+                return true; // Retornar true si el usuario es válido
             }
         }
-    }
-
-    // Crear un nuevo usuario
-    const crearUsuario = () => {
-        let idNuevo = usuariosValidos.length + 1;
-        let usuarioNuevo = {
-            id: String(idNuevo),
-            rol: '1',
-            nombre: inputNombreForm2,
-            correo: inputCorreoForm2,
-            contrasena: inputContrasenaForm2
-        };
+        return false; // Retornar false si no se encontró un usuario válido
+    };
     
+    const validarUsuarioBaseDeDatos = async () => {
+        const res = await fetch("/api/usuario/", {
+            method: "POST",
+            body: JSON.stringify({
+                tipoForm: '1',
+                nombre_empresa: inputEmpresaForm1,
+                password: inputContrasenaForm1,
+                email: inputCorreoForm1,
+            }),
+            headers: { "Content-Type": "application/json" },
+        });
+
+        if (res.ok) {
+            const usuario = await res.json(); // Aquí obtienes la información del usuario
+            console.log(usuario);
+            setUsuarioActivo(true);
+            setUsuarioInfo(usuario); // Guardas la información del usuario en el estado
+        }
+    };
+    
+    const validarUsuario = async (event) => {
+        const esValido = validarUsuarioEstatico(event);
+        if (!esValido) {
+            await validarUsuarioBaseDeDatos();
+        }
+    };
+
+
+    const crearUsuarioEstatico = (usuarioNuevo) => {
         setUsuariosValidos(prevUsuarios => [
             ...prevUsuarios,
             usuarioNuevo
         ]);
-
-        console.log(usuariosValidos)
+    };
+    
+    const crearUsuarioBaseDeDatos = async (usuarioNuevo) => {
+        try {
+            console.log(usuarioNuevo);
+            const res = await fetch("/api/usuario/", {
+                method: "POST",
+                body: JSON.stringify({
+                    tipoForm: '2',
+                    codigo_vendedor: 0,
+                    nombre_usuario: usuarioNuevo.nombre_usuario,
+                    nombre_empresa: usuarioNuevo.nombre_empresa,
+                    password: usuarioNuevo.password,
+                    email: usuarioNuevo.email,
+                    id_rol: 1,
+                    id_admin: -1,
+                }),
+                headers: { "Content-Type": "application/json" },
+            });
+    
+            if (res.ok) {
+                const usuario = await res.json(); // Aquí obtienes la información del usuario
+                cerrarFormularios();
+            } else {
+                throw new Error('Error al crear el usuario en la base de datos');
+            }
+        } catch (error) {
+            console.error(error);
+            // Aquí es donde manejamos el error guardando el usuario en la lista estática
+            crearUsuarioEstatico(usuarioNuevo);
+        }
+    };
+    
+    // Crear un nuevo usuario
+    const crearUsuario = async () => {
+        let usuarioNuevo = {
+            codigo_vendedor: 200,
+            nombre_usuario: inputNombreForm2,
+            nombre_empresa: inputEmpresaForm2,
+            password: inputContrasenaForm2,
+            email: inputCorreoForm2,
+            id_rol: 1,
+            id_admin: -1,
+        };
+    
+        // Intentamos crear el usuario en la base de datos
+        await crearUsuarioBaseDeDatos(usuarioNuevo);
     
         // Limpiar los campos del formulario
         setInputNombreForm2('');
         setInputCorreoForm2('');
         setInputContrasenaForm2('');
-
+        setInputEmpresaForm2('');
+    
         cerrarFormularios();
     };
 
@@ -84,12 +150,6 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
     const crearCuentaNueva = () => {
         setBaseForm(false);
         setRegisterForm(true); 
-    
-        /* 
-        setTimeout(() => {
-            id.classList.add('transition', 'duration-2000', 'ease-linear', 'delay-150', 'opacity-100');
-        }, 10);
-        */
         setFormulario('2');
         return
     }
@@ -206,6 +266,21 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
                               </label>
                           </li>
 
+                          <li className='mx-10 font-racing_sans_one text-lg relative'>
+                              <input 
+                                  className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
+                                  type='text' 
+                                  placeholder=' '
+                                  onInput={(e) => setInputEmpresaForm1(e.target.value)}
+                              />
+                              <label
+                                  className={`absolute start-0 top-1/2 transform transition-all duration-500
+                                  ${inputEmpresaForm1 ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
+                              >
+                                  Empresa
+                              </label>
+                          </li>
+
                           <li className='mx-10 font-racing_sans_one text-lg text-center'>
                               <button 
                               type='submit'
@@ -283,6 +358,22 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
                                     ${inputContrasenaForm2 ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
                               >
                                   Contraseña
+                              </label>
+                          </li>
+
+                          <li className='mx-10 font-racing_sans_one text-lg relative'>
+                              <input 
+                                  className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
+                                  type='text' 
+                                  placeholder=' '
+                                  value={inputEmpresaForm2}
+                                  onInput={(e) => setInputEmpresaForm2(e.target.value)}
+                              />
+                              <label
+                                  className={`absolute start-0 top-1/2 transform transition-all duration-500
+                                    ${inputEmpresaForm2 ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
+                              >
+                                  Empresa
                               </label>
                           </li>
 

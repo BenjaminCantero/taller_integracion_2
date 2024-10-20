@@ -21,7 +21,7 @@ const Layout = () => {
   const [pagina, setPagina] = useState('');
 
   useEffect(() => {
-    setPagina('Home'); // Esto se ejecutará solo una vez al montar el componente
+    setPagina('Home'); 
   }, []);
 
   const renderPage = () => {
@@ -39,6 +39,8 @@ const Layout = () => {
       return <Configuraciones usuarioInfo={usuarioInfo} setUsuarioInfo={setUsuarioInfo}/>
     }
   };
+
+  console.log(usuarioActivo);
 
   return (
     <html lang="es">

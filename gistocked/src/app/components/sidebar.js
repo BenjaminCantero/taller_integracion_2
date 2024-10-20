@@ -1,20 +1,20 @@
+
 'use client';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome, faTachometerAlt, faUsers, faBoxes, faShoppingCart, faCog, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 
-const Sidebar = ({ children, setUsuarioActivo, setUsuarioInfo, usuarioInfo, setPagina }) => {
+const Sidebar = ( {children, setUsuarioActivo, setUsuarioInfo, usuarioInfo, setPagina} ) => {
   const cambiarPagina = (pagina) => {
-    console.log(pagina);
+    console.log(pagina)
     setPagina(pagina);
-  };
+  }
 
   const cerrarSesion = () => {
     setUsuarioInfo({});
     setUsuarioActivo(false);
-    return;
-  };
-
+    return
+  }
   return (
     <div className='flex flex-row'>
       {/* SideBar */}
@@ -52,7 +52,7 @@ const Sidebar = ({ children, setUsuarioActivo, setUsuarioInfo, usuarioInfo, setP
             </li>
 
             {/* Redirección hacia Usuarios */}
-            {usuarioInfo.rol === '1' && (
+            {usuarioInfo.id_rol === 1 && (
               <>
                 {/* Redirección hacia Usuarios */}
                 <li className='w-full'>
@@ -80,7 +80,7 @@ const Sidebar = ({ children, setUsuarioActivo, setUsuarioInfo, usuarioInfo, setP
               </>
             )}
 
-            {(usuarioInfo.rol === '1' || usuarioInfo.rol === '2') && (
+            {(usuarioInfo.id_rol === 1 || usuarioInfo.id_rol === 2) && (
               <>
                 {/* Redirección hacia Ventas */}
                 <li className='w-full'>
@@ -125,7 +125,7 @@ const Sidebar = ({ children, setUsuarioActivo, setUsuarioInfo, usuarioInfo, setP
       </section>
 
       {/* Children */}
-      <section className='grow ml-60 bg-gray-100 overflow-y-auto'>
+      <section className='h-screen grow ml-60 bg-gray-100 overflow-y-auto'>
         {children}
       </section>
     </div>
