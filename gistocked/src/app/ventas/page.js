@@ -1,19 +1,18 @@
-
 'use client';
 
+import BarcodeScanner from 'react-qr-barcode-scanner';
 import React, { useState } from 'react';
-import SalesTable from '../components/SaleTable';
+import BarcodeScannerModal from '../components/CodigoDeBarras';  // Renombrar esta importación
+import SalesTable from '../components/SalesTable';
+import { PDFDocument, rgb } from 'pdf-lib';
+
+// Ahora puedes usar `BarcodeScanner` para el componente de la librería y `BarcodeScannerModal` para el modal personalizado.
+
 
 const SalesPage = () => {
   const [sales, setSales] = useState([
     { id: 1, producto: 'Monitor Samsung Curvo', cantidad: 2, total: 500, fecha: '08/10/2024' },
-    { id: 2, producto: 'Teclado Logitech Gamer', cantidad: 1, total: 100, fecha: '07/10/2024' },
-    { id: 3, producto: 'Mouse Razer DeathAdder', cantidad: 3, total: 150, fecha: '06/10/2024' },
-    { id: 4, producto: 'Silla Gamer DXRacer', cantidad: 1, total: 300, fecha: '05/10/2024' },
-    { id: 5, producto: 'Auriculares HyperX Cloud', cantidad: 2, total: 200, fecha: '04/10/2024' },
-    { id: 6, producto: 'Tarjeta Gráfica RTX 3070', cantidad: 1, total: 700, fecha: '03/10/2024' },
-    { id: 7, producto: 'Procesador AMD Ryzen 9', cantidad: 1, total: 400, fecha: '02/10/2024' },
-    { id: 8, producto: 'Placa Madre ASUS ROG', cantidad: 1, total: 250, fecha: '01/10/2024' }
+    { id: 2, producto: 'Teclado Logitech Gamer', cantidad: 1, total: 100, fecha: '07/10/2024' }
   ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,6 +21,7 @@ const SalesPage = () => {
   const [isNewSaleModalOpen, setIsNewSaleModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingSale, setEditingSale] = useState(null);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   const [newSaleData, setNewSaleData] = useState({
     id: sales.length + 1,
@@ -31,10 +31,6 @@ const SalesPage = () => {
     fecha: new Date().toLocaleDateString('es-ES'),
     precio: 0,
   });
-
-  const handleNewSale = () => {
-    setIsNewSaleModalOpen(true);
-  };
 
   const handleNewSaleSubmit = (e) => {
     e.preventDefault();
@@ -56,6 +52,98 @@ const SalesPage = () => {
     setIsNewSaleModalOpen(false);
   };
 
+  const handleScan = async (data) => {
+    if (data) {
+      const scannedBarcode = data;
+
+      try {
+        const response = await fetch(`/api/producto/${scannedBarcode}`);
+        const producto = await response.json();
+
+        if (response.ok) {
+          const newSale = {
+            id: sales.length + 1,
+            producto: producto.nombre,
+            cantidad: 1,
+            total: producto.precio,
+            fecha: new Date().toLocaleDateString('es-ES'),
+            precio: producto.precio,
+          };
+
+          setSales([...sales, newSale]);
+          setIsScannerOpen(false);
+        } else {
+          alert('Producto no encontrado en la base de datos');
+        }
+      } catch (error) {
+        alert('Error al conectar con la base de datos');
+      }
+    }
+  };
+
+  const handleError = (err) => {
+    console.error(err);
+  };
+
+
+  const generateInvoicePDF = async () => {
+    const pdfDoc = await PDFDocument.create();
+    const page = pdfDoc.addPage([600, 700]);
+    const { width, height } = page.getSize();
+    let yPosition = height - 50;
+
+    // Título del documento
+    page.drawText(isInvoice ? 'Factura' : 'Boleta', {
+      x: 50,
+      y: yPosition,
+      size: 20,
+      color: rgb(0, 0, 0),
+    });
+
+    yPosition -= 30;
+
+    // Encabezado de las columnas
+    page.drawText('Producto', { x: 50, y: yPosition, size: 12 });
+    page.drawText('Cantidad', { x: 200, y: yPosition, size: 12 });
+    page.drawText('Precio', { x: 300, y: yPosition, size: 12 });
+    page.drawText('Total', { x: 400, y: yPosition, size: 12 });
+
+    yPosition -= 20;
+
+    // Detalles de las ventas
+    let totalGeneral = 0;
+    sales.forEach((venta) => {
+      page.drawText(venta.producto, { x: 50, y: yPosition, size: 10 });
+      page.drawText(`${venta.cantidad}`, { x: 200, y: yPosition, size: 10 });
+      page.drawText(`${venta.total / venta.cantidad}`, { x: 300, y: yPosition, size: 10 });
+      page.drawText(`${venta.total}`, { x: 400, y: yPosition, size: 10 });
+      yPosition -= 20;
+
+      totalGeneral += venta.total;
+    });
+
+    // Total general
+    yPosition -= 20;
+    page.drawText(`Total: ${totalGeneral}`, { x: 400, y: yPosition, size: 12, color: rgb(0, 0, 0) });
+
+    const pdfBytes = await pdfDoc.save();
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+
+    // Descargar el PDF
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = isInvoice ? 'factura.pdf' : 'boleta.pdf';
+    link.click();
+  };
+
+  const handleGenerateDocument = () => {
+    generateInvoicePDF();
+  };
+  const handleNewSale = () => {
+    setIsNewSaleModalOpen(true);
+  };
+
   const handleEditSale = (id) => {
     const saleToEdit = sales.find(sale => sale.id === id);
     setEditingSale(saleToEdit);
@@ -72,16 +160,46 @@ const SalesPage = () => {
     setEditingSale(null);
   };
 
-  const handleDeleteSale = (id) => {
-    const updatedSales = sales.filter((sale) => sale.id !== id);
-    setSales(updatedSales);
+  const handleIncreaseQuantity = async (id) => {
+    const sale = sales.find((sale) => sale.id === id);
+    const newQuantity = sale.cantidad + 1;
+
+    try {
+      await fetch(`/api/producto/${sale.codigoBarras}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          stock: sale.stock - 1,
+        }),
+      });
+
+      const updatedSales = sales.map((sale) =>
+        sale.id === id
+          ? { ...sale, cantidad: newQuantity, total: newQuantity * sale.precio }
+          : sale
+      );
+
+      setSales(updatedSales);
+    } catch (error) {
+      alert('Error al actualizar la cantidad');
+    }
   };
 
-  const handleIncreaseQuantity = (id) => {
-    const updatedSales = sales.map((sale) => 
-      sale.id === id ? { ...sale, cantidad: sale.cantidad + 1, total: (sale.cantidad + 1) * (sale.total / sale.cantidad) } : sale
-    );
-    setSales(updatedSales);
+  const handleDeleteSale = async (id) => {
+    const sale = sales.find((sale) => sale.id === id);
+
+    try {
+      await fetch(`/api/ventas/${id}`, {
+        method: 'DELETE',
+      });
+
+      const updatedSales = sales.filter((sale) => sale.id !== id);
+      setSales(updatedSales);
+    } catch (error) {
+      alert('Error al eliminar la venta');
+    }
   };
 
   const handleDecreaseQuantity = (id) => {
@@ -93,8 +211,9 @@ const SalesPage = () => {
     setSales(updatedSales);
   };
 
-  const handleSelectDocumentType = () => {
-    setIsModalOpen(true);
+  const handleSelectDocumentType = (tipoDocumento) => {
+    setIsInvoice(tipoDocumento === 'factura');
+    
   };
 
   const handleInvoiceSubmit = (e) => {
@@ -106,20 +225,25 @@ const SalesPage = () => {
   const handleSelectPaymentMethod = () => {
     setPaymentMethodModal(true);
   };
-
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Gestión de Ventas</h1>
-
-      <div className="mb-6">
+  
+      <div className="mb-6 space-x-4">
         <button 
           className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
           onClick={handleNewSale}
         >
           Registrar Nueva Venta
         </button>
+        <button 
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          onClick={() => setIsScannerOpen(true)}
+        >
+          Escanear Código de Barras
+        </button>
       </div>
-
+  
       <SalesTable
         sales={sales.map(sale => ({
           ...sale,
@@ -130,7 +254,7 @@ const SalesPage = () => {
         handleIncreaseQuantity={handleIncreaseQuantity}
         handleDecreaseQuantity={handleDecreaseQuantity}
       />
-
+  
       {isNewSaleModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setIsNewSaleModalOpen(false)}>
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
@@ -171,11 +295,18 @@ const SalesPage = () => {
                 required
               />
               <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Agregar Venta</button>
+              <button 
+                type="button" 
+                className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
+                onClick={() => setIsNewSaleModalOpen(false)}
+              >
+                Volver
+              </button>
             </form>
           </div>
         </div>
       )}
-
+  
       {isEditModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setIsEditModalOpen(false)}>
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
@@ -216,15 +347,51 @@ const SalesPage = () => {
                 required
               />
               <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Guardar Cambios</button>
+              <button 
+                type="button" 
+                className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
+                onClick={() => setIsEditModalOpen(false)}
+              >
+                Volver
+              </button>
             </form>
           </div>
         </div>
       )}
-
+  
+      {isScannerOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setIsScannerOpen(false)}>
+          <div className="bg-white p-6 rounded-lg shadow-lg" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-2xl font-bold mb-4">Escanear Código de Barras</h2>
+            <BarcodeScanner
+              onUpdate={(err, result) => {
+                if (result) handleScan(result);
+              }}
+            />
+            <button 
+              className="mt-4 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+              onClick={() => setIsScannerOpen(false)}
+            >
+              Cerrar Escáner
+            </button>
+            <button 
+              type="button" 
+              className="mt-4 bg-gray-500 text-white py-2 px-4 rounded ml-2"
+              onClick={() => setIsScannerOpen(false)}
+            >
+              Volver
+            </button>
+          </div>
+        </div>
+      )}
+  
       <div className="mt-6 flex justify-start space-x-4">
         <button 
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          onClick={handleSelectDocumentType}
+          onClick={() => {
+            setIsModalOpen(true);
+            setIsInvoice(false); // Inicialmente selecciona boleta
+          }}
         >
           Generar Factura/Boleta
         </button>
@@ -235,10 +402,46 @@ const SalesPage = () => {
           Seleccionar Medio de Pago
         </button>
       </div>
-
+  
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setIsModalOpen(false)}>
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+            <h2 className="text-2xl font-bold mb-4">Seleccionar Tipo de Documento</h2>
+            <div className="mb-4">
+              <button 
+                className="bg-blue-500 text-white py-2 px-4 rounded mr-2" 
+                onClick={() => {
+                  setIsInvoice(true);
+                  setIsModalOpen(false);
+                }}
+              >
+                Factura
+              </button>
+              <button 
+                className="bg-green-500 text-white py-2 px-4 rounded" 
+                onClick={() => {
+                  setIsInvoice(false);
+                  setIsModalOpen(false);
+                  alert("Boleta generada.");
+                }}
+              >
+                Boleta
+              </button>
+              <button 
+                type="button" 
+                className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
+                onClick={() => setIsModalOpen(false)}
+              >
+                Volver
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+  
+      {isInvoice && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
             <h2 className="text-2xl font-bold mb-4">Datos de Factura</h2>
             <form onSubmit={handleInvoiceSubmit}>
               <label className="block mb-2">RUT:</label>
@@ -256,11 +459,18 @@ const SalesPage = () => {
                 required
               />
               <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Generar Factura</button>
+              <button 
+                type="button" 
+                className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
+                onClick={() => setIsInvoice(false)}
+              >
+                Volver
+              </button>
             </form>
           </div>
         </div>
       )}
-
+  
       {paymentMethodModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setPaymentMethodModal(false)}>
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
@@ -273,13 +483,21 @@ const SalesPage = () => {
                 <option value="transferencia">Transferencia</option>
               </select>
               <button type="button" className="bg-blue-500 text-white py-2 px-4 rounded" onClick={() => alert('Medio de pago seleccionado')}>Seleccionar</button>
+              <button 
+                type="button" 
+                className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
+                onClick={() => setPaymentMethodModal(false)}
+              >
+                Volver
+              </button>
             </form>
           </div>
         </div>
       )}
-
     </div>
   );
+  
+  
 };
 
 export default SalesPage;

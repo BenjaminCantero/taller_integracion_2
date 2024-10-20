@@ -14,3 +14,21 @@ model Product {
   quantity Int
   price    Float
 }
+
+model User {
+  id        Int     @id @default(autoincrement())
+  name      String?
+  email     String  @unique
+  password  String
+  role      String  @default("user") // Opcional, para roles de usuario
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Producto {
+  id        Int    @id @default(autoincrement())
+  nombre    String
+  codigoBarras String @unique
+  precio    Float
+  stock     Int
+}
