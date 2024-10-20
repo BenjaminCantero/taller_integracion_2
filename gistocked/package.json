@@ -20,6 +20,7 @@
     "file-saver": "^2.0.5",
     "gistocked": "file:",
     "jspdf": "^2.5.2",
+    "leaflet": "^1.9.4",
     "next": "^14.2.12",
     "papaparse": "^5.4.1",
     "react": "^18",
