@@ -1,3 +1,4 @@
+
 'use client';  // Esto indica que este archivo es un Client Component
 import React from 'react';
 import ProductManager from './product'; // Asegúrate de que la ruta sea correcta

@@ -1,7 +1,8 @@
+
 'use client';
 
 import React, { useState } from 'react';
-import SalesTable from '../components/SalesTable';
+import SalesTable from '../components/SaleTable';
 
 const SalesPage = () => {
   const [sales, setSales] = useState([
