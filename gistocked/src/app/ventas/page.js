@@ -84,7 +84,40 @@ const SalesPage = () => {
   const handleError = (err) => {
     console.error(err);
   };
+  const handleGenerateDocument = async (isInvoice) => {
+    // Definir si es boleta o factura
+    const docTitle = isInvoice ? "Factura de Venta" : "Boleta de Venta";
 
+    // Crear el documento PDF
+    const pdfDoc = new jsPDF();
+    pdfDoc.text(docTitle, 10, 10); // Título del documento
+    pdfDoc.text(`Fecha: ${new Date().toLocaleDateString()}`, 10, 20); // Fecha actual
+
+    // Agregar la lista de productos
+    let yOffset = 30;
+    sales.forEach((sale) => {
+        pdfDoc.text(`Producto: ${sale.producto}`, 10, yOffset); // Nombre del producto
+        pdfDoc.text(`Cantidad: ${sale.cantidad}`, 80, yOffset); // Cantidad
+        pdfDoc.text(`Precio: ${(sale.total / sale.cantidad).toFixed(2)}`, 120, yOffset); // Precio unitario
+        pdfDoc.text(`Total: ${sale.total.toFixed(2)}`, 160, yOffset); // Total por producto
+        yOffset += 10; // Mover la posición Y para el siguiente producto
+    });
+
+    // Total de la venta
+    const totalAmount = sales.reduce((total, sale) => total + sale.total, 0);
+    pdfDoc.text(`Total: ${totalAmount.toFixed(2)}`, 160, yOffset + 10); // Total final
+
+    // Generar el PDF y descargarlo
+    pdfDoc.save(`${docTitle}.pdf`); // Esto descarga el PDF automáticamente
+
+    const pdfBlob = pdfDoc.output('blob'); // Crea un blob del PDF
+    const pdfUrl = URL.createObjectURL(pdfBlob); // Crea un URL para el blob
+    window.open(pdfUrl); // Abre el PDF en una nueva pestaña
+    
+};
+
+// Esta función se puede invocar con el tipo de documento deseado
+// Ejemplo: handleGenerateDocument(true) para factura o handleGenerateDocument(false) para boleta
 
   const generateInvoicePDF = async () => {
     const pdfDoc = await PDFDocument.create();
@@ -94,10 +127,10 @@ const SalesPage = () => {
 
     // Título del documento
     page.drawText(isInvoice ? 'Factura' : 'Boleta', {
-      x: 50,
-      y: yPosition,
-      size: 20,
-      color: rgb(0, 0, 0),
+        x: 50,
+        y: yPosition,
+        size: 20,
+        color: rgb(0, 0, 0),
     });
 
     yPosition -= 30;
@@ -113,13 +146,13 @@ const SalesPage = () => {
     // Detalles de las ventas
     let totalGeneral = 0;
     sales.forEach((venta) => {
-      page.drawText(venta.producto, { x: 50, y: yPosition, size: 10 });
-      page.drawText(`${venta.cantidad}`, { x: 200, y: yPosition, size: 10 });
-      page.drawText(`${venta.total / venta.cantidad}`, { x: 300, y: yPosition, size: 10 });
-      page.drawText(`${venta.total}`, { x: 400, y: yPosition, size: 10 });
-      yPosition -= 20;
+        page.drawText(venta.producto, { x: 50, y: yPosition, size: 10 });
+        page.drawText(`${venta.cantidad}`, { x: 200, y: yPosition, size: 10 });
+        page.drawText(`${venta.total / venta.cantidad}`, { x: 300, y: yPosition, size: 10 });
+        page.drawText(`${venta.total}`, { x: 400, y: yPosition, size: 10 });
+        yPosition -= 20;
 
-      totalGeneral += venta.total;
+        totalGeneral += venta.total;
     });
 
     // Total general
@@ -130,16 +163,10 @@ const SalesPage = () => {
     const blob = new Blob([pdfBytes], { type: 'application/pdf' });
     const url = URL.createObjectURL(blob);
 
-    // Descargar el PDF
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = isInvoice ? 'factura.pdf' : 'boleta.pdf';
-    link.click();
-  };
+    // Abre el PDF en una nueva pestaña
+    window.open(url);
+};
 
-  const handleGenerateDocument = () => {
-    generateInvoicePDF();
-  };
   const handleNewSale = () => {
     setIsNewSaleModalOpen(true);
   };
