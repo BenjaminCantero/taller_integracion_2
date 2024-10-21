@@ -3,6 +3,8 @@
 import './globals.css';
 import Autentificacion from './autentificacion';
 import Sidebar from './components/sidebar';
+import 'leaflet/dist/leaflet.css';
+
 
 import Home from './page';
 import Dasboard from './dashboard/page';
