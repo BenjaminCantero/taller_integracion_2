@@ -1,9 +1,7 @@
 'use client';
 
 import BarcodeScanner from 'react-qr-barcode-scanner';
-import React, { useState } from 'react';
-import BarcodeScannerModal from '../components/CodigoDeBarras';  // Renombrar esta importación
-import SalesTable from '../components/SalesTable';
+import React, { useState } from 'react';  //import SalesTable from '../components/SalesTable';
 import { PDFDocument, rgb } from 'pdf-lib';
 
 // Ahora puedes usar `BarcodeScanner` para el componente de la librería y `BarcodeScannerModal` para el modal personalizado.

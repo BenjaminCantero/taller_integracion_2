@@ -22,6 +22,7 @@
     "jspdf": "^2.5.2",
     "next": "^14.2.12",
     "papaparse": "^5.4.1",
+    "pdf-lib": "^1.17.1",
     "react": "^18",
     "react-chartjs-2": "^5.2.0",
     "react-csv": "^2.2.2",
