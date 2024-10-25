@@ -1,16 +1,11 @@
 
 'use client'
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import axios from "axios";
 
 export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
-    
-    /* 
-  Tipos de Formularios soportados:
-  0: Opciones del usuario
-  1: Inicio de sesión con Google
-  2: Crear sesión con un Correo
-  */
+    //
     const [formulario, setFormulario] = useState('0');
     const [baseForm, setBaseForm] = useState(true);
 
@@ -25,53 +20,71 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
     const [inputContrasenaForm2, setInputContrasenaForm2] = useState('');
     const [inputEmpresaForm2, setInputEmpresaForm2] = useState('');
 
-    const [usuariosValidos, setUsuariosValidos] = useState([
-            { codigo_vendedor:-1, nombre_usuario: 'admin1', nombre_empresa: 'Empresa 0', password:'123', email:'admin1@gmail.com', id_rol:1, id_admin:-1},
-            { codigo_vendedor:-2, nombre_usuario: 'vendedor1', nombre_empresa: 'Empresa 0', password:'123', email:'vendedor1@gmail.com', id_rol:2, id_admin:-1}
-          ])
+    const [usuariosApi, setusuariosApi] = useState({});
+    const [usuariosTemporales, setUsuariosTemporales] = useState({});
 
-    const validarUsuarioEstatico = (event) => {
-        event.preventDefault();
-        for (let i = 0; i < usuariosValidos.length; i++) {
-            if (inputCorreoForm1 === usuariosValidos[i].email && inputContrasenaForm1 === usuariosValidos[i].password) {
-                setUsuarioInfo(usuariosValidos[i]);
-                setUsuarioActivo(true);
-                return true; // Retornar true si el usuario es válido
+    useEffect(() => {
+        const cargaUsuariosTemporales = () => {
+           setUsuariosTemporales(
+                [
+                    { codigo_vendedor:0 , nombre_usuario: 'admin1'   , nombre_empresa: 'Empresa 0', password:'123', email:'admin1@gmail.com'   , id_rol:1, id_admin:0},
+                    { codigo_vendedor:-1, nombre_usuario: 'vendedor1', nombre_empresa: 'Empresa 0', password:'123', email:'vendedor1@gmail.com', id_rol:2, id_admin:0}
+                ]
+            );
+        }
+
+        const cargaUsuariosApi = async () => {
+            try {
+                const res = await axios.get('http://190.114.252.218:8000/api/usuarios/', {});
+                setusuariosApi(res.data);
+            } catch (error) {
+                console.error('Error al conectar con la api:', error);
             }
         }
-        return false; // Retornar false si no se encontró un usuario válido
+
+        cargaUsuariosTemporales();
+        cargaUsuariosApi();
+    }, []);
+
+
+    console.log(usuariosTemporales);
+    console.log('---------------------')
+    console.log(usuariosApi);
+
+    const validarUsuarioTemporal = (event) => {
+        event.preventDefault();
+        for (let i = 0; i < usuariosTemporales.length; i++) {
+            if (inputCorreoForm1 === usuariosTemporales[i].email && inputContrasenaForm1 === usuariosTemporales[i].password && inputEmpresaForm1 === usuariosTemporales[i].nombre_empresa) {
+                setUsuarioInfo(usuariosTemporales[i]);
+                setUsuarioActivo(true);
+                return true;
+            }
+        }
+        return false;
     };
     
-    const validarUsuarioBaseDeDatos = async () => {
-        const res = await fetch("/api/usuario/", {
-            method: "POST",
-            body: JSON.stringify({
-                tipoForm: '1',
-                nombre_empresa: inputEmpresaForm1,
-                password: inputContrasenaForm1,
-                email: inputCorreoForm1,
-            }),
-            headers: { "Content-Type": "application/json" },
-        });
-
-        if (res.ok) {
-            const usuario = await res.json(); // Aquí obtienes la información del usuario
-            console.log(usuario);
-            setUsuarioActivo(true);
-            setUsuarioInfo(usuario); // Guardas la información del usuario en el estado
+    const validarUsuarioApi = (event) => {
+        event.preventDefault();
+        for (let i = 0; i < usuariosApi.length; i++) {
+            if (inputCorreoForm1 === usuariosApi[i].email && inputContrasenaForm1 === usuariosApi[i].password && inputEmpresaForm1 === usuariosApi[i].nombre_empresa) {
+                setUsuarioInfo(usuariosApi[i]);
+                setUsuarioActivo(true);
+                return true;
+            }
         }
+        return false;
     };
     
     const validarUsuario = async (event) => {
-        const esValido = validarUsuarioEstatico(event);
-        if (!esValido) {
-            await validarUsuarioBaseDeDatos();
+        const usuarioValido = validarUsuarioApi(event);
+        if (!usuarioValido) {
+            validarUsuarioTemporal(event);
         }
     };
 
 
     const crearUsuarioEstatico = (usuarioNuevo) => {
-        setUsuariosValidos(prevUsuarios => [
+        setUsuariosTemporales(prevUsuarios => [
             ...prevUsuarios,
             usuarioNuevo
         ]);
@@ -136,12 +149,6 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
     const iniciarSesionCorreo = () => {
         setBaseForm(false);
         setLoginForm(true); 
-    
-        /* 
-        setTimeout(() => {
-            id.classList.add('transition', 'duration-2000', 'ease-linear', 'delay-150', 'opacity-100');
-        }, 10);
-        */
         setFormulario('1');
 
     };
