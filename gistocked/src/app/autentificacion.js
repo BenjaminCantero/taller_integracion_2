@@ -10,9 +10,6 @@ const Autentificacion = ({ usuarioActivo, setUsuarioActivo, setUsuarioInfo }) =>
 const [actual, setActual] = useState('Login');
 
   const controlRutas = () => {
-    console.log(actual);
-
-    
     if (actual == 'Login') {
       return (
           <Login

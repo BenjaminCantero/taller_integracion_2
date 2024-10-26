@@ -98,8 +98,9 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo, setActual} ) {
     // -----------------------------------------------
     const validarUsuarioVendedorTemporal = (event) => {
         event.preventDefault();
+        console.log(usuariosVendedoresTemporales);
         for (let i = 0; i < usuariosVendedoresTemporales.length; i++) {
-            if (inputRutFormVendedores === usuariosVendedoresTemporales[i].rut && inputContrasenaFormVendedores === usuariosVendedoresTemporales[i].constraseña && inputEmpresaFormVendedores === usuariosVendedoresTemporales[i].nombre_empresa &&  2 === usuariosVendedoresTemporales[i].id_rol) {
+            if (inputRutFormVendedores === usuariosVendedoresTemporales[i].rut && inputContrasenaFormVendedores === usuariosVendedoresTemporales[i].contraseña && inputEmpresaFormVendedores === usuariosVendedoresTemporales[i].nombre_empresa) {
                 setUsuarioInfo(usuariosVendedoresTemporales[i]);
                 setUsuarioActivo(true);
                 return true;

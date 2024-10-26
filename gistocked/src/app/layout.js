@@ -38,8 +38,6 @@ const Layout = () => {
     }
   };
 
-  console.log(usuarioActivo);
-
   return (
     <html lang="es">
       <body>
