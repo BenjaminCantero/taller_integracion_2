@@ -10,74 +10,138 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo, setActual} ) {
     const [loginAdmin, setLoginAdmin] = useState(false);
     const [loginVendedor, setLoginVendedor] = useState(false);
 
-    const [inputCorreoForm1, setInputCorreoForm1] = useState('');
-    const [inputContrasenaForm1, setInputContrasenaForm1] = useState('');
-    const [inputEmpresaForm1, setInputEmpresaForm1] = useState('');
+    const [inputCorreoFormAdmins, setInputCorreoFormAdmins] = useState('');
+    const [inputContrasenaFormAdmins, setInputContrasenaFormAdmins] = useState('');
+    const [inputEmpresaFormAdmins, setInputEmpresaFormAdmins] = useState('');
 
-    const [usuariosApi, setusuariosApi] = useState({});
-    const [usuariosTemporales, setUsuariosTemporales] = useState({});
+    const [inputRutFormVendedores, setInputRutFormVendedores] = useState('');
+    const [inputContrasenaFormVendedores, setInputContrasenaFormVendedores] = useState('');
+    const [inputEmpresaFormVendedores, setInputEmpresaFormVendedores] = useState('');
 
-    // Carga la información de todos los Usuarios Registrados
+    const [usuariosAdminApi, setUsuariosAdminApi] = useState({});
+    const [usuariosAdminTemporales, setUsuariosAdminTemporales] = useState({});
+
+    const [usuariosVendedoresApi, setUsuariosVendedoresApi] = useState({});
+    const [usuariosVendedoresTemporales, setUsuariosVendedoresTemporales] = useState({});
+
+    // -----------------------------------------------
+    // Carga la información de los usuarios temporales
+    // -----------------------------------------------
     useEffect(() => {
-        const cargaUsuariosTemporales = () => {
-           setUsuariosTemporales(
+        const cargaUsuariosAdminTemporales = () => {
+           setUsuariosAdminTemporales(
                 [
-                    { codigo_vendedor:0 , nombre_usuario: 'admin1'   , nombre_empresa: 'Empresa 0', password:'123', email:'admin1@gmail.com'   , id_rol:1, id_admin:0},
-                    { codigo_vendedor:-1, nombre_usuario: 'vendedor1', nombre_empresa: 'Empresa 0', password:'123', email:'vendedor1@gmail.com', id_rol:2, id_admin:0}
+                    { codigo_vendedor:1, nombre_usuario:'admin1', nombre_empresa:'Empresa 0', password:'123', email:'admin1@gmail.com', id_rol:1, id_admin:1}
                 ]
             );
         }
 
-        const cargaUsuariosApi = async () => {
-            try {
-                const res = await axios.get('http://190.114.252.218:8000/api/usuarios/', {});
-                setusuariosApi(res.data);
-            } catch (error) {
-                console.error('Error al conectar con la api:', error);
-            }
+        const cargaUsuariosVendedoresTemporales = () => {
+            setUsuariosVendedoresTemporales(
+                [
+                    { id_vendedores:2, nombres:'vendedor1', apellidos:'v1', rut:'111111111', contraseña:'123', id_admin:1, id_rol:2, nombre_empresa:'Empresa 0'}
+                ]
+            )
         }
 
-        cargaUsuariosTemporales();
-        cargaUsuariosApi();
+        cargaUsuariosAdminTemporales();
+        cargaUsuariosVendedoresTemporales();
     }, []);
 
-    console.log(usuariosTemporales);
-    console.log('---------------------')
-    console.log(usuariosApi);
+    // -----------------------------------------------
+    // ----- Validaciones de los Administradores -----
+    // -----------------------------------------------
+    const validarUsuarioAdminTemporal = (event) => {
+        event.preventDefault();
+        for (let i = 0; i < usuariosAdminTemporales.length; i++) {
+            if (inputCorreoFormAdmins === usuariosAdminTemporales[i].email && inputContrasenaFormAdmins === usuariosAdminTemporales[i].password && inputEmpresaFormAdmins === usuariosAdminTemporales[i].nombre_empresa &&  1 === usuariosAdminTemporales[i].id_rol) {
+                setUsuarioInfo(usuariosAdminTemporales[i]);
+                setUsuarioActivo(true);
+                return true;
+            }
+        }
+        return false;
+    };
+    
+    const validarUsuarioAdminApi = (event) => {
+        event.preventDefault();
+        for (let i = 0; i < usuariosAdminApi.length; i++) {
+            if (inputCorreoFormAdmins === usuariosAdminApi[i].email && inputContrasenaFormAdmins === usuariosAdminApi[i].password && inputEmpresaFormAdmins === usuariosAdminApi[i].nombre_empresa && 1 === usuariosAdminApi[i].id_rol) {
+                setUsuarioInfo(usuariosAdminApi[i]);
+                setUsuarioActivo(true);
+                return true;
+            }
+        }
+        return false;
+    };
+    
+    const validarUsuarioAdmin = async (event) => {
+        event.preventDefault();
 
-    // Validaciones de los Usuarios
-    const validarUsuarioTemporal = (event) => {
-        event.preventDefault();
-        for (let i = 0; i < usuariosTemporales.length; i++) {
-            if (inputCorreoForm1 === usuariosTemporales[i].email && inputContrasenaForm1 === usuariosTemporales[i].password && inputEmpresaForm1 === usuariosTemporales[i].nombre_empresa) {
-                setUsuarioInfo(usuariosTemporales[i]);
-                setUsuarioActivo(true);
-                return true;
-            }
+        try {
+            const res = await axios.get('http://190.114.252.218:8000/api/usuarios/', {});
+            setUsuariosAdminApi(res.data);
+        } catch (error) {
+            console.error('Error al conectar con la api:', error);
         }
-        return false;
-    };
-    
-    const validarUsuarioApi = (event) => {
-        event.preventDefault();
-        for (let i = 0; i < usuariosApi.length; i++) {
-            if (inputCorreoForm1 === usuariosApi[i].email && inputContrasenaForm1 === usuariosApi[i].password && inputEmpresaForm1 === usuariosApi[i].nombre_empresa) {
-                setUsuarioInfo(usuariosApi[i]);
-                setUsuarioActivo(true);
-                return true;
-            }
-        }
-        return false;
-    };
-    
-    const validarUsuario = async (event) => {
-        const usuarioValido = validarUsuarioApi(event);
+
+        console.log(usuariosAdminApi);
+
+        const usuarioValido = validarUsuarioAdminApi(event);
         if (!usuarioValido) {
-            validarUsuarioTemporal(event);
+            validarUsuarioAdminTemporal(event);
         }
     };
 
-    // Muestra los tipo de logins disponobles   
+    // -----------------------------------------------
+    // ------- Validaciones de los Vendedores --------
+    // -----------------------------------------------
+    const validarUsuarioVendedorTemporal = (event) => {
+        event.preventDefault();
+        for (let i = 0; i < usuariosVendedoresTemporales.length; i++) {
+            if (inputRutFormVendedores === usuariosVendedoresTemporales[i].rut && inputContrasenaFormVendedores === usuariosVendedoresTemporales[i].constraseña && inputEmpresaFormVendedores === usuariosVendedoresTemporales[i].nombre_empresa &&  2 === usuariosVendedoresTemporales[i].id_rol) {
+                setUsuarioInfo(usuariosVendedoresTemporales[i]);
+                setUsuarioActivo(true);
+                return true;
+            }
+        }
+        return false;
+    };
+
+    const validarUsuarioVendedorApi = (event) => {
+        event.preventDefault();
+        for (let i = 0; i < usuariosVendedoresApi.length; i++) {
+            if (inputRutFormVendedores === usuariosVendedoresApi[i].rut && inputContrasenaFormVendedores === usuariosVendedoresApi[i].contraseña && inputEmpresaFormVendedores === usuariosVendedoresApi[i].nombre_empresa) {
+                setUsuarioInfo(usuariosVendedoresApi[i]);
+                setUsuarioActivo(true);
+                return true;
+            }
+        }
+        return false;
+    };
+
+    const validarUsuarioVendedor = async (event) => {
+        event.preventDefault();
+
+        try {
+            const res = await axios.get('http://190.114.252.218:8000/api/vendedores/', {});
+            setUsuariosVendedoresApi(res.data);
+        } catch (error) {
+            console.error('Error al conectar con la api:', error);
+        }
+
+        console.log(usuariosVendedoresApi);
+
+        const usuarioValido = validarUsuarioVendedorApi(event);
+        if (!usuarioValido) {
+            validarUsuarioVendedorTemporal(event);
+        }
+    };
+
+    // -----------------------------------------------
+    // --- Muestra los tipo de logins disponobles ----
+    // --------- (Administrador o Vendedor) ---------- 
+    // ----------------------------------------------- 
     const selecionarTipoLogin = () => {
         setBaseForm(false);
         setLoginAdmin(false);
@@ -85,6 +149,9 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo, setActual} ) {
         setTipoLogin(true);
     };
 
+    // -----------------------------------------------
+    // --- Muestra el Login de los Administradores ---
+    // -----------------------------------------------
     const formLoginAdmins = () => {
         setBaseForm(false);
         setLoginVendedor(false);
@@ -92,6 +159,9 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo, setActual} ) {
         setLoginAdmin(true);
     }
 
+    // -----------------------------------------------
+    // ----- Muestra el Login de los Vendedores ------
+    // -----------------------------------------------
     const formLoginVendedores = () => {
         setBaseForm(false);
         setTipoLogin(false);
@@ -99,13 +169,18 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo, setActual} ) {
         setLoginVendedor(true);
     }
 
-    // Redirige al formulario de Register (Solo para crear Administradores)
+    // -----------------------------------------------
+    // ------------ Redirige al Register -------------
+    // ------ (Solo para crear Administradores) ------
+    // -----------------------------------------------
     const crearCuentaNueva = () => {
         setActual('Register')
         return
     }
 
-    // Vuelve al comienzo de la pagina
+    // -----------------------------------------------
+    // ------- Vuelve al comienzo de la pagina -------
+    // -----------------------------------------------
     const cerrarFormularios = () => {
         setTipoLogin(false);
         setLoginAdmin(false);
@@ -124,7 +199,7 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo, setActual} ) {
               {/* ------------------------------------------------------------- */}
               {/* -------------------- Aciones del usuario -------------------- */}
               {/* ------------------------------------------------------------- */}
-              <div id='tipoSesion' className={baseForm ? 'visible p-8' : 'invisible hidden'}>
+              <div className={baseForm ? 'visible p-8' : 'invisible hidden'}>
                   <ul className='space-y-6 text-white'>
                        {/* ------------------ Bienvenida al cliente ------------------- */}
                       <li className='font-racing_sans_one text-center'>
@@ -162,7 +237,7 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo, setActual} ) {
               {/* ------------------------------------------------------------- */}
               {/* --------------- Ingresar como Admin o Vendedor -------------- */}
               {/* ------------------------------------------------------------- */}
-              <div id='tipoUsuario' className={tipoLogin ? 'visible p-4' : 'invisible hidden'}>
+              <div className={tipoLogin ? 'visible p-4' : 'invisible hidden'}>
                   <ul className='my-2 space-y-6 text-white'>
                        {/* ------------------ Bienvenida al cliente ------------------- */}
                       <li className='mx-6 font-racing_sans_one text-center'>
@@ -208,7 +283,7 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo, setActual} ) {
               {/* ------------------------------------------------------------- */}
               {/* ------------- Formulario Inicio de sesion Admims ------------ */}
               {/* ------------------------------------------------------------- */}
-              <div id='Login' className={loginAdmin ? 'p-5 rounded-md' : 'invisible hidden'}>
+              <div className={loginAdmin ? 'p-5 rounded-md' : 'invisible hidden'}>
                   <div className='text-white text-right'>
                       <button type='button' onClick={cerrarFormularios}>
                           <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' className='bi bi-x-lg' viewBox='0 0 16 16'>
@@ -217,10 +292,11 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo, setActual} ) {
                       </button>
                   </div>
 
-                  <form onSubmit={validarUsuario}>
+                  <form onSubmit={validarUsuarioAdmin}>
                       <ul className='space-y-9 text-white'>
                           <li className='mx-10 font-racing_sans_one text-center'>
                               <h3 className='text-4xl'>Iniciando sesión en Gistocked</h3>
+                              <p className='text-gray-300 text-lg'>'Administradores'</p>
                           </li>
 
                           <li className='mx-10 font-racing_sans_one text-lg relative'>
@@ -228,12 +304,12 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo, setActual} ) {
                                 className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
                                 type='email'
                                 placeholder=' '
-                                value={inputCorreoForm1}
-                                onChange={(e) => setInputCorreoForm1(e.target.value)}
+                                value={inputCorreoFormAdmins}
+                                onChange={(e) => setInputCorreoFormAdmins(e.target.value)}
                             />
                             <label
                                 className={`absolute start-0 top-1/2 transform transition-all duration-500 
-                                ${inputCorreoForm1 ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
+                                ${inputCorreoFormAdmins ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
                             >
                                 Correo
                             </label>
@@ -244,11 +320,11 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo, setActual} ) {
                                   className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
                                   type='password' 
                                   placeholder=' '
-                                  onInput={(e) => setInputContrasenaForm1(e.target.value)}
+                                  onInput={(e) => setInputContrasenaFormAdmins(e.target.value)}
                               />
                               <label
                                   className={`absolute start-0 top-1/2 transform transition-all duration-500
-                                  ${inputContrasenaForm1 ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
+                                  ${inputContrasenaFormAdmins ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
                               >
                                   Contraseña
                               </label>
@@ -259,11 +335,11 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo, setActual} ) {
                                   className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
                                   type='text' 
                                   placeholder=' '
-                                  onInput={(e) => setInputEmpresaForm1(e.target.value)}
+                                  onInput={(e) => setInputEmpresaFormAdmins(e.target.value)}
                               />
                               <label
                                   className={`absolute start-0 top-1/2 transform transition-all duration-500
-                                  ${inputEmpresaForm1 ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
+                                  ${inputEmpresaFormAdmins ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
                               >
                                   Empresa
                               </label>
@@ -283,7 +359,7 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo, setActual} ) {
               {/* ------------------------------------------------------------- */}
               {/* ------------ Formulario Inicio de sesion Vendedores---------- */}
               {/* ------------------------------------------------------------- */}
-              <div id='Login' className={loginVendedor ? 'p-5 rounded-md' : 'invisible hidden'}>
+              <div className={loginVendedor ? 'p-5 rounded-md' : 'invisible hidden'}>
                   <div className='text-white text-right'>
                       <button type='button' onClick={cerrarFormularios}>
                           <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' className='bi bi-x-lg' viewBox='0 0 16 16'>
@@ -291,6 +367,69 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo, setActual} ) {
                           </svg>
                       </button>
                   </div>
+
+                  <form onSubmit={validarUsuarioVendedor}>
+                      <ul className='space-y-9 text-white'>
+                          <li className='mx-10 font-racing_sans_one text-center'>
+                              <h3 className='text-4xl'>Iniciando sesión en Gistocked</h3>
+                              <p className='text-gray-300 text-lg'>'Vendedores'</p>
+                          </li>
+
+                          <li className='mx-10 font-racing_sans_one text-lg relative'>
+                            <input
+                                className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
+                                type='text'
+                                placeholder=' '
+                                value={inputRutFormVendedores}
+                                onChange={(e) => setInputRutFormVendedores(e.target.value)}
+                            />
+                            <label
+                                className={`absolute start-0 top-1/2 transform transition-all duration-500 
+                                ${inputRutFormVendedores ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
+                            >
+                                Rut
+                            </label>
+                          </li>
+
+                          <li className='mx-10 font-racing_sans_one text-lg relative'>
+                              <input 
+                                  className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
+                                  type='password' 
+                                  placeholder=' '
+                                  onInput={(e) => setInputContrasenaFormVendedores(e.target.value)}
+                              />
+                              <label
+                                  className={`absolute start-0 top-1/2 transform transition-all duration-500
+                                  ${inputContrasenaFormVendedores ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
+                              >
+                                  Contraseña
+                              </label>
+                          </li>
+
+                          <li className='mx-10 font-racing_sans_one text-lg relative'>
+                              <input 
+                                  className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
+                                  type='text' 
+                                  placeholder=' '
+                                  onInput={(e) => setInputEmpresaFormVendedores(e.target.value)}
+                              />
+                              <label
+                                  className={`absolute start-0 top-1/2 transform transition-all duration-500
+                                  ${inputEmpresaFormVendedores ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
+                              >
+                                  Empresa
+                              </label>
+                          </li>
+
+                          <li className='mx-10 font-racing_sans_one text-lg text-center'>
+                              <button 
+                              type='submit'
+                              >
+                                  <p>Aceptar</p>
+                              </button>
+                          </li>
+                      </ul>
+                  </form>
               </div>
           </main>
       </div>

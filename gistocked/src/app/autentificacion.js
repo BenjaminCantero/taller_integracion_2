@@ -4,14 +4,10 @@ import './globals.css';
 import Login from './auth/UserLogin/page';
 import Register from './auth/UserRegister/page';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 const Autentificacion = ({ usuarioActivo, setUsuarioActivo, setUsuarioInfo }) => {
-const [actual, setActual] = useState('');
-
-  useEffect(() => {
-    setActual('Login');
-}, []);
+const [actual, setActual] = useState('Login');
 
   const controlRutas = () => {
     console.log(actual);
