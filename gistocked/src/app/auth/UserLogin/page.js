@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios';
 
-export default function Login( {setUsuarioActivo, setUsuarioInfo, setActual} ) {
+export default function Login( {usuarioActivo, setUsuarioActivo, setUsuarioInfo, setActual} ) {
     const [baseForm, setBaseForm] = useState(true);
     const [tipoLogin, setTipoLogin] = useState(false);
     const [loginAdmin, setLoginAdmin] = useState(false);
@@ -23,6 +23,8 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo, setActual} ) {
 
     const [usuariosVendedoresApi, setUsuariosVendedoresApi] = useState({});
     const [usuariosVendedoresTemporales, setUsuariosVendedoresTemporales] = useState({});
+
+    const [mensaje, setMensaje] = useState('');
 
     // -----------------------------------------------
     // Carga la información de los usuarios temporales
@@ -83,13 +85,15 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo, setActual} ) {
             setUsuariosAdminApi(res.data);
         } catch (error) {
             console.error('Error al conectar con la api:', error);
+            setMensaje('Error al conectar con la API');
         }
-
-        console.log(usuariosAdminApi);
 
         const usuarioValido = validarUsuarioAdminApi(event);
         if (!usuarioValido) {
+            setMensaje('Usuario no encontrado');
             validarUsuarioAdminTemporal(event);
+        } else if (usuarioActivo) {
+            setMensaje('');
         }
     };
 
@@ -129,13 +133,17 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo, setActual} ) {
             setUsuariosVendedoresApi(res.data);
         } catch (error) {
             console.error('Error al conectar con la api:', error);
+            setMensaje('Error al conectar con la API');
         }
 
         console.log(usuariosVendedoresApi);
 
         const usuarioValido = validarUsuarioVendedorApi(event);
         if (!usuarioValido) {
+            setMensaje('Usuario no encontrado');
             validarUsuarioVendedorTemporal(event);
+        } else if (usuarioActivo) {
+            setMensaje('');
         }
     };
 
@@ -300,6 +308,12 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo, setActual} ) {
                               <p className='text-gray-300 text-lg'>'Administradores'</p>
                           </li>
 
+                          {mensaje && 
+                            <li className='mx-10 font-racing_sans_one text-lg bg-red-600 text-center rounded-lg'>
+                                <p>{mensaje}</p>
+                            </li>
+                          }
+
                           <li className='mx-10 font-racing_sans_one text-lg relative'>
                             <input
                                 className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
@@ -375,6 +389,12 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo, setActual} ) {
                               <h3 className='text-4xl'>Iniciando sesión en Gistocked</h3>
                               <p className='text-gray-300 text-lg'>'Vendedores'</p>
                           </li>
+
+                          {mensaje && 
+                            <li className='mx-10 font-racing_sans_one text-lg bg-red-600 text-center rounded-lg'>
+                                <p>{mensaje}</p>
+                            </li>
+                          }
 
                           <li className='mx-10 font-racing_sans_one text-lg relative'>
                             <input

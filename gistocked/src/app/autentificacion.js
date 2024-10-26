@@ -13,6 +13,7 @@ const [actual, setActual] = useState('Login');
     if (actual == 'Login') {
       return (
           <Login
+            usuarioActivo={usuarioActivo}
             setUsuarioActivo={setUsuarioActivo}
             setUsuarioInfo={setUsuarioInfo}
             setActual={setActual}
