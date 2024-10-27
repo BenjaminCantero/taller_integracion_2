@@ -1,21 +1,24 @@
 'use client';
 
-import BarcodeScanner from 'react-qr-barcode-scanner';
 import React, { useState } from 'react';
-import BarcodeScannerModal from '../components/CodigoDeBarras';
+import { BarcodeScanner } from 'react-zxing';
 import SalesTable from '../components/SalesTable';
 import { PDFDocument, rgb } from 'pdf-lib';
-import axios from '../../api/services/axiosConfig';
+import QrReader from 'react-qr-barcode-scanner';
+import axios from '../../app/api/services/axiosConfig'; // Importar axios
+
 const SalesPage = () => {
   const [sales, setSales] = useState([
     { id: 1, producto: 'Monitor Samsung Curvo', cantidad: 2, total: 500, fecha: '08/10/2024' },
-    { id: 2, producto: 'Teclado Logitech Gamer', cantidad: 1, total: 100, fecha: '07/10/2024' },
+    { id: 2, producto: 'Teclado Logitech Gamer', cantidad: 1, total: 100, fecha: '07/10/2024' }
   ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isInvoice, setIsInvoice] = useState(false);
   const [paymentMethodModal, setPaymentMethodModal] = useState(false);
   const [isNewSaleModalOpen, setIsNewSaleModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingSale, setEditingSale] = useState(null);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   const [newSaleData, setNewSaleData] = useState({
@@ -29,10 +32,12 @@ const SalesPage = () => {
 
   const handleNewSaleSubmit = (e) => {
     e.preventDefault();
+    
     const newSale = {
       ...newSaleData,
       total: newSaleData.cantidad * newSaleData.precio,
     };
+
     setSales([...sales, newSale]);
     setNewSaleData({
       id: sales.length + 2,
@@ -48,6 +53,7 @@ const SalesPage = () => {
   const handleScan = async (data) => {
     if (data) {
       const scannedBarcode = data;
+
       try {
         const response = await axios.get(`/producto/${scannedBarcode}`);
         const producto = response.data;
@@ -61,6 +67,7 @@ const SalesPage = () => {
             fecha: new Date().toLocaleDateString('es-ES'),
             precio: producto.precio,
           };
+
           setSales([...sales, newSale]);
           setIsScannerOpen(false);
         } else {
@@ -76,6 +83,62 @@ const SalesPage = () => {
     console.error(err);
   };
 
+  const generateInvoicePDF = async (venta) => {
+    const pdfDoc = await PDFDocument.create();
+    const page = pdfDoc.addPage([600, 400]);
+    const { width, height } = page.getSize();
+
+    page.drawText(`Boleta o Factura`, {
+      x: 50,
+      y: height - 50,
+      size: 20,
+      color: rgb(0, 0, 0),
+    });
+
+    // Agrega detalles de la venta
+    page.drawText(`Producto: ${venta.producto}`, { x: 50, y: height - 80, size: 12 });
+    page.drawText(`Cantidad: ${venta.cantidad}`, { x: 50, y: height - 100, size: 12 });
+    page.drawText(`Total: ${venta.total}`, { x: 50, y: height - 120, size: 12 });
+
+    const pdfBytes = await pdfDoc.save();
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+
+    // Descarga el PDF
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'boleta_o_factura.pdf';
+    link.click();
+  };
+
+  const handleNewSale = () => {
+    setIsNewSaleModalOpen(true);
+  };
+
+  const handleGenerateDocument = (sale) => {
+    if (isInvoice) {
+      generateInvoicePDF(sale);
+    } else {
+      // Lógica para boleta
+    }
+  };
+
+  const handleEditSale = (id) => {
+    const saleToEdit = sales.find(sale => sale.id === id);
+    setEditingSale(saleToEdit);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSubmit = (e) => {
+    e.preventDefault();
+    const updatedSales = sales.map(sale => 
+      sale.id === editingSale.id ? editingSale : sale
+    );
+    setSales(updatedSales);
+    setIsEditModalOpen(false);
+    setEditingSale(null);
+  };
+
   const handleIncreaseQuantity = async (id) => {
     const sale = sales.find((sale) => sale.id === id);
     const newQuantity = sale.cantidad + 1;
@@ -84,34 +147,22 @@ const SalesPage = () => {
       await axios.patch(`/producto/${sale.codigoBarras}`, {
         stock: sale.stock - 1,
       });
+
       const updatedSales = sales.map((sale) =>
-        sale.id === id ? { ...sale, cantidad: newQuantity, total: newQuantity * sale.precio } : sale
+        sale.id === id
+          ? { ...sale, cantidad: newQuantity, total: newQuantity * sale.precio }
+          : sale
       );
+
       setSales(updatedSales);
     } catch (error) {
       alert('Error al actualizar la cantidad');
     }
   };
 
-  const handleDecreaseQuantity = async (id) => {
-    const sale = sales.find((sale) => sale.id === id);
-    if (sale.cantidad <= 1) return;
-
-    const newQuantity = sale.cantidad - 1;
-    try {
-      await axios.patch(`/producto/${sale.codigoBarras}`, {
-        stock: sale.stock + 1,
-      });
-      const updatedSales = sales.map((sale) =>
-        sale.id === id ? { ...sale, cantidad: newQuantity, total: newQuantity * sale.precio } : sale
-      );
-      setSales(updatedSales);
-    } catch (error) {
-      alert('Error al disminuir la cantidad');
-    }
-  };
-
   const handleDeleteSale = async (id) => {
+    const sale = sales.find((sale) => sale.id === id);
+
     try {
       await axios.delete(`/ventas/${id}`);
       const updatedSales = sales.filter((sale) => sale.id !== id);
@@ -119,6 +170,15 @@ const SalesPage = () => {
     } catch (error) {
       alert('Error al eliminar la venta');
     }
+  };
+
+  const handleDecreaseQuantity = (id) => {
+    const updatedSales = sales.map((sale) =>
+      sale.id === id && sale.cantidad > 1 
+        ? { ...sale, cantidad: sale.cantidad - 1, total: (sale.cantidad - 1) * (sale.total / sale.cantidad) } 
+        : sale
+    );
+    setSales(updatedSales);
   };
 
   const handleSelectDocumentType = (tipoDocumento) => {
