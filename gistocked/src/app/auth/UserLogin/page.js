@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios';
 
-export default function Login( {usuarioActivo, setUsuarioActivo, setUsuarioInfo, setActual} ) {
+export default function Login( {usuariosAdminTemporales, usuariosVendedoresTemporales, usuarioActivo, setUsuarioActivo, setUsuarioInfo, setActual} ) {
     const [baseForm, setBaseForm] = useState(true);
     const [tipoLogin, setTipoLogin] = useState(false);
     const [loginAdmin, setLoginAdmin] = useState(false);
@@ -19,46 +19,35 @@ export default function Login( {usuarioActivo, setUsuarioActivo, setUsuarioInfo,
     const [inputEmpresaFormVendedores, setInputEmpresaFormVendedores] = useState('');
 
     const [usuariosAdminApi, setUsuariosAdminApi] = useState({});
-    const [usuariosAdminTemporales, setUsuariosAdminTemporales] = useState({});
-
     const [usuariosVendedoresApi, setUsuariosVendedoresApi] = useState({});
-    const [usuariosVendedoresTemporales, setUsuariosVendedoresTemporales] = useState({});
 
     const [mensaje, setMensaje] = useState('');
 
     // -----------------------------------------------
-    // Carga la información de los usuarios temporales
-    // -----------------------------------------------
-    useEffect(() => {
-        const cargaUsuariosAdminTemporales = () => {
-           setUsuariosAdminTemporales(
-                [
-                    { codigo_vendedor:1, nombre_usuario:'admin1', nombre_empresa:'Empresa 0', password:'123', email:'admin1@gmail.com', id_rol:1, id_admin:1}
-                ]
-            );
-        }
-
-        const cargaUsuariosVendedoresTemporales = () => {
-            setUsuariosVendedoresTemporales(
-                [
-                    { id_vendedores:2, nombres:'vendedor1', apellidos:'v1', rut:'111111111', contraseña:'123', id_admin:1, id_rol:2, nombre_empresa:'Empresa 0'}
-                ]
-            )
-        }
-
-        cargaUsuariosAdminTemporales();
-        cargaUsuariosVendedoresTemporales();
-    }, []);
-
-    // -----------------------------------------------
     // ----- Validaciones de los Administradores -----
     // -----------------------------------------------
+    useEffect(() => {
+        const fetchUsuarios = async () => {
+            try {
+                const res = await axios.get('http://190.114.252.218:8000/api/usuarios/');
+                setUsuariosAdminApi(res.data);
+                console.log(res.data);
+            } catch (error) {
+                console.error('Error al conectar con la api:', error);
+                setMensaje('Error al conectar con la API');
+            }
+        };
+
+        fetchUsuarios();
+    }, [loginAdmin]);
+
     const validarUsuarioAdminTemporal = (event) => {
         event.preventDefault();
         for (let i = 0; i < usuariosAdminTemporales.length; i++) {
             if (inputCorreoFormAdmins === usuariosAdminTemporales[i].email && inputContrasenaFormAdmins === usuariosAdminTemporales[i].password && inputEmpresaFormAdmins === usuariosAdminTemporales[i].nombre_empresa &&  1 === usuariosAdminTemporales[i].id_rol) {
                 setUsuarioInfo(usuariosAdminTemporales[i]);
                 setUsuarioActivo(true);
+                setMensaje('');
                 return true;
             }
         }
@@ -71,6 +60,7 @@ export default function Login( {usuarioActivo, setUsuarioActivo, setUsuarioInfo,
             if (inputCorreoFormAdmins === usuariosAdminApi[i].email && inputContrasenaFormAdmins === usuariosAdminApi[i].password && inputEmpresaFormAdmins === usuariosAdminApi[i].nombre_empresa && 1 === usuariosAdminApi[i].id_rol) {
                 setUsuarioInfo(usuariosAdminApi[i]);
                 setUsuarioActivo(true);
+                setMensaje('');
                 return true;
             }
         }
@@ -80,26 +70,30 @@ export default function Login( {usuarioActivo, setUsuarioActivo, setUsuarioInfo,
     const validarUsuarioAdmin = async (event) => {
         event.preventDefault();
 
-        try {
-            const res = await axios.get('http://190.114.252.218:8000/api/usuarios/', {});
-            setUsuariosAdminApi(res.data);
-        } catch (error) {
-            console.error('Error al conectar con la api:', error);
-            setMensaje('Error al conectar con la API');
-        }
-
         const usuarioValido = validarUsuarioAdminApi(event);
         if (!usuarioValido) {
             setMensaje('Usuario no encontrado');
             validarUsuarioAdminTemporal(event);
-        } else if (usuarioActivo) {
-            setMensaje('');
         }
     };
 
     // -----------------------------------------------
     // ------- Validaciones de los Vendedores --------
     // -----------------------------------------------
+    useEffect(() => {
+        const fetchUsuarios = async () => {
+            try {
+                const res = await axios.get('http://190.114.252.218:8000/api/vendedores/', {});
+                setUsuariosVendedoresApi(res.data);
+            } catch (error) {
+                console.error('Error al conectar con la api:', error);
+                setMensaje('Error al conectar con la API');
+            }
+        };
+
+        fetchUsuarios();
+    }, [loginVendedor]);
+
     const validarUsuarioVendedorTemporal = (event) => {
         event.preventDefault();
         console.log(usuariosVendedoresTemporales);
@@ -127,16 +121,6 @@ export default function Login( {usuarioActivo, setUsuarioActivo, setUsuarioInfo,
 
     const validarUsuarioVendedor = async (event) => {
         event.preventDefault();
-
-        try {
-            const res = await axios.get('http://190.114.252.218:8000/api/vendedores/', {});
-            setUsuariosVendedoresApi(res.data);
-        } catch (error) {
-            console.error('Error al conectar con la api:', error);
-            setMensaje('Error al conectar con la API');
-        }
-
-        console.log(usuariosVendedoresApi);
 
         const usuarioValido = validarUsuarioVendedorApi(event);
         if (!usuarioValido) {
@@ -309,7 +293,7 @@ export default function Login( {usuarioActivo, setUsuarioActivo, setUsuarioInfo,
                           </li>
 
                           {mensaje && 
-                            <li className='mx-10 font-racing_sans_one text-lg bg-red-600 text-center rounded-lg'>
+                            <li className='py-2 mx-10 font-racing_sans_one text-lg bg-red-600 text-center rounded-lg'>
                                 <p>{mensaje}</p>
                             </li>
                           }
@@ -391,7 +375,7 @@ export default function Login( {usuarioActivo, setUsuarioActivo, setUsuarioInfo,
                           </li>
 
                           {mensaje && 
-                            <li className='mx-10 font-racing_sans_one text-lg bg-red-600 text-center rounded-lg'>
+                            <li className='py-2 mx-10 font-racing_sans_one text-lg bg-red-600 text-center rounded-lg'>
                                 <p>{mensaje}</p>
                             </li>
                           }

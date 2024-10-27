@@ -155,18 +155,6 @@ const Sidebar = ( {children, setUsuarioActivo, setUsuarioInfo, usuarioInfo, setP
                   </button>
                 </li>
 
-                {/* Redirección hacia las Configuraciones */}
-                <li className='w-full'>
-                  <button 
-                    onClick={() => cambiarPagina('Configuraciones')}
-                    className='w-full'
-                  >
-                    <span className='px-2 py-4 flex items-center hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-700'>
-                      <FontAwesomeIcon icon={faCog} className='mx-5 text-lg' /> Configuraciones
-                    </span>
-                  </button>
-                </li>
-
                 {/* Cerrar Sesión */}
                 <li className='w-full'>
                   <div className='px-2 py-4 flex items-center hover:bg-gray-700 hover:text-red-500 transition-colors duration-700'>

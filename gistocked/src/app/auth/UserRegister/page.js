@@ -1,81 +1,66 @@
 
 'use client'
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import axios from "axios";
 
-export default function Register( {setActual} ) {
+export default function Register( {setActual, setUsuariosAdminTemporales} ) {
 
-    const [inputNombreForm2, setInputNombreForm2] = useState('');
-    const [inputCorreoForm2, setInputCorreoForm2] = useState('');
-    const [inputContrasenaForm2, setInputContrasenaForm2] = useState('');
-    const [inputEmpresaForm2, setInputEmpresaForm2] = useState('');
+    const [inputNombreForm, setInputNombreForm] = useState('');
+    const [inputCorreoForm, setInputCorreoForm] = useState('');
+    const [inputContrasenaForm, setInputContrasenaForm] = useState('');
+    const [inputEmpresaForm, setInputEmpresaForm] = useState('');
 
-    const volverAtras = () => {
-      setActual('Login');
-    }
-
-    const crearUsuarioEstatico = (usuarioNuevo) => {
-        setUsuariosTemporales(prevUsuarios => [
+    // -----------------------------------------------
+    // ---- Creadores cuentas de Administradores -----
+    // -----------------------------------------------
+    const crearUsuarioAdministradorTemporal = (usuarioNuevo) => {
+        setUsuariosAdminTemporales(prevUsuarios => [
             ...prevUsuarios,
             usuarioNuevo
         ]);
     };
     
-    const crearUsuarioBaseDeDatos = async (usuarioNuevo) => {
+    const crearUsuarioAdministradorApi = async (usuarioNuevo) => {
         try {
-            console.log(usuarioNuevo);
-            const res = await fetch("/api/usuario/", {
-                method: "POST",
-                body: JSON.stringify({
-                    tipoForm: '2',
-                    codigo_vendedor: 0,
-                    nombre_usuario: usuarioNuevo.nombre_usuario,
-                    nombre_empresa: usuarioNuevo.nombre_empresa,
-                    password: usuarioNuevo.password,
-                    email: usuarioNuevo.email,
-                    id_rol: 1,
-                    id_admin: -1,
-                }),
-                headers: { "Content-Type": "application/json" },
+            const res = await axios.post('http://190.114.252.218:8000/api/usuarios/', {
+                nombre_usuario: inputNombreForm,
+                nombre_empresa: inputEmpresaForm,
+                password: inputContrasenaForm,
+                email: inputCorreoForm,
+                pin: 123,
+                id_rol: 1,
+                id_admin: 1
             });
-    
-            if (res.ok) {
-                const usuario = await res.json(); // Aquí obtienes la información del usuario
-                cerrarFormularios();
-            } else {
-                throw new Error('Error al crear el usuario en la base de datos');
-            }
         } catch (error) {
-            console.error(error);
-            // Aquí es donde manejamos el error guardando el usuario en la lista estática
-            crearUsuarioEstatico(usuarioNuevo);
+            console.error('Error al conectar con la api:', error);
         }
     };
     
     // Crear un nuevo usuario
-    const crearUsuario = async () => {
-        let usuarioNuevo = {
-            codigo_vendedor: 200,
-            nombre_usuario: inputNombreForm2,
-            nombre_empresa: inputEmpresaForm2,
-            password: inputContrasenaForm2,
-            email: inputCorreoForm2,
+    const crearUsuarioAdministrador = () => {
+        const usuarioNuevo = {
+            nombre_usuario: inputNombreForm,
+            nombre_empresa: inputEmpresaForm,
+            email: inputCorreoForm,
+            password: inputContrasenaForm,
+            pin: 123,
             id_rol: 1,
-            id_admin: -1,
+            id_admin: 1
         };
+
+        crearUsuarioAdministradorTemporal(usuarioNuevo);
+        crearUsuarioAdministradorApi();
     
-        // Intentamos crear el usuario en la base de datos
-        await crearUsuarioBaseDeDatos(usuarioNuevo);
-    
-        // Limpiar los campos del formulario
-        setInputNombreForm2('');
-        setInputCorreoForm2('');
-        setInputContrasenaForm2('');
-        setInputEmpresaForm2('');
-    
-        cerrarFormularios();
+        cerrarFormulario();
     };
+
+    // -----------------------------------------------
+    // ------- Vuelve al comienzo de la pagina -------
+    // -----------------------------------------------
+    const cerrarFormulario = () => {
+        setActual('Login');
+      }
 
   return (
       
@@ -89,7 +74,7 @@ export default function Register( {setActual} ) {
               {/* ------------------------------------------------------------- */}
               <div id='Register' className={'p-5 rounded-md'}>
                   <div className='text-white text-right'>
-                      <button onClick={volverAtras}>
+                      <button onClick={cerrarFormulario}>
                           <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' className='bi bi-x-lg' viewBox='0 0 16 16'>
                               <path d='M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z' stroke='currentColor' strokeWidth='1' fill='none'/>
                           </svg>
@@ -98,7 +83,7 @@ export default function Register( {setActual} ) {
 
                   <form onSubmit={(e) => {
                       e.preventDefault();
-                      crearUsuario();
+                      crearUsuarioAdministrador();
                   }}>
                       <ul className='space-y-9 text-white'>
                           <li className='mx-10 font-racing_sans_one text-center'>
@@ -110,12 +95,12 @@ export default function Register( {setActual} ) {
                                   className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
                                   type='text' 
                                   placeholder=' '
-                                  value={inputNombreForm2}
-                                  onChange={(e) => setInputNombreForm2(e.target.value)}
+                                  value={inputNombreForm}
+                                  onChange={(e) => setInputNombreForm(e.target.value)}
                               />
                               <label
                                 className={`absolute start-0 top-1/2 transform transition-all duration-500 
-                                ${inputNombreForm2 ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
+                                ${inputNombreForm ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
                               >
                                   Nombre
                               </label>
@@ -126,12 +111,12 @@ export default function Register( {setActual} ) {
                                   className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
                                   type='email' 
                                   placeholder=' '
-                                  value={inputCorreoForm2}
-                                  onChange={(e) => setInputCorreoForm2(e.target.value)}
+                                  value={inputCorreoForm}
+                                  onChange={(e) => setInputCorreoForm(e.target.value)}
                               />
                               <label
                                 className={`absolute start-0 top-1/2 transform transition-all duration-500 
-                                ${inputCorreoForm2 ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
+                                ${inputCorreoForm ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
                               >
                                   Correo
                               </label>
@@ -142,12 +127,12 @@ export default function Register( {setActual} ) {
                                   className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
                                   type='password' 
                                   placeholder=' '
-                                  value={inputContrasenaForm2}
-                                  onInput={(e) => setInputContrasenaForm2(e.target.value)}
+                                  value={inputContrasenaForm}
+                                  onInput={(e) => setInputContrasenaForm(e.target.value)}
                               />
                               <label
                                   className={`absolute start-0 top-1/2 transform transition-all duration-500
-                                    ${inputContrasenaForm2 ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
+                                    ${inputContrasenaForm ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
                               >
                                   Contraseña
                               </label>
@@ -158,12 +143,12 @@ export default function Register( {setActual} ) {
                                   className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
                                   type='text' 
                                   placeholder=' '
-                                  value={inputEmpresaForm2}
-                                  onInput={(e) => setInputEmpresaForm2(e.target.value)}
+                                  value={inputEmpresaForm}
+                                  onInput={(e) => setInputEmpresaForm(e.target.value)}
                               />
                               <label
                                   className={`absolute start-0 top-1/2 transform transition-all duration-500
-                                    ${inputEmpresaForm2 ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
+                                    ${inputEmpresaForm ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
                               >
                                   Empresa
                               </label>
