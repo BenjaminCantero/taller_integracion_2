@@ -1,13 +1,11 @@
 'use client';
 
-import BarcodeScanner from 'react-qr-barcode-scanner';
 import React, { useState } from 'react';
-import BarcodeScannerModal from '../components/CodigoDeBarras';  // Renombrar esta importación
+import { BarcodeScanner } from 'react-zxing';
 import SalesTable from '../components/SalesTable';
 import { PDFDocument, rgb } from 'pdf-lib';
-
-// Ahora puedes usar `BarcodeScanner` para el componente de la librería y `BarcodeScannerModal` para el modal personalizado.
-
+import QrReader from 'react-qr-barcode-scanner';
+import axios from '../../app/api/services/axiosConfig'; // Importar axios
 
 const SalesPage = () => {
   const [sales, setSales] = useState([
@@ -57,10 +55,10 @@ const SalesPage = () => {
       const scannedBarcode = data;
 
       try {
-        const response = await fetch(`/api/producto/${scannedBarcode}`);
-        const producto = await response.json();
+        const response = await axios.get(`/producto/${scannedBarcode}`);
+        const producto = response.data;
 
-        if (response.ok) {
+        if (response.status === 200) {
           const newSale = {
             id: sales.length + 1,
             producto: producto.nombre,
@@ -85,63 +83,44 @@ const SalesPage = () => {
     console.error(err);
   };
 
-
-  const generateInvoicePDF = async () => {
+  const generateInvoicePDF = async (venta) => {
     const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage([600, 700]);
+    const page = pdfDoc.addPage([600, 400]);
     const { width, height } = page.getSize();
-    let yPosition = height - 50;
 
-    // Título del documento
-    page.drawText(isInvoice ? 'Factura' : 'Boleta', {
+    page.drawText(`Boleta o Factura`, {
       x: 50,
-      y: yPosition,
+      y: height - 50,
       size: 20,
       color: rgb(0, 0, 0),
     });
 
-    yPosition -= 30;
-
-    // Encabezado de las columnas
-    page.drawText('Producto', { x: 50, y: yPosition, size: 12 });
-    page.drawText('Cantidad', { x: 200, y: yPosition, size: 12 });
-    page.drawText('Precio', { x: 300, y: yPosition, size: 12 });
-    page.drawText('Total', { x: 400, y: yPosition, size: 12 });
-
-    yPosition -= 20;
-
-    // Detalles de las ventas
-    let totalGeneral = 0;
-    sales.forEach((venta) => {
-      page.drawText(venta.producto, { x: 50, y: yPosition, size: 10 });
-      page.drawText(`${venta.cantidad}`, { x: 200, y: yPosition, size: 10 });
-      page.drawText(`${venta.total / venta.cantidad}`, { x: 300, y: yPosition, size: 10 });
-      page.drawText(`${venta.total}`, { x: 400, y: yPosition, size: 10 });
-      yPosition -= 20;
-
-      totalGeneral += venta.total;
-    });
-
-    // Total general
-    yPosition -= 20;
-    page.drawText(`Total: ${totalGeneral}`, { x: 400, y: yPosition, size: 12, color: rgb(0, 0, 0) });
+    // Agrega detalles de la venta
+    page.drawText(`Producto: ${venta.producto}`, { x: 50, y: height - 80, size: 12 });
+    page.drawText(`Cantidad: ${venta.cantidad}`, { x: 50, y: height - 100, size: 12 });
+    page.drawText(`Total: ${venta.total}`, { x: 50, y: height - 120, size: 12 });
 
     const pdfBytes = await pdfDoc.save();
     const blob = new Blob([pdfBytes], { type: 'application/pdf' });
     const url = URL.createObjectURL(blob);
 
-    // Descargar el PDF
+    // Descarga el PDF
     const link = document.createElement('a');
     link.href = url;
-    link.download = isInvoice ? 'factura.pdf' : 'boleta.pdf';
+    link.download = 'boleta_o_factura.pdf';
     link.click();
   };
 
-  const handleGenerateDocument = () => {
-    generateInvoicePDF();
-  };
   const handleNewSale = () => {
     setIsNewSaleModalOpen(true);
+  };
+
+  const handleGenerateDocument = (sale) => {
+    if (isInvoice) {
+      generateInvoicePDF(sale);
+    } else {
+      // Lógica para boleta
+    }
   };
 
   const handleEditSale = (id) => {
@@ -165,14 +144,8 @@ const SalesPage = () => {
     const newQuantity = sale.cantidad + 1;
 
     try {
-      await fetch(`/api/producto/${sale.codigoBarras}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          stock: sale.stock - 1,
-        }),
+      await axios.patch(`/producto/${sale.codigoBarras}`, {
+        stock: sale.stock - 1,
       });
 
       const updatedSales = sales.map((sale) =>
@@ -191,10 +164,7 @@ const SalesPage = () => {
     const sale = sales.find((sale) => sale.id === id);
 
     try {
-      await fetch(`/api/ventas/${id}`, {
-        method: 'DELETE',
-      });
-
+      await axios.delete(`/ventas/${id}`);
       const updatedSales = sales.filter((sale) => sale.id !== id);
       setSales(updatedSales);
     } catch (error) {
@@ -213,7 +183,6 @@ const SalesPage = () => {
 
   const handleSelectDocumentType = (tipoDocumento) => {
     setIsInvoice(tipoDocumento === 'factura');
-    
   };
 
   const handleInvoiceSubmit = (e) => {
@@ -225,6 +194,7 @@ const SalesPage = () => {
   const handleSelectPaymentMethod = () => {
     setPaymentMethodModal(true);
   };
+
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Gestión de Ventas</h1>
