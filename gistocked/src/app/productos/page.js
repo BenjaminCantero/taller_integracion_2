@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 const Page = () => {
   const [productos, setProductos] = useState([]);
@@ -24,9 +25,8 @@ const Page = () => {
 
   useEffect(() => {
     const fetchProductos = async () => {
-      const response = await fetch("http://190.114.252.218:8000/api/inventarios/");
-      const data = await response.json();
-      setProductos(data);
+      const response = await axios.get("http://190.114.252.218:8000/api/inventarios/");
+      setProductos(response.data);
     };
     fetchProductos();
   }, []);
@@ -104,26 +104,52 @@ const Page = () => {
     const url = `http://190.114.252.218:8000/api/inventarios/${isEditing ? `${nuevoProducto.id_producto}/` : ""}`;
     const method = isEditing ? "PUT" : "POST";
 
-    await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(nuevoProducto),
-    });
+    const formData = new FormData();
+    formData.append("id_producto", nuevoProducto.id_producto);
+    formData.append("img", nuevoProducto.img);  // Este es el archivo de la imagen
+    formData.append("nombre_producto", nuevoProducto.nombre_producto);
+    formData.append("descripcion", nuevoProducto.descripcion);
+    formData.append("precio_compra", nuevoProducto.precio_compra);
+    formData.append("porcentaje_de_ganancia", nuevoProducto.porcentaje_de_ganancia);
+    formData.append("precio_neto", nuevoProducto.precio_neto);
+    formData.append("precio_venta", nuevoProducto.precio_venta);
+    formData.append("precio_venta_final", nuevoProducto.precio_venta_final);
+    formData.append("codigo", nuevoProducto.codigo);
+    formData.append("descuento", nuevoProducto.descuento);
+    formData.append("precio_descuento", nuevoProducto.precio_descuento);
+    formData.append("cantidad", nuevoProducto.cantidad);
+    formData.append("id_empresa", nuevoProducto.id_empresa);
+    formData.append("id_categoria", nuevoProducto.id_categoria);
 
-    setProductos((prev) =>
-      isEditing
-        ? prev.map((prod) => (prod.id_producto === nuevoProducto.id_producto ? nuevoProducto : prod))
-        : [...prev, { ...nuevoProducto, id_producto: prev.length + 1 }]
-    );
-    cerrarModal();
+    try {
+      const response = await axios({
+        method,
+        url,
+        data: formData,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      const productoGuardado = response.data;
+      setProductos((prev) =>
+        isEditing
+          ? prev.map((prod) => (prod.id_producto === nuevoProducto.id_producto ? productoGuardado : prod))
+          : [...prev, productoGuardado]
+      );
+      cerrarModal();
+    } catch (error) {
+      console.error("Error en la solicitud:", error.response ? error.response.data : error.message);
+    }
   };
 
   const eliminarProducto = async (id) => {
-    await fetch(`http://190.114.252.218:8000/api/inventarios/${id}/`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-    });
-    setProductos(productos.filter((producto) => producto.id_producto !== id));
+    try {
+      await axios.delete(`http://190.114.252.218:8000/api/inventarios/${id}/`);
+      setProductos(productos.filter((producto) => producto.id_producto !== id));
+    } catch (error) {
+      console.error("Error al eliminar el producto:", error.response ? error.response.data : error.message);
+    }
   };
 
   return (
@@ -156,8 +182,18 @@ const Page = () => {
                     onChange={manejarCambioArchivo}
                   />
                 </div>
-                {/* Continuar con los otros campos como antes */}
-                {/* Código, nombre del producto, descripción, cantidad, precio_compra, etc. */}
+                {["nombre_producto", "descripcion", "precio_compra", "porcentaje_de_ganancia", "codigo", "descuento", "cantidad", "id_empresa", "id_categoria"].map((campo) => (
+                  <div key={campo}>
+                    <label className="block font-semibold">{campo.replace(/_/g, ' ')}:</label>
+                    <input
+                      type="text"
+                      name={campo}
+                      value={nuevoProducto[campo]}
+                      onChange={manejarCambio}
+                      className="w-full p-2 border border-gray-300 rounded"
+                    />
+                  </div>
+                ))}
               </div>
               <div className="flex justify-end mt-6 space-x-3">
                 <button
@@ -184,12 +220,11 @@ const Page = () => {
         <table className="min-w-full bg-white rounded-md border border-gray-200">
           <thead className="bg-gray-200">
             <tr>
-              <th className="py-3 px-6 font-semibold text-gray-700 border-b">Imagen</th>
-              <th className="py-3 px-6 font-semibold text-gray-700 border-b">Nombre</th>
-              <th className="py-3 px-6 font-semibold text-gray-700 border-b">Precio Compra</th>
-              <th className="py-3 px-6 font-semibold text-gray-700 border-b">Precio Venta</th>
-              <th className="py-3 px-6 font-semibold text-gray-700 border-b">Código</th>
-              <th className="py-3 px-6 font-semibold text-gray-700 border-b">Acciones</th>
+              {["Imagen", "Nombre", "Descripción", "Precio Compra", "Ganancia %", "Precio Neto", "Precio Venta", "Precio Venta Final", "Código", "Descuento", "Precio con Descuento", "Cantidad", "ID Empresa", "ID Categoría", "Acciones"].map((header) => (
+                <th key={header} className="py-3 px-6 font-semibold text-gray-700 border-b">
+                  {header}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -198,10 +233,11 @@ const Page = () => {
                 <td className="py-4 px-6 border-b text-center">
                   <img src={producto.img} alt="Producto" className="w-16 h-16 object-cover mx-auto" />
                 </td>
-                <td className="py-4 px-6 border-b text-center">{producto.nombre_producto}</td>
-                <td className="py-4 px-6 border-b text-center">${producto.precio_compra}</td>
-                <td className="py-4 px-6 border-b text-center">${producto.precio_venta}</td>
-                <td className="py-4 px-6 border-b text-center">{producto.codigo}</td>
+                {["nombre_producto", "descripcion", "precio_compra", "porcentaje_de_ganancia", "precio_neto", "precio_venta", "precio_venta_final", "codigo", "descuento", "precio_descuento", "cantidad", "id_empresa", "id_categoria"].map((campo) => (
+                  <td key={campo} className="py-4 px-6 border-b text-center">
+                    {producto[campo]}
+                  </td>
+                ))}
                 <td className="py-4 px-6 border-b text-center space-x-2">
                   <button
                     onClick={() => abrirModal(producto)}
