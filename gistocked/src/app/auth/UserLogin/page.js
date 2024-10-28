@@ -1,174 +1,184 @@
 
 'use client'
 
-import { useState } from "react"
+import { useState, useEffect } from 'react'
+import axios from 'axios';
 
-export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
-    
-    /* 
-  Tipos de Formularios soportados:
-  0: Opciones del usuario
-  1: Inicio de sesión con Google
-  2: Crear sesión con un Correo
-  */
-    const [formulario, setFormulario] = useState('0');
+export default function Login( {usuariosAdminTemporales, usuariosVendedoresTemporales, usuarioActivo, setUsuarioActivo, setUsuarioInfo, setActual} ) {
     const [baseForm, setBaseForm] = useState(true);
+    const [tipoLogin, setTipoLogin] = useState(false);
+    const [loginAdmin, setLoginAdmin] = useState(false);
+    const [loginVendedor, setLoginVendedor] = useState(false);
 
-    const [loginForm, setLoginForm] = useState(false);
-    const [inputCorreoForm1, setInputCorreoForm1] = useState('');
-    const [inputContrasenaForm1, setInputContrasenaForm1] = useState('');
-    const [inputEmpresaForm1, setInputEmpresaForm1] = useState('');
+    const [inputCorreoFormAdmins, setInputCorreoFormAdmins] = useState('');
+    const [inputContrasenaFormAdmins, setInputContrasenaFormAdmins] = useState('');
+    const [inputEmpresaFormAdmins, setInputEmpresaFormAdmins] = useState('');
 
-    const [registerForm, setRegisterForm] = useState(false);
-    const [inputNombreForm2, setInputNombreForm2] = useState('');
-    const [inputCorreoForm2, setInputCorreoForm2] = useState('');
-    const [inputContrasenaForm2, setInputContrasenaForm2] = useState('');
-    const [inputEmpresaForm2, setInputEmpresaForm2] = useState('');
+    const [inputRutFormVendedores, setInputRutFormVendedores] = useState('');
+    const [inputContrasenaFormVendedores, setInputContrasenaFormVendedores] = useState('');
+    const [inputEmpresaFormVendedores, setInputEmpresaFormVendedores] = useState('');
 
-    const [usuariosValidos, setUsuariosValidos] = useState([
-            { codigo_vendedor:-1, nombre_usuario: 'admin1', nombre_empresa: 'Empresa 0', password:'123', email:'admin1@gmail.com', id_rol:1, id_admin:-1},
-            { codigo_vendedor:-2, nombre_usuario: 'vendedor1', nombre_empresa: 'Empresa 0', password:'123', email:'vendedor1@gmail.com', id_rol:2, id_admin:-1}
-          ])
+    const [usuariosAdminApi, setUsuariosAdminApi] = useState({});
+    const [usuariosVendedoresApi, setUsuariosVendedoresApi] = useState({});
 
-    const validarUsuarioEstatico = (event) => {
-        event.preventDefault();
-        for (let i = 0; i < usuariosValidos.length; i++) {
-            if (inputCorreoForm1 === usuariosValidos[i].email && inputContrasenaForm1 === usuariosValidos[i].password) {
-                setUsuarioInfo(usuariosValidos[i]);
-                setUsuarioActivo(true);
-                return true; // Retornar true si el usuario es válido
+    const [mensaje, setMensaje] = useState('');
+
+    // -----------------------------------------------
+    // ----- Validaciones de los Administradores -----
+    // -----------------------------------------------
+    useEffect(() => {
+        const fetchUsuarios = async () => {
+            try {
+                const res = await axios.get('http://190.114.252.218:8000/api/usuarios/');
+                setUsuariosAdminApi(res.data);
+                console.log(res.data);
+            } catch (error) {
+                console.error('Error al conectar con la api:', error);
+                setMensaje('Error al conectar con la API');
             }
-        }
-        return false; // Retornar false si no se encontró un usuario válido
-    };
-    
-    const validarUsuarioBaseDeDatos = async () => {
-        const res = await fetch("/api/usuario/", {
-            method: "POST",
-            body: JSON.stringify({
-                tipoForm: '1',
-                nombre_empresa: inputEmpresaForm1,
-                password: inputContrasenaForm1,
-                email: inputCorreoForm1,
-            }),
-            headers: { "Content-Type": "application/json" },
-        });
-
-        if (res.ok) {
-            const usuario = await res.json(); // Aquí obtienes la información del usuario
-            console.log(usuario);
-            setUsuarioActivo(true);
-            setUsuarioInfo(usuario); // Guardas la información del usuario en el estado
-        }
-    };
-    
-    const validarUsuario = async (event) => {
-        const esValido = validarUsuarioEstatico(event);
-        if (!esValido) {
-            await validarUsuarioBaseDeDatos();
-        }
-    };
-
-
-    const crearUsuarioEstatico = (usuarioNuevo) => {
-        setUsuariosValidos(prevUsuarios => [
-            ...prevUsuarios,
-            usuarioNuevo
-        ]);
-    };
-    
-    const crearUsuarioBaseDeDatos = async (usuarioNuevo) => {
-        try {
-            console.log(usuarioNuevo);
-            const res = await fetch("/api/usuario/", {
-                method: "POST",
-                body: JSON.stringify({
-                    tipoForm: '2',
-                    codigo_vendedor: 0,
-                    nombre_usuario: usuarioNuevo.nombre_usuario,
-                    nombre_empresa: usuarioNuevo.nombre_empresa,
-                    password: usuarioNuevo.password,
-                    email: usuarioNuevo.email,
-                    id_rol: 1,
-                    id_admin: -1,
-                }),
-                headers: { "Content-Type": "application/json" },
-            });
-    
-            if (res.ok) {
-                const usuario = await res.json(); // Aquí obtienes la información del usuario
-                cerrarFormularios();
-            } else {
-                throw new Error('Error al crear el usuario en la base de datos');
-            }
-        } catch (error) {
-            console.error(error);
-            // Aquí es donde manejamos el error guardando el usuario en la lista estática
-            crearUsuarioEstatico(usuarioNuevo);
-        }
-    };
-    
-    // Crear un nuevo usuario
-    const crearUsuario = async () => {
-        let usuarioNuevo = {
-            codigo_vendedor: 200,
-            nombre_usuario: inputNombreForm2,
-            nombre_empresa: inputEmpresaForm2,
-            password: inputContrasenaForm2,
-            email: inputCorreoForm2,
-            id_rol: 1,
-            id_admin: -1,
         };
+
+        fetchUsuarios();
+    }, [loginAdmin]);
+
+    const validarUsuarioAdminTemporal = (event) => {
+        event.preventDefault();
+        for (let i = 0; i < usuariosAdminTemporales.length; i++) {
+            if (inputCorreoFormAdmins === usuariosAdminTemporales[i].email && inputContrasenaFormAdmins === usuariosAdminTemporales[i].password && inputEmpresaFormAdmins === usuariosAdminTemporales[i].nombre_empresa &&  1 === usuariosAdminTemporales[i].id_rol) {
+                setUsuarioInfo(usuariosAdminTemporales[i]);
+                setUsuarioActivo(true);
+                setMensaje('');
+                return true;
+            }
+        }
+        return false;
+    };
     
-        // Intentamos crear el usuario en la base de datos
-        await crearUsuarioBaseDeDatos(usuarioNuevo);
+    const validarUsuarioAdminApi = (event) => {
+        event.preventDefault();
+        for (let i = 0; i < usuariosAdminApi.length; i++) {
+            if (inputCorreoFormAdmins === usuariosAdminApi[i].email && inputContrasenaFormAdmins === usuariosAdminApi[i].password && inputEmpresaFormAdmins === usuariosAdminApi[i].nombre_empresa && 1 === usuariosAdminApi[i].id_rol) {
+                setUsuarioInfo(usuariosAdminApi[i]);
+                setUsuarioActivo(true);
+                setMensaje('');
+                return true;
+            }
+        }
+        return false;
+    };
     
-        // Limpiar los campos del formulario
-        setInputNombreForm2('');
-        setInputCorreoForm2('');
-        setInputContrasenaForm2('');
-        setInputEmpresaForm2('');
-    
-        cerrarFormularios();
+    const validarUsuarioAdmin = async (event) => {
+        event.preventDefault();
+
+        const usuarioValido = validarUsuarioAdminApi(event);
+        if (!usuarioValido) {
+            setMensaje('Usuario no encontrado');
+            validarUsuarioAdminTemporal(event);
+        }
     };
 
-    // Muestra el formulario de Inicio de Session
-    const iniciarSesionCorreo = () => {
+    // -----------------------------------------------
+    // ------- Validaciones de los Vendedores --------
+    // -----------------------------------------------
+    useEffect(() => {
+        const fetchUsuarios = async () => {
+            try {
+                const res = await axios.get('http://190.114.252.218:8000/api/vendedores/', {});
+                setUsuariosVendedoresApi(res.data);
+            } catch (error) {
+                console.error('Error al conectar con la api:', error);
+                setMensaje('Error al conectar con la API');
+            }
+        };
+
+        fetchUsuarios();
+    }, [loginVendedor]);
+
+    const validarUsuarioVendedorTemporal = (event) => {
+        event.preventDefault();
+        console.log(usuariosVendedoresTemporales);
+        for (let i = 0; i < usuariosVendedoresTemporales.length; i++) {
+            if (inputRutFormVendedores === usuariosVendedoresTemporales[i].rut && inputContrasenaFormVendedores === usuariosVendedoresTemporales[i].contraseña && inputEmpresaFormVendedores === usuariosVendedoresTemporales[i].nombre_empresa) {
+                setUsuarioInfo(usuariosVendedoresTemporales[i]);
+                setUsuarioActivo(true);
+                return true;
+            }
+        }
+        return false;
+    };
+
+    const validarUsuarioVendedorApi = (event) => {
+        event.preventDefault();
+        for (let i = 0; i < usuariosVendedoresApi.length; i++) {
+            if (inputRutFormVendedores === usuariosVendedoresApi[i].rut && inputContrasenaFormVendedores === usuariosVendedoresApi[i].contraseña && inputEmpresaFormVendedores === usuariosVendedoresApi[i].nombre_empresa) {
+                setUsuarioInfo(usuariosVendedoresApi[i]);
+                setUsuarioActivo(true);
+                return true;
+            }
+        }
+        return false;
+    };
+
+    const validarUsuarioVendedor = async (event) => {
+        event.preventDefault();
+
+        const usuarioValido = validarUsuarioVendedorApi(event);
+        if (!usuarioValido) {
+            setMensaje('Usuario no encontrado');
+            validarUsuarioVendedorTemporal(event);
+        } else if (usuarioActivo) {
+            setMensaje('');
+        }
+    };
+
+    // -----------------------------------------------
+    // --- Muestra los tipo de logins disponobles ----
+    // --------- (Administrador o Vendedor) ---------- 
+    // ----------------------------------------------- 
+    const selecionarTipoLogin = () => {
         setBaseForm(false);
-        setLoginForm(true); 
-    
-        /* 
-        setTimeout(() => {
-            id.classList.add('transition', 'duration-2000', 'ease-linear', 'delay-150', 'opacity-100');
-        }, 10);
-        */
-        setFormulario('1');
-
+        setLoginAdmin(false);
+        setLoginVendedor(false);
+        setTipoLogin(true);
     };
 
-    // Muestra el formulario de Crear Nueva Session
+    // -----------------------------------------------
+    // --- Muestra el Login de los Administradores ---
+    // -----------------------------------------------
+    const formLoginAdmins = () => {
+        setBaseForm(false);
+        setLoginVendedor(false);
+        setTipoLogin(false);
+        setLoginAdmin(true);
+    }
+
+    // -----------------------------------------------
+    // ----- Muestra el Login de los Vendedores ------
+    // -----------------------------------------------
+    const formLoginVendedores = () => {
+        setBaseForm(false);
+        setTipoLogin(false);
+        setLoginAdmin(false);
+        setLoginVendedor(true);
+    }
+
+    // -----------------------------------------------
+    // ------------ Redirige al Register -------------
+    // ------ (Solo para crear Administradores) ------
+    // -----------------------------------------------
     const crearCuentaNueva = () => {
-        setBaseForm(false);
-        setRegisterForm(true); 
-        setFormulario('2');
+        setActual('Register')
         return
     }
 
-    // Cierra Formularios
+    // -----------------------------------------------
+    // ------- Vuelve al comienzo de la pagina -------
+    // -----------------------------------------------
     const cerrarFormularios = () => {
-        if (formulario == '1') {
-            setBaseForm(true);
-            setLoginForm(false);
-            setFormulario('0');
-
-        } else if (formulario == '2') {
-            setBaseForm(true);
-            setRegisterForm(false);
-            setFormulario('0');
-
-        } else {
-            console.log('A ocurrido un error')
-        }
+        setTipoLogin(false);
+        setLoginAdmin(false);
+        setLoginVendedor(false);
+        setBaseForm(true);
         return
     }
 
@@ -182,7 +192,7 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
               {/* ------------------------------------------------------------- */}
               {/* -------------------- Aciones del usuario -------------------- */}
               {/* ------------------------------------------------------------- */}
-              <div id='tipoSesion' className={baseForm ? 'visible p-8' : 'invisible hidden'}>
+              <div className={baseForm ? 'visible p-8' : 'invisible hidden'}>
                   <ul className='space-y-6 text-white'>
                        {/* ------------------ Bienvenida al cliente ------------------- */}
                       <li className='font-racing_sans_one text-center'>
@@ -195,7 +205,7 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
                       <li className='font-racing_sans_one text-center text-lg'>
                           <div className='py-1 border border-white rounded-xl'>
                               <button
-                              onClick={iniciarSesionCorreo}
+                              onClick={selecionarTipoLogin}
                               className='w-full'
                               >
                                   Iniciar sesión
@@ -218,9 +228,55 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
               </div>
 
               {/* ------------------------------------------------------------- */}
-              {/* ------------ Formulario Inicio de sesion con Correo---------- */}
+              {/* --------------- Ingresar como Admin o Vendedor -------------- */}
               {/* ------------------------------------------------------------- */}
-              <div id='Login' className={loginForm ? 'p-5 rounded-md' : 'invisible hidden'}>
+              <div className={tipoLogin ? 'visible p-4' : 'invisible hidden'}>
+                  <ul className='my-2 space-y-6 text-white'>
+                       {/* ------------------ Bienvenida al cliente ------------------- */}
+                      <li className='mx-6 font-racing_sans_one text-center'>
+                          <div>
+                              <h2 className='text-4xl'>Bienvenido a Gistocked</h2>
+                          </div>
+                      </li>
+
+                      {/* ------------ Inicio de Sesion como administrador ------------ */}
+                      <li className='mx-6 font-racing_sans_one text-center text-lg'>
+                          <div className='py-1 border border-white rounded-xl'>
+                              <button
+                              onClick={formLoginAdmins}
+                              className='w-full'
+                              >
+                                  Iniciar sesión como administrador
+                              </button>
+                          </div> 
+                      </li>
+
+                      {/* -------------- Inicio de Sesion como vendedor --------------- */}
+                      <li className='mx-6 font-racing_sans_one text-center text-lg'>
+                          <div className='py-1 border border-white rounded-xl'>
+                              <button
+                              onClick={formLoginVendedores}
+                              className='w-full'
+                              >
+                                  Iniciar sesión como vendedor
+                              </button>
+                          </div> 
+                      </li>                      
+                  </ul>
+
+                  <div className='w-full flex items-end justify-end'>
+                    <button 
+                    onClick={cerrarFormularios}
+                    className='mr-10 font-racing_sans_one text-white'>
+                        volver
+                    </button>
+                  </div>
+              </div>
+
+              {/* ------------------------------------------------------------- */}
+              {/* ------------- Formulario Inicio de sesion Admims ------------ */}
+              {/* ------------------------------------------------------------- */}
+              <div className={loginAdmin ? 'p-5 rounded-md' : 'invisible hidden'}>
                   <div className='text-white text-right'>
                       <button type='button' onClick={cerrarFormularios}>
                           <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' className='bi bi-x-lg' viewBox='0 0 16 16'>
@@ -229,23 +285,30 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
                       </button>
                   </div>
 
-                  <form onSubmit={validarUsuario}>
+                  <form onSubmit={validarUsuarioAdmin}>
                       <ul className='space-y-9 text-white'>
                           <li className='mx-10 font-racing_sans_one text-center'>
                               <h3 className='text-4xl'>Iniciando sesión en Gistocked</h3>
+                              <p className='text-gray-300 text-lg'>'Administradores'</p>
                           </li>
+
+                          {mensaje && 
+                            <li className='py-2 mx-10 font-racing_sans_one text-lg bg-red-600 text-center rounded-lg'>
+                                <p>{mensaje}</p>
+                            </li>
+                          }
 
                           <li className='mx-10 font-racing_sans_one text-lg relative'>
                             <input
                                 className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
                                 type='email'
                                 placeholder=' '
-                                value={inputCorreoForm1}
-                                onChange={(e) => setInputCorreoForm1(e.target.value)}
+                                value={inputCorreoFormAdmins}
+                                onChange={(e) => setInputCorreoFormAdmins(e.target.value)}
                             />
                             <label
                                 className={`absolute start-0 top-1/2 transform transition-all duration-500 
-                                ${inputCorreoForm1 ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
+                                ${inputCorreoFormAdmins ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
                             >
                                 Correo
                             </label>
@@ -256,11 +319,11 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
                                   className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
                                   type='password' 
                                   placeholder=' '
-                                  onInput={(e) => setInputContrasenaForm1(e.target.value)}
+                                  onInput={(e) => setInputContrasenaFormAdmins(e.target.value)}
                               />
                               <label
                                   className={`absolute start-0 top-1/2 transform transition-all duration-500
-                                  ${inputContrasenaForm1 ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
+                                  ${inputContrasenaFormAdmins ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
                               >
                                   Contraseña
                               </label>
@@ -271,11 +334,11 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
                                   className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
                                   type='text' 
                                   placeholder=' '
-                                  onInput={(e) => setInputEmpresaForm1(e.target.value)}
+                                  onInput={(e) => setInputEmpresaFormAdmins(e.target.value)}
                               />
                               <label
                                   className={`absolute start-0 top-1/2 transform transition-all duration-500
-                                  ${inputEmpresaForm1 ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
+                                  ${inputEmpresaFormAdmins ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
                               >
                                   Empresa
                               </label>
@@ -293,9 +356,9 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
               </div>
 
               {/* ------------------------------------------------------------- */}
-              {/* -------------- Formulario Crear sesion con Correo------------ */}
+              {/* ------------ Formulario Inicio de sesion Vendedores---------- */}
               {/* ------------------------------------------------------------- */}
-              <div id='Register' className={registerForm ? 'p-5 rounded-md' : 'invisible hidden'}>
+              <div className={loginVendedor ? 'p-5 rounded-md' : 'invisible hidden'}>
                   <div className='text-white text-right'>
                       <button type='button' onClick={cerrarFormularios}>
                           <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' className='bi bi-x-lg' viewBox='0 0 16 16'>
@@ -304,45 +367,33 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
                       </button>
                   </div>
 
-                  <form onSubmit={(e) => {
-                      e.preventDefault();
-                      crearUsuario();
-                  }}>
+                  <form onSubmit={validarUsuarioVendedor}>
                       <ul className='space-y-9 text-white'>
                           <li className='mx-10 font-racing_sans_one text-center'>
-                              <h3 className='text-4xl'>Creando cuenta para Gistocked</h3>
+                              <h3 className='text-4xl'>Iniciando sesión en Gistocked</h3>
+                              <p className='text-gray-300 text-lg'>'Vendedores'</p>
                           </li>
 
-                          <li className='mx-10 font-racing_sans_one text-lg relative'>
-                              <input 
-                                  className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
-                                  type='text' 
-                                  placeholder=' '
-                                  value={inputNombreForm2}
-                                  onChange={(e) => setInputNombreForm2(e.target.value)}
-                              />
-                              <label
-                                className={`absolute start-0 top-1/2 transform transition-all duration-500 
-                                ${inputNombreForm2 ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
-                              >
-                                  Nombre
-                              </label>
-                          </li>
+                          {mensaje && 
+                            <li className='py-2 mx-10 font-racing_sans_one text-lg bg-red-600 text-center rounded-lg'>
+                                <p>{mensaje}</p>
+                            </li>
+                          }
 
                           <li className='mx-10 font-racing_sans_one text-lg relative'>
-                              <input 
-                                  className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
-                                  type='email' 
-                                  placeholder=' '
-                                  value={inputCorreoForm2}
-                                  onChange={(e) => setInputCorreoForm2(e.target.value)}
-                              />
-                              <label
+                            <input
+                                className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
+                                type='text'
+                                placeholder=' '
+                                value={inputRutFormVendedores}
+                                onChange={(e) => setInputRutFormVendedores(e.target.value)}
+                            />
+                            <label
                                 className={`absolute start-0 top-1/2 transform transition-all duration-500 
-                                ${inputCorreoForm2 ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
-                              >
-                                  Correo
-                              </label>
+                                ${inputRutFormVendedores ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
+                            >
+                                Rut
+                            </label>
                           </li>
 
                           <li className='mx-10 font-racing_sans_one text-lg relative'>
@@ -350,12 +401,11 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
                                   className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
                                   type='password' 
                                   placeholder=' '
-                                  value={inputContrasenaForm2}
-                                  onInput={(e) => setInputContrasenaForm2(e.target.value)}
+                                  onInput={(e) => setInputContrasenaFormVendedores(e.target.value)}
                               />
                               <label
                                   className={`absolute start-0 top-1/2 transform transition-all duration-500
-                                    ${inputContrasenaForm2 ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
+                                  ${inputContrasenaFormVendedores ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
                               >
                                   Contraseña
                               </label>
@@ -366,22 +416,21 @@ export default function Login( {setUsuarioActivo, setUsuarioInfo} ) {
                                   className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
                                   type='text' 
                                   placeholder=' '
-                                  value={inputEmpresaForm2}
-                                  onInput={(e) => setInputEmpresaForm2(e.target.value)}
+                                  onInput={(e) => setInputEmpresaFormVendedores(e.target.value)}
                               />
                               <label
                                   className={`absolute start-0 top-1/2 transform transition-all duration-500
-                                    ${inputEmpresaForm2 ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
+                                  ${inputEmpresaFormVendedores ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
                               >
                                   Empresa
                               </label>
                           </li>
 
                           <li className='mx-10 font-racing_sans_one text-lg text-center'>
-                              <button
+                              <button 
                               type='submit'
                               >
-                                  <p>Registrarse</p>
+                                  <p>Aceptar</p>
                               </button>
                           </li>
                       </ul>
