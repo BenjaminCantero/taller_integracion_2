@@ -1,22 +1,31 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import UserTable from './UserTable';
 import UserModal from './UserModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserPlus } from '@fortawesome/free-solid-svg-icons';
 
+const API_BASE_URL = 'http://190.114.252.218:8000/api/usuarios/';
+
 const Usuarios = () => {
   const [modalOpen, setModalOpen] = useState(false);
-  const [users, setUsers] = useState([
-    { id: 1, nombre: 'Juan Pérez', email: 'juan@example.com', rol: 'Admin' },
-    { id: 2, nombre: 'María López', email: 'maria@example.com', rol: 'Vendedor' },
-    { id: 3, nombre: 'Carlos González', email: 'carlos@example.com', rol: 'Vendedor' },
-    { id: 4, nombre: 'Ana Torres', email: 'ana@example.com', rol: 'Vendedor' },
-    { id: 5, nombre: 'Luis Fernández', email: 'luis@example.com', rol: 'Vendedor' },
-  ]);
-
+  const [users, setUsers] = useState([]);
   const [editUser, setEditUser] = useState(null);
+
+  // Función para obtener los usuarios desde la API
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch(API_BASE_URL);
+        const data = await response.json();
+        setUsers(data);
+      } catch (error) {
+        console.error("Error al obtener los usuarios:", error);
+      }
+    };
+    fetchUsers();
+  }, []);
 
   const handleOpenModal = () => {
     setModalOpen(true);
@@ -27,17 +36,34 @@ const Usuarios = () => {
     setEditUser(null);
   };
 
-  // Función para agregar un nuevo usuario
-  const handleAddUser = (newUser) => {
-    const updatedUsers = [...users, newUser];
-    setUsers(reorderUserIds(updatedUsers)); // Reordena los IDs después de agregar
-    handleCloseModal();
+  // Función para agregar un nuevo usuario a través de la API
+  const handleAddUser = async (newUser) => {
+    try {
+      const response = await fetch(API_BASE_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newUser),
+      });
+      const createdUser = await response.json();
+      setUsers((prevUsers) => [...prevUsers, createdUser]);
+      handleCloseModal();
+    } catch (error) {
+      console.error("Error al agregar usuario:", error);
+    }
   };
 
-  // Función para manejar la eliminación de usuarios
-  const handleDelete = (id) => {
-    const updatedUsers = users.filter(user => user.id !== id);
-    setUsers(reorderUserIds(updatedUsers)); // Reordena los IDs después de eliminar
+  // Función para eliminar un usuario a través de la API
+  const handleDelete = async (id) => {
+    try {
+      await fetch(`${API_BASE_URL}${id}/`, {
+        method: 'DELETE',
+      });
+      setUsers((prevUsers) => prevUsers.filter(user => user.id !== id));
+    } catch (error) {
+      console.error("Error al eliminar usuario:", error);
+    }
   };
 
   // Función para editar usuarios
@@ -46,19 +72,24 @@ const Usuarios = () => {
     handleOpenModal();
   };
 
-  // Función para guardar los cambios en el usuario editado
-  const handleSaveEdit = (updatedUser) => {
-    const updatedUsers = users.map(user => (user.id === updatedUser.id ? updatedUser : user));
-    setUsers(reorderUserIds(updatedUsers)); // Reordena los IDs después de editar
-    handleCloseModal();
-  };
-
-  // Función para reordenar los IDs de los usuarios
-  const reorderUserIds = (usersArray) => {
-    return usersArray.map((user, index) => ({
-      ...user,
-      id: index + 1, // Establece el ID basado en el índice
-    }));
+  // Función para guardar los cambios en el usuario editado a través de la API
+  const handleSaveEdit = async (updatedUser) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}${updatedUser.id}/`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedUser),
+      });
+      const savedUser = await response.json();
+      setUsers((prevUsers) =>
+        prevUsers.map(user => (user.id === savedUser.id ? savedUser : user))
+      );
+      handleCloseModal();
+    } catch (error) {
+      console.error("Error al guardar los cambios:", error);
+    }
   };
 
   return (
