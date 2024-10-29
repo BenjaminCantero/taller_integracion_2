@@ -14,6 +14,8 @@ const SalesPage = () => {
   const [paymentMethodModal, setPaymentMethodModal] = useState(false);
   const [isNewSaleModalOpen, setIsNewSaleModalOpen] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
 
   const [newSaleData, setNewSaleData] = useState({
     producto: '',
@@ -21,8 +23,19 @@ const SalesPage = () => {
     precio: 0,
     fecha: new Date().toLocaleDateString('es-ES'),
   });
-
-  // Fetch inicial para obtener las ventas desde la base de datos
+  const handleEditSale = (id) => {
+    const saleToEdit = sales.find((sale) => sale.id === id);
+    if (saleToEdit) {
+      setNewSaleData({
+        producto: saleToEdit.producto,
+        cantidad: saleToEdit.cantidad,
+        precio: saleToEdit.precio,
+        fecha: new Date(saleToEdit.fecha).toLocaleDateString('es-ES'),
+      });
+      setIsNewSaleModalOpen(true); // Abre el modal para editar la venta
+    }
+  };  
+ 
   React.useEffect(() => {
     const fetchSales = async () => {
       try {
@@ -57,7 +70,10 @@ const SalesPage = () => {
       alert("Error al añadir la venta");
     }
   };
-
+  const handleNewSale = () => {
+    // Abre el modal o el formulario para registrar una nueva venta
+    setIsNewSaleModalOpen(true);
+  };  
   const handleScan = async (data) => {
     if (data) {
       const scannedBarcode = data;
