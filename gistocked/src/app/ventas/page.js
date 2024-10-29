@@ -1,73 +1,78 @@
 'use client';
 
+import BarcodeScanner from 'react-qr-barcode-scanner';
 import React, { useState } from 'react';
-import { BarcodeScanner } from 'react-zxing';
+import BarcodeScannerModal from '../components/CodigoDeBarras';
 import SalesTable from '../components/SalesTable';
-import { PDFDocument, rgb } from 'pdf-lib';
-import QrReader from 'react-qr-barcode-scanner';
-import axios from '../../app/api/services/axiosConfig'; // Importar axios
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import axios from '../../app/api/services/axiosConfig';
 
 const SalesPage = () => {
-  const [sales, setSales] = useState([
-    { id: 1, producto: 'Monitor Samsung Curvo', cantidad: 2, total: 500, fecha: '08/10/2024' },
-    { id: 2, producto: 'Teclado Logitech Gamer', cantidad: 1, total: 100, fecha: '07/10/2024' }
-  ]);
-
+  const [sales, setSales] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isInvoice, setIsInvoice] = useState(false);
   const [paymentMethodModal, setPaymentMethodModal] = useState(false);
   const [isNewSaleModalOpen, setIsNewSaleModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editingSale, setEditingSale] = useState(null);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   const [newSaleData, setNewSaleData] = useState({
-    id: sales.length + 1,
     producto: '',
     cantidad: 1,
-    total: 0,
-    fecha: new Date().toLocaleDateString('es-ES'),
     precio: 0,
+    fecha: new Date().toLocaleDateString('es-ES'),
   });
 
-  const handleNewSaleSubmit = (e) => {
-    e.preventDefault();
-    
-    const newSale = {
-      ...newSaleData,
-      total: newSaleData.cantidad * newSaleData.precio,
+  // Fetch inicial para obtener las ventas desde la base de datos
+  React.useEffect(() => {
+    const fetchSales = async () => {
+      try {
+        const response = await axios.get('/ventas');
+        setSales(response.data);
+      } catch (error) {
+        console.error("Error al cargar las ventas:", error);
+      }
     };
+    fetchSales();
+  }, []);
 
-    setSales([...sales, newSale]);
-    setNewSaleData({
-      id: sales.length + 2,
-      producto: '',
-      cantidad: 1,
-      total: 0,
-      fecha: new Date().toLocaleDateString('es-ES'),
-      precio: 0,
-    });
-    setIsNewSaleModalOpen(false);
+  const handleNewSaleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const newSale = {
+        ...newSaleData,
+        total: newSaleData.cantidad * newSaleData.precio,
+      };
+
+      const response = await axios.post('/ventas', newSale);
+      setSales([...sales, response.data]);
+      
+      setNewSaleData({
+        producto: '',
+        cantidad: 1,
+        precio: 0,
+        fecha: new Date().toLocaleDateString('es-ES'),
+      });
+      setIsNewSaleModalOpen(false);
+    } catch (error) {
+      alert("Error al añadir la venta");
+    }
   };
 
   const handleScan = async (data) => {
     if (data) {
       const scannedBarcode = data;
-
       try {
         const response = await axios.get(`/producto/${scannedBarcode}`);
         const producto = response.data;
 
-        if (response.status === 200) {
+        if (response.status === 200 && producto) {
           const newSale = {
-            id: sales.length + 1,
             producto: producto.nombre,
             cantidad: 1,
+            precio: producto.precio,
             total: producto.precio,
             fecha: new Date().toLocaleDateString('es-ES'),
-            precio: producto.precio,
           };
-
           setSales([...sales, newSale]);
           setIsScannerOpen(false);
         } else {
@@ -79,90 +84,119 @@ const SalesPage = () => {
     }
   };
 
-  const handleError = (err) => {
-    console.error(err);
+  const handleIncreaseQuantity = async (id) => {
+    const sale = sales.find((sale) => sale.id === id);
+    if (!sale) return;
+
+    const newQuantity = sale.cantidad + 1;
+    try {
+      const response = await axios.patch(`/producto/${sale.codigoBarras}`, {
+        stock: sale.stock - 1,
+      });
+
+      if (response.status === 200) {
+        const updatedSales = sales.map((sale) =>
+          sale.id === id ? { ...sale, cantidad: newQuantity, total: newQuantity * sale.precio } : sale
+        );
+        setSales(updatedSales);
+      }
+    } catch (error) {
+      alert('Error al actualizar la cantidad');
+    }
+  };
+
+  const handleDecreaseQuantity = async (id) => {
+    const sale = sales.find((sale) => sale.id === id);
+    if (!sale || sale.cantidad <= 1) return;
+
+    const newQuantity = sale.cantidad - 1;
+    try {
+      const response = await axios.patch(`/producto/${sale.codigoBarras}`, {
+        stock: sale.stock + 1,
+      });
+
+      if (response.status === 200) {
+        const updatedSales = sales.map((sale) =>
+          sale.id === id ? { ...sale, cantidad: newQuantity, total: newQuantity * sale.precio } : sale
+        );
+        setSales(updatedSales);
+      }
+    } catch (error) {
+      alert('Error al disminuir la cantidad');
+    }
   };
 
   const generateInvoicePDF = async (venta) => {
     const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage([600, 400]);
+    const page = pdfDoc.addPage([595, 842]); 
     const { width, height } = page.getSize();
-
-    page.drawText(`Boleta o Factura`, {
-      x: 50,
-      y: height - 50,
-      size: 20,
-      color: rgb(0, 0, 0),
+  
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  
+    page.drawText('Razón Social Empresa', { x: 50, y: height - 50, size: 14, font: boldFont });
+    page.drawText('Giro: Giro de la Empresa', { x: 50, y: height - 70, size: 10, font });
+    page.drawText('Dirección de la Empresa', { x: 50, y: height - 85, size: 10, font });
+    page.drawText('Comuna - Ciudad', { x: 50, y: height - 100, size: 10, font });
+  
+    page.drawText('R.U.T.: 99.999.999-9', { x: width - 200, y: height - 50, size: 10, font });
+    page.drawText('FACTURA ELECTRONICA', { x: width - 200, y: height - 65, size: 12, font: boldFont, color: rgb(1, 0, 0) });
+    page.drawText('N° 1111', { x: width - 200, y: height - 80, size: 12, font: boldFont });
+    page.drawText('S.I.I.', { x: width - 200, y: height - 95, size: 10, font });
+    page.drawText('Fecha Emisión: ' + venta.fecha, { x: width - 200, y: height - 110, size: 10, font });
+  
+    page.drawText('Señores: ' + venta.cliente.nombre, { x: 50, y: height - 130, size: 10, font });
+    page.drawText('R.U.T.: ' + venta.cliente.rut, { x: 50, y: height - 145, size: 10, font });
+    page.drawText('Giro: ' + venta.cliente.giro, { x: 50, y: height - 160, size: 10, font });
+    page.drawText('Dirección: ' + venta.cliente.direccion, { x: 50, y: height - 175, size: 10, font });
+    page.drawText('Comuna: ' + venta.cliente.comuna, { x: 50, y: height - 190, size: 10, font });
+    page.drawText('Ciudad: ' + venta.cliente.ciudad, { x: 50, y: height - 205, size: 10, font });
+    page.drawText('Contacto: ' + venta.cliente.contacto, { x: 50, y: height - 220, size: 10, font });
+  
+    const tableTop = height - 250;
+    const cellPadding = 5;
+    page.drawText('CÓDIGO', { x: 50, y: tableTop, size: 10, font: boldFont });
+    page.drawText('DESCRIPCIÓN', { x: 120, y: tableTop, size: 10, font: boldFont });
+    page.drawText('CANTIDAD', { x: 300, y: tableTop, size: 10, font: boldFont });
+    page.drawText('PRECIO', { x: 400, y: tableTop, size: 10, font: boldFont });
+    page.drawText('VALOR', { x: 500, y: tableTop, size: 10, font: boldFont });
+  
+    let yPosition = tableTop - 20;
+    venta.productos.forEach((producto) => {
+      page.drawText(producto.codigo, { x: 50, y: yPosition, size: 10, font });
+      page.drawText(producto.descripcion, { x: 120, y: yPosition, size: 10, font });
+      page.drawText(producto.cantidad.toString(), { x: 300, y: yPosition, size: 10, font });
+      page.drawText('$ ' + producto.precio.toFixed(2), { x: 400, y: yPosition, size: 10, font });
+      page.drawText('$ ' + (producto.cantidad * producto.precio).toFixed(2), { x: 500, y: yPosition, size: 10, font });
+      yPosition -= 15;
     });
-
-    // Agrega detalles de la venta
-    page.drawText(`Producto: ${venta.producto}`, { x: 50, y: height - 80, size: 12 });
-    page.drawText(`Cantidad: ${venta.cantidad}`, { x: 50, y: height - 100, size: 12 });
-    page.drawText(`Total: ${venta.total}`, { x: 50, y: height - 120, size: 12 });
-
+  
+    const subtotal = venta.productos.reduce((acc, p) => acc + p.cantidad * p.precio, 0);
+    const iva = subtotal * 0.19;
+    const total = subtotal + iva;
+  
+    page.drawText('MONTO NETO $', { x: 400, y: yPosition - 20, size: 10, font });
+    page.drawText(subtotal.toFixed(2), { x: 500, y: yPosition - 20, size: 10, font });
+    page.drawText('I.V.A. 19% $', { x: 400, y: yPosition - 35, size: 10, font });
+    page.drawText(iva.toFixed(2), { x: 500, y: yPosition - 35, size: 10, font });
+    page.drawText('TOTAL $', { x: 400, y: yPosition - 50, size: 10, font: boldFont });
+    page.drawText(total.toFixed(2), { x: 500, y: yPosition - 50, size: 10, font: boldFont });
+  
     const pdfBytes = await pdfDoc.save();
     const blob = new Blob([pdfBytes], { type: 'application/pdf' });
     const url = URL.createObjectURL(blob);
-
-    // Descarga el PDF
     const link = document.createElement('a');
     link.href = url;
     link.download = 'boleta_o_factura.pdf';
     link.click();
   };
 
-  const handleNewSale = () => {
-    setIsNewSaleModalOpen(true);
-  };
-
+  
   const handleGenerateDocument = (sale) => {
-    if (isInvoice) {
-      generateInvoicePDF(sale);
-    } else {
-      // Lógica para boleta
-    }
-  };
-
-  const handleEditSale = (id) => {
-    const saleToEdit = sales.find(sale => sale.id === id);
-    setEditingSale(saleToEdit);
-    setIsEditModalOpen(true);
-  };
-
-  const handleEditSubmit = (e) => {
-    e.preventDefault();
-    const updatedSales = sales.map(sale => 
-      sale.id === editingSale.id ? editingSale : sale
-    );
-    setSales(updatedSales);
-    setIsEditModalOpen(false);
-    setEditingSale(null);
-  };
-
-  const handleIncreaseQuantity = async (id) => {
-    const sale = sales.find((sale) => sale.id === id);
-    const newQuantity = sale.cantidad + 1;
-
-    try {
-      await axios.patch(`/producto/${sale.codigoBarras}`, {
-        stock: sale.stock - 1,
-      });
-
-      const updatedSales = sales.map((sale) =>
-        sale.id === id
-          ? { ...sale, cantidad: newQuantity, total: newQuantity * sale.precio }
-          : sale
-      );
-
-      setSales(updatedSales);
-    } catch (error) {
-      alert('Error al actualizar la cantidad');
-    }
+    generateInvoicePDF(sale);
   };
 
   const handleDeleteSale = async (id) => {
-    const sale = sales.find((sale) => sale.id === id);
-
     try {
       await axios.delete(`/ventas/${id}`);
       const updatedSales = sales.filter((sale) => sale.id !== id);
@@ -170,15 +204,6 @@ const SalesPage = () => {
     } catch (error) {
       alert('Error al eliminar la venta');
     }
-  };
-
-  const handleDecreaseQuantity = (id) => {
-    const updatedSales = sales.map((sale) =>
-      sale.id === id && sale.cantidad > 1 
-        ? { ...sale, cantidad: sale.cantidad - 1, total: (sale.cantidad - 1) * (sale.total / sale.cantidad) } 
-        : sale
-    );
-    setSales(updatedSales);
   };
 
   const handleSelectDocumentType = (tipoDocumento) => {
@@ -466,8 +491,5 @@ const SalesPage = () => {
       )}
     </div>
   );
-  
-  
 };
-
 export default SalesPage;
