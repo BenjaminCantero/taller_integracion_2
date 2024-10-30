@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
   provider = "prisma-client-js"
@@ -13,18 +8,98 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Rol {
-  id_rol Int      @id @default(autoincrement())
-  rol    String   @unique
-  usuarios Usuario[]
+model Categoria {
+  id_categoria    Int       @id @default(autoincrement())
+  nombre_categoria String    @db.VarChar(50)
+  inventarios     Inventario[]
+}
+
+model DetalleVenta {
+  id_detalle_venta Int      @id @default(autoincrement())
+  id_venta         Int
+  id_producto      Int
+  cantidad         Int
+  precio_unitario  Decimal   @db.Decimal(10, 2)
+  precio_total     Decimal   @db.Decimal(10, 2)
+
+  ventas           Ventas     @relation(fields: [id_venta], references: [id_venta], onDelete: Cascade)
+  inventario       Inventario  @relation(fields: [id_producto], references: [id_producto], onDelete: Cascade)
+}
+
+model FormaPago {
+  id_forma_pago Int      @id @default(autoincrement())
+  nombre_forma  String   @db.VarChar(50)
+}
+
+model HistorialProductos {
+  id_historial          Int       @id @default(autoincrement())
+  id_producto           Int?
+  accion                String
+  fecha_modificacion    DateTime
+  detalles_modificacion String?
+  id_usuario            Int
+  nombre_producto       String?
+  descripcion           String?
+  precio_compra         Decimal?  @db.Decimal(10, 2)
+  precio_venta          Decimal?  @db.Decimal(10, 2)
+  descuento             Int?
+  cantidad              Int?
+
+  inventario           Inventario? @relation(fields: [id_producto], references: [id_producto], onDelete: SetNull)
+  usuario              Usuario      @relation(fields: [id_usuario], references: [codigo_vendedor])
+}
+
+model Inventario {
+  id_producto           Int      @id @default(autoincrement())
+  img                   String?
+  nombre_producto       String?  @db.Char(100)
+  descripcion           String    @db.Char(100)
+  precio_compra        Int
+  porcentaje_de_ganancia Int
+  precio_neto          Int
+  precio_venta         Int
+  precio_venta_final    Int
+  codigo                Int      @unique
+  id_categoria          Int
+  descuento             Int      @default(0)
+  cantidad              Int      @default(0)
+
+  categoria            Categoria @relation(fields: [id_categoria], references: [id_categoria], onDelete: Cascade)
+  historialProductos   HistorialProductos[]
+  detalleVentas        DetalleVenta[]
+  ventas               Ventas[]
+}
+
+model RolUser {
+  id_rol     Int      @id @default(autoincrement())
+  nombre_rol String    @db.VarChar(50)
+  usuarios   Usuario[]
 }
 
 model Usuario {
-  id_usuarios Int   @id @default(autoincrement())
-  rolId       Int
-  nombre      String
-  correo      String @unique
-  contrasena  String
+  codigo_vendedor  Int      @id @default(autoincrement())
+  nombre_usuario   String   @db.VarChar(50)
+  nombre_empresa   String   @db.Char(100)
+  password         String   @db.VarChar(255)
+  email            String   @db.VarChar(100)
+  id_rol           Int
+  id_admin         Int?   
+  admin           Usuario?  @relation("UsuarioAdmin", fields: [id_admin], references: [codigo_vendedor], onDelete: SetNull) 
+  empleados        Usuario[] @relation("UsuarioAdmin") 
 
-  role Rol @relation(fields: [rolId], references: [id_rol])
+  rol             RolUser   @relation(fields: [id_rol], references: [id_rol], onDelete: Cascade)
+  ventas          Ventas[]
+  historial       HistorialProductos[]
+}
+
+model Ventas {
+  id_venta        Int      @id @default(autoincrement())
+  codigo_vendedor Int
+  id_producto     Int
+  fecha_venta     DateTime
+
+  usuario         Usuario   @relation(fields: [codigo_vendedor], references: [codigo_vendedor], onDelete: Cascade)
+  inventario      Inventario @relation(fields: [id_producto], references: [id_producto], onDelete: Cascade)
+
+  detalleVentas   DetalleVenta[]
 }

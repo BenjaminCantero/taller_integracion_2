@@ -21,7 +21,7 @@ const Layout = () => {
   const [pagina, setPagina] = useState('');
 
   useEffect(() => {
-    setPagina('Home'); // Esto se ejecutará solo una vez al montar el componente
+    setPagina('Home'); 
   }, []);
 
   const renderPage = () => {

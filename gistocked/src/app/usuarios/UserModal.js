@@ -1,41 +1,43 @@
 import React, { useState, useEffect } from 'react';
 
 const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
-  const [name, setName] = useState('');
+  const [nombreUsuario, setNombreUsuario] = useState('');
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState('user');
+  const [nombreEmpresa, setNombreEmpresa] = useState('');
+  const [password, setPassword] = useState('');
+  const [idRol, setIdRol] = useState(2); // Id de rol predeterminado
 
   useEffect(() => {
     if (onEditUser) {
-      setName(onEditUser.nombre);
+      setNombreUsuario(onEditUser.nombre_usuario);
       setEmail(onEditUser.email);
-      setRole(onEditUser.rol);
+      setNombreEmpresa(onEditUser.nombre_empresa);
+      setIdRol(onEditUser.id_rol);
     } else {
-      setName('');
+      setNombreUsuario('');
       setEmail('');
-      setRole('user');
+      setNombreEmpresa('');
+      setPassword('');
+      setIdRol(2);
     }
   }, [onEditUser]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    const userPayload = {
+      nombre_usuario: nombreUsuario,
+      nombre_empresa: nombreEmpresa,
+      email: email,
+      password: password || 'defaultPassword', // Password predeterminado si no se especifica
+      id_rol: idRol,
+      codigo_vendedor: onEditUser ? onEditUser.codigo_vendedor : undefined,
+    };
+
     if (onEditUser) {
-      const updatedUser = {
-        id: onEditUser.id,
-        nombre: name,
-        email: email,
-        rol: role,
-      };
-      onSaveEdit(updatedUser);
+      onSaveEdit(userPayload);
     } else {
-      const newUser = {
-        id: Date.now(),
-        nombre: name,
-        email: email,
-        rol: role,
-      };
-      onAddUser(newUser);
+      onAddUser(userPayload);
     }
 
     onClose();
@@ -55,45 +57,60 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
         </h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-6">
-            <label htmlFor="name" className="block text-lg text-gray-700 font-medium mb-2">Nombre</label>
+            <label htmlFor="nombreUsuario" className="block text-lg text-gray-700 font-medium mb-2">Nombre</label>
             <input
               type="text"
-              id="name"
-              name="name"
+              id="nombreUsuario"
               required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={nombreUsuario}
+              onChange={(e) => setNombreUsuario(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200"
             />
           </div>
-
+          <div className="mb-6">
+            <label htmlFor="nombreEmpresa" className="block text-lg text-gray-700 font-medium mb-2">Nombre de Empresa</label>
+            <input
+              type="text"
+              id="nombreEmpresa"
+              required
+              value={nombreEmpresa}
+              onChange={(e) => setNombreEmpresa(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200"
+            />
+          </div>
           <div className="mb-6">
             <label htmlFor="email" className="block text-lg text-gray-700 font-medium mb-2">Email</label>
             <input
               type="email"
               id="email"
-              name="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200"
             />
           </div>
-
           <div className="mb-6">
-            <label htmlFor="role" className="block text-lg text-gray-700 font-medium mb-2">Rol</label>
+            <label htmlFor="password" className="block text-lg text-gray-700 font-medium mb-2">Contraseña</label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200"
+            />
+          </div>
+          <div className="mb-6">
+            <label htmlFor="idRol" className="block text-lg text-gray-700 font-medium mb-2">Rol</label>
             <select
-              id="role"
-              name="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
+              id="idRol"
+              value={idRol}
+              onChange={(e) => setIdRol(Number(e.target.value))}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200"
             >
-              <option value="admin">Administrador</option>
-              <option value="user">Usuario</option>
+              <option value={2}>Vendedor</option>
+              <option value={1}>Administrador</option>
             </select>
           </div>
-
           <div className="flex justify-end space-x-4">
             <button
               type="button"
