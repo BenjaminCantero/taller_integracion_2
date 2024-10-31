@@ -1,9 +1,8 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-    baseURL: 'https://your-api-url.com',
+    baseURL: 'integra2@190.114.252.218',
     timeout: 1000,
-    headers: { 'X-Custom-Header': 'foobar' }
 });
 
 export const getCategorias = () => axiosInstance.get('categorias/');

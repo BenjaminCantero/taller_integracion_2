@@ -142,75 +142,160 @@ const SalesPage = () => {
     }
   };
 
-  const generateInvoicePDF = async (venta) => {
-    const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage([595, 842]); 
-    const { width, height } = page.getSize();
-  
-    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-    const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-  
-    page.drawText('Razón Social Empresa', { x: 50, y: height - 50, size: 14, font: boldFont });
-    page.drawText('Giro: Giro de la Empresa', { x: 50, y: height - 70, size: 10, font });
-    page.drawText('Dirección de la Empresa', { x: 50, y: height - 85, size: 10, font });
-    page.drawText('Comuna - Ciudad', { x: 50, y: height - 100, size: 10, font });
-  
-    page.drawText('R.U.T.: 99.999.999-9', { x: width - 200, y: height - 50, size: 10, font });
-    page.drawText('FACTURA ELECTRONICA', { x: width - 200, y: height - 65, size: 12, font: boldFont, color: rgb(1, 0, 0) });
-    page.drawText('N° 1111', { x: width - 200, y: height - 80, size: 12, font: boldFont });
-    page.drawText('S.I.I.', { x: width - 200, y: height - 95, size: 10, font });
-    page.drawText('Fecha Emisión: ' + venta.fecha, { x: width - 200, y: height - 110, size: 10, font });
-  
-    page.drawText('Señores: ' + venta.cliente.nombre, { x: 50, y: height - 130, size: 10, font });
-    page.drawText('R.U.T.: ' + venta.cliente.rut, { x: 50, y: height - 145, size: 10, font });
-    page.drawText('Giro: ' + venta.cliente.giro, { x: 50, y: height - 160, size: 10, font });
-    page.drawText('Dirección: ' + venta.cliente.direccion, { x: 50, y: height - 175, size: 10, font });
-    page.drawText('Comuna: ' + venta.cliente.comuna, { x: 50, y: height - 190, size: 10, font });
-    page.drawText('Ciudad: ' + venta.cliente.ciudad, { x: 50, y: height - 205, size: 10, font });
-    page.drawText('Contacto: ' + venta.cliente.contacto, { x: 50, y: height - 220, size: 10, font });
-  
-    const tableTop = height - 250;
-    const cellPadding = 5;
-    page.drawText('CÓDIGO', { x: 50, y: tableTop, size: 10, font: boldFont });
-    page.drawText('DESCRIPCIÓN', { x: 120, y: tableTop, size: 10, font: boldFont });
-    page.drawText('CANTIDAD', { x: 300, y: tableTop, size: 10, font: boldFont });
-    page.drawText('PRECIO', { x: 400, y: tableTop, size: 10, font: boldFont });
-    page.drawText('VALOR', { x: 500, y: tableTop, size: 10, font: boldFont });
-  
-    let yPosition = tableTop - 20;
-    venta.productos.forEach((producto) => {
-      page.drawText(producto.codigo, { x: 50, y: yPosition, size: 10, font });
-      page.drawText(producto.descripcion, { x: 120, y: yPosition, size: 10, font });
-      page.drawText(producto.cantidad.toString(), { x: 300, y: yPosition, size: 10, font });
-      page.drawText('$ ' + producto.precio.toFixed(2), { x: 400, y: yPosition, size: 10, font });
-      page.drawText('$ ' + (producto.cantidad * producto.precio).toFixed(2), { x: 500, y: yPosition, size: 10, font });
-      yPosition -= 15;
-    });
-  
-    const subtotal = venta.productos.reduce((acc, p) => acc + p.cantidad * p.precio, 0);
-    const iva = subtotal * 0.19;
-    const total = subtotal + iva;
-  
-    page.drawText('MONTO NETO $', { x: 400, y: yPosition - 20, size: 10, font });
-    page.drawText(subtotal.toFixed(2), { x: 500, y: yPosition - 20, size: 10, font });
-    page.drawText('I.V.A. 19% $', { x: 400, y: yPosition - 35, size: 10, font });
-    page.drawText(iva.toFixed(2), { x: 500, y: yPosition - 35, size: 10, font });
-    page.drawText('TOTAL $', { x: 400, y: yPosition - 50, size: 10, font: boldFont });
-    page.drawText(total.toFixed(2), { x: 500, y: yPosition - 50, size: 10, font: boldFont });
-  
-    const pdfBytes = await pdfDoc.save();
-    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'boleta_o_factura.pdf';
-    link.click();
-  };
+const generateInvoicePDF = async (venta) => {
+  const pdfDoc = await PDFDocument.create();
+  const page = pdfDoc.addPage([595, 842]);
+  const { width, height } = page.getSize();
 
-  
-  const handleGenerateDocument = (sale) => {
-    generateInvoicePDF(sale);
-  };
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+
+  // Datos de la empresa
+  page.drawText('Razón Social Empresa', { x: 50, y: height - 50, size: 14, font: boldFont });
+  page.drawText('Giro: Giro de la Empresa', { x: 50, y: height - 70, size: 10, font });
+  page.drawText('Dirección de la Empresa', { x: 50, y: height - 85, size: 10, font });
+  page.drawText('Comuna - Ciudad', { x: 50, y: height - 100, size: 10, font });
+
+  // Datos de la factura/boleta
+  page.drawText('R.U.T.: 99.999.999-9', { x: width - 200, y: height - 50, size: 10, font });
+  page.drawText('FACTURA ELECTRONICA', { x: width - 200, y: height - 65, size: 12, font: boldFont, color: rgb(1, 0, 0) });
+  page.drawText('N° 1111', { x: width - 200, y: height - 80, size: 12, font: boldFont });
+  page.drawText('S.I.I.', { x: width - 200, y: height - 95, size: 10, font });
+  page.drawText('Fecha Emisión: ' + (venta.fecha || 'N/A'), { x: width - 200, y: height - 110, size: 10, font });
+
+  // Datos del cliente
+  const cliente = venta.cliente || {};
+  page.drawText('Señores: ' + (cliente.nombre || 'N/A'), { x: 50, y: height - 130, size: 10, font });
+  page.drawText('R.U.T.: ' + (cliente.rut || 'N/A'), { x: 50, y: height - 145, size: 10, font });
+  page.drawText('Giro: ' + (cliente.giro || 'N/A'), { x: 50, y: height - 160, size: 10, font });
+  page.drawText('Dirección: ' + (cliente.direccion || 'N/A'), { x: 50, y: height - 175, size: 10, font });
+  page.drawText('Comuna: ' + (cliente.comuna || 'N/A'), { x: 50, y: height - 190, size: 10, font });
+  page.drawText('Ciudad: ' + (cliente.ciudad || 'N/A'), { x: 50, y: height - 205, size: 10, font });
+  page.drawText('Contacto: ' + (cliente.contacto || 'N/A'), { x: 50, y: height - 220, size: 10, font });
+
+  // Tabla de productos
+  const tableTop = height - 250;
+  page.drawText('CÓDIGO', { x: 50, y: tableTop, size: 10, font: boldFont });
+  page.drawText('DESCRIPCIÓN', { x: 120, y: tableTop, size: 10, font: boldFont });
+  page.drawText('CANTIDAD', { x: 300, y: tableTop, size: 10, font: boldFont });
+  page.drawText('PRECIO', { x: 400, y: tableTop, size: 10, font: boldFont });
+  page.drawText('VALOR', { x: 500, y: tableTop, size: 10, font: boldFont });
+
+  let yPosition = tableTop - 20;
+  (venta.productos || []).forEach((producto) => {
+    page.drawText(producto.codigo || 'N/A', { x: 50, y: yPosition, size: 10, font });
+    page.drawText(producto.descripcion || 'N/A', { x: 120, y: yPosition, size: 10, font });
+    page.drawText((producto.cantidad || 'N/A').toString(), { x: 300, y: yPosition, size: 10, font });
+    page.drawText('$ ' + (producto.precio ? producto.precio.toFixed(2) : 'N/A'), { x: 400, y: yPosition, size: 10, font });
+    page.drawText('$ ' + (producto.cantidad && producto.precio ? (producto.cantidad * producto.precio).toFixed(2) : 'N/A'), { x: 500, y: yPosition, size: 10, font });
+    yPosition -= 15;
+  });
+
+  // Totales
+  const subtotal = (venta.productos || []).reduce((acc, p) => acc + (p.cantidad || 0) * (p.precio || 0), 0);
+  const iva = subtotal * 0.19;
+  const total = subtotal + iva;
+
+  page.drawText('MONTO NETO $', { x: 400, y: yPosition - 20, size: 10, font });
+  page.drawText(subtotal.toFixed(2), { x: 500, y: yPosition - 20, size: 10, font });
+  page.drawText('I.V.A. 19% $', { x: 400, y: yPosition - 35, size: 10, font });
+  page.drawText(iva.toFixed(2), { x: 500, y: yPosition - 35, size: 10, font });
+  page.drawText('TOTAL $', { x: 400, y: yPosition - 50, size: 10, font: boldFont });
+  page.drawText(total.toFixed(2), { x: 500, y: yPosition - 50, size: 10, font: boldFont });
+
+  // Descargar el PDF
+  const pdfBytes = await pdfDoc.save();
+  const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'factura.pdf';
+  link.click();
+};
+
+const generateReceiptPDF = async (venta, tipoDocumento = 'boleta') => {
+  const pdfDoc = await PDFDocument.create();
+  const page = pdfDoc.addPage([595, 842]);
+  const { width, height } = page.getSize();
+
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+
+  // Datos de la empresa
+  page.drawText('Razón Social Empresa', { x: 50, y: height - 50, size: 14, font: boldFont });
+  page.drawText('Giro: Giro de la Empresa', { x: 50, y: height - 70, size: 10, font });
+  page.drawText('Dirección de la Empresa', { x: 50, y: height - 85, size: 10, font });
+  page.drawText('Comuna - Ciudad', { x: 50, y: height - 100, size: 10, font });
+
+  // Datos de la factura o boleta
+  page.drawText('R.U.T.: 99.999.999-9', { x: width - 200, y: height - 50, size: 10, font });
+  page.drawText(
+    tipoDocumento === 'factura' ? 'FACTURA ELECTRÓNICA' : 'BOLETA ELECTRÓNICA',
+    { x: width - 200, y: height - 65, size: 12, font: boldFont, color: rgb(1, 0, 0) }
+  );
+  page.drawText('N° 1111', { x: width - 200, y: height - 80, size: 12, font: boldFont });
+  page.drawText('S.I.I.', { x: width - 200, y: height - 95, size: 10, font });
+  page.drawText('Fecha Emisión: ' + (venta?.fecha || 'N/A'), { x: width - 200, y: height - 110, size: 10, font });
+
+  // Datos del cliente
+  const cliente = venta?.cliente || {};
+  page.drawText('Señores: ' + (cliente.nombre || 'N/A'), { x: 50, y: height - 130, size: 10, font });
+  page.drawText('R.U.T.: ' + (cliente.rut || 'N/A'), { x: 50, y: height - 145, size: 10, font });
+  page.drawText('Giro: ' + (cliente.giro || 'N/A'), { x: 50, y: height - 160, size: 10, font });
+  page.drawText('Dirección: ' + (cliente.direccion || 'N/A'), { x: 50, y: height - 175, size: 10, font });
+  page.drawText('Comuna: ' + (cliente.comuna || 'N/A'), { x: 50, y: height - 190, size: 10, font });
+  page.drawText('Ciudad: ' + (cliente.ciudad || 'N/A'), { x: 50, y: height - 205, size: 10, font });
+  page.drawText('Contacto: ' + (cliente.contacto || 'N/A'), { x: 50, y: height - 220, size: 10, font });
+
+  // Tabla de productos
+  const tableTop = height - 250;
+  page.drawText('CÓDIGO', { x: 50, y: tableTop, size: 10, font: boldFont });
+  page.drawText('DESCRIPCIÓN', { x: 120, y: tableTop, size: 10, font: boldFont });
+  page.drawText('CANTIDAD', { x: 300, y: tableTop, size: 10, font: boldFont });
+  page.drawText('PRECIO', { x: 400, y: tableTop, size: 10, font: boldFont });
+  page.drawText('VALOR', { x: 500, y: tableTop, size: 10, font: boldFont });
+
+  let yPosition = tableTop - 20;
+  (venta?.productos || []).forEach((producto) => {
+    page.drawText(producto.codigo || 'N/A', { x: 50, y: yPosition, size: 10, font });
+    page.drawText(producto.descripcion || 'N/A', { x: 120, y: yPosition, size: 10, font });
+    page.drawText((producto.cantidad || 'N/A').toString(), { x: 300, y: yPosition, size: 10, font });
+    page.drawText('$ ' + (producto.precio ? producto.precio.toFixed(2) : 'N/A'), { x: 400, y: yPosition, size: 10, font });
+    page.drawText('$ ' + (producto.cantidad && producto.precio ? (producto.cantidad * producto.precio).toFixed(2) : 'N/A'), { x: 500, y: yPosition, size: 10, font });
+    yPosition -= 15;
+  });
+
+  // Totales
+  const subtotal = (venta?.productos || []).reduce((acc, p) => acc + (p.cantidad || 0) * (p.precio || 0), 0);
+  const iva = subtotal * 0.19;
+  const total = subtotal + iva;
+
+  page.drawText('MONTO NETO $', { x: 400, y: yPosition - 20, size: 10, font });
+  page.drawText(subtotal.toFixed(2), { x: 500, y: yPosition - 20, size: 10, font });
+  page.drawText('I.V.A. 19% $', { x: 400, y: yPosition - 35, size: 10, font });
+  page.drawText(iva.toFixed(2), { x: 500, y: yPosition - 35, size: 10, font });
+  page.drawText('TOTAL $', { x: 400, y: yPosition - 50, size: 10, font: boldFont });
+  page.drawText(total.toFixed(2), { x: 500, y: yPosition - 50, size: 10, font: boldFont });
+
+  // Descargar el PDF
+  const pdfBytes = await pdfDoc.save();
+  const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${tipoDocumento}.pdf`;  // Nombre dinámico según el tipo de documento
+  link.click();
+};
+
+
+const handleGenerateDocument = () => {
+  if (isInvoice) {
+    generateInvoicePDF();
+  } else {
+    generateReceiptPDF();
+  }
+};
+
 
   const handleDeleteSale = async (id) => {
     try {
@@ -419,27 +504,26 @@ const SalesPage = () => {
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
             <h2 className="text-2xl font-bold mb-4">Seleccionar Tipo de Documento</h2>
             <div className="mb-4">
-              <button 
-                className="bg-blue-500 text-white py-2 px-4 rounded mr-2" 
-                onClick={() => {
-                  setIsInvoice(true);
-                  setIsModalOpen(false);
+              <button
+                className="bg-blue-500 text-white py-2 px-4 rounded mr-2"
+                onClick={() => {setIsInvoice(true);
+                                setIsModalOpen(false); 
                 }}
               >
                 Factura
               </button>
-              <button 
-                className="bg-green-500 text-white py-2 px-4 rounded" 
-                onClick={() => {
-                  setIsInvoice(false);
+              <button
+                className="bg-green-500 text-white py-2 px-4 rounded"
+                onClick={() => {  
+                  handleGenerateDocument();
                   setIsModalOpen(false);
-                  alert("Boleta generada.");
                 }}
+                
               >
                 Boleta
               </button>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
                 onClick={() => setIsModalOpen(false)}
               >
@@ -449,29 +533,24 @@ const SalesPage = () => {
           </div>
         </div>
       )}
-  
+
       {isInvoice && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
             <h2 className="text-2xl font-bold mb-4">Datos de Factura</h2>
             <form onSubmit={handleInvoiceSubmit}>
               <label className="block mb-2">RUT:</label>
-              <input 
-                type="text" 
-                name="rut"
-                className="border rounded w-full py-2 px-3 mb-4"
-                required
-              />
+              <input type="text" name="rut" className="border rounded w-full py-2 px-3 mb-4" required />
               <label className="block mb-2">Razón Social:</label>
-              <input 
-                type="text" 
-                name="razonSocial"
-                className="border rounded w-full py-2 px-3 mb-4"
-                required
-              />
-              <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Generar Factura</button>
-              <button 
-                type="button" 
+              <input type="text" name="razonSocial" className="border rounded w-full py-2 px-3 mb-4" required />
+              <button type="button"
+                                onClick={() => {
+                                  generateInvoicePDF(false);
+                                  setIsModalOpen(false);
+                                }}
+                className="bg-blue-500 text-white py-2 px-4 rounded">Generar Factura</button>
+              <button
+                type="button"
                 className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
                 onClick={() => setIsInvoice(false)}
               >
@@ -481,7 +560,7 @@ const SalesPage = () => {
           </div>
         </div>
       )}
-  
+
       {paymentMethodModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setPaymentMethodModal(false)}>
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
@@ -494,8 +573,8 @@ const SalesPage = () => {
                 <option value="transferencia">Transferencia</option>
               </select>
               <button type="button" className="bg-blue-500 text-white py-2 px-4 rounded" onClick={() => alert('Medio de pago seleccionado')}>Seleccionar</button>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
                 onClick={() => setPaymentMethodModal(false)}
               >
@@ -508,4 +587,5 @@ const SalesPage = () => {
     </div>
   );
 };
+
 export default SalesPage;
