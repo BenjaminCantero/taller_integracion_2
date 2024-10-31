@@ -2,14 +2,23 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { jsPDF } from 'jspdf';
-import html2canvas from 'html2canvas';
+import { CSVLink } from "react-csv";
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 import { FaShoppingCart, FaMoneyBill, FaUsers, FaBoxOpen } from 'react-icons/fa';
-import { saveAs } from 'file-saver';
-import Papa from 'papaparse';
+
+// Función para exportar a PDF
+const exportToPDF = (title, data) => {
+  const doc = new jsPDF();
+  doc.text(title, 10, 10);
+  doc.autoTable({
+    head: [Object.keys(data[0])],
+    body: data.map(row => Object.values(row)),
+  });
+  doc.save(`${title}.pdf`);
+};
 
 const Dashboard = () => {
-  // Estados para cada parte del dashboard
   const [salesCount, setSalesCount] = useState(null);
   const [salesRevenue, setSalesRevenue] = useState(null);
   const [userCount, setUserCount] = useState(null);
@@ -21,9 +30,8 @@ const Dashboard = () => {
   const [summary, setSummary] = useState({});
   const [productAnalysis, setProductAnalysis] = useState([]);
 
-  // useEffect para obtener datos de la API
   useEffect(() => {
-    // Cantidad de Ventas
+    // Cargar datos con Axios
     axios.get('http://190.114.252.218:8000/api/ventas')
       .then(response => {
         setSalesCount(response.data.length);
@@ -32,50 +40,42 @@ const Dashboard = () => {
       })
       .catch(error => console.error("Error fetching sales data:", error));
 
-    // Usuarios Registrados
     axios.get('http://190.114.252.218:8000/api/usuarios')
       .then(response => setUserCount(response.data.length))
       .catch(error => console.error("Error fetching user data:", error));
 
-    // Productos Disponibles
     axios.get('http://190.114.252.218:8000/api/inventarios')
       .then(response => setProductCount(response.data.length))
       .catch(error => console.error("Error fetching product data:", error));
 
-    // Ventas Mensuales
-    axios.get('http://190.114.252.218:8000/api/ventas-mensuales')  //Cambiar
+    axios.get('http://190.114.252.218:8000/api/ventas-mensuales')
       .then(response => setMonthlySales(response.data))
       .catch(error => console.error("Error fetching monthly sales data:", error));
 
-    // Ingresos por Productos
     axios.get('http://190.114.252.218:8000/api/ingresos-productos')
       .then(response => setProductRevenue(response.data))
       .catch(error => console.error("Error fetching product revenue data:", error));
 
-    // Comparativa Mensual/Anual
     axios.get('http://190.114.252.218:8000/api/comparativa-anual')
       .then(response => setAnnualComparison(response.data))
       .catch(error => console.error("Error fetching annual comparison data:", error));
 
-    // Ventas Recientes
     axios.get('http://190.114.252.218:8000/api/ventas-recientes')
       .then(response => setRecentSales(response.data))
       .catch(error => console.error("Error fetching recent sales data:", error));
 
-    // Resumen
     axios.get('http://190.114.252.218:8000/api/resumen')
       .then(response => setSummary(response.data))
       .catch(error => console.error("Error fetching summary data:", error));
 
-    // Análisis de Productos
     axios.get('http://190.114.252.218:8000/api/analisis-productos')
       .then(response => setProductAnalysis(response.data))
       .catch(error => console.error("Error fetching product analysis data:", error));
   }, []);
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-5xl font-bold text-gray-800 text-center mb-10">Dashboard de Ventas</h1>
+    <div className="p-6 bg-white min-h-screen text-gray-800">
+      <h1 className="text-5xl font-extrabold text-center mb-10 text-primary">Dashboard de Ventas</h1>
 
       <StatsGrid 
         salesCount={salesCount} 
@@ -83,27 +83,21 @@ const Dashboard = () => {
         userCount={userCount} 
         productCount={productCount} 
       />
+
       <ChartsGrid 
         monthlySales={monthlySales} 
         productRevenue={productRevenue} 
         annualComparison={annualComparison} 
       />
+
       <LatestSalesTable data={recentSales} />
       <SummaryPanel summary={summary} />
       <CustomerAnalysis analysis={productAnalysis} />
-
-      <button 
-        onClick={() => downloadDataAsCSV(monthlySales, 'SalesData')} 
-        className="mt-6 w-full px-4 py-3 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition duration-200">
-        Descargar Datos en CSV
-      </button>
     </div>
   );
 };
 
-// Componentes de cada sección del Dashboard
-
-// StatsGrid muestra las métricas principales
+// StatsGrid Component
 const StatsGrid = ({ salesCount, salesRevenue, userCount, productCount }) => (
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     <StatCard title="Cantidad de Ventas" value={salesCount ?? "Cargando..."} icon={<FaShoppingCart />} />
@@ -113,30 +107,50 @@ const StatsGrid = ({ salesCount, salesRevenue, userCount, productCount }) => (
   </div>
 );
 
-const ChartCard = ({ title, chart }) => (
-  <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
-    <h2 className="text-2xl font-bold mb-4">{title}</h2>
-    {chart}
+const StatCard = ({ title, value, icon }) => (
+  <div className="bg-white p-6 rounded-lg shadow-lg flex items-center transition-transform transform hover:scale-105 hover:shadow-xl">
+    <div className="mr-4 text-primary text-4xl">{icon}</div>
+    <div>
+      <h3 className="text-lg font-semibold mb-2">{title}</h3>
+      <p className="text-3xl font-bold text-gray-800">{value}</p>
+    </div>
   </div>
 );
 
+// ChartCard Component with export options
+const ChartCard = ({ title, chart, exportTitle, exportData }) => (
+  <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
+    <h2 className="text-2xl font-bold mb-4 text-primary">{title}</h2>
+    <div className="h-64">
+      <ResponsiveContainer width="100%" height="100%">
+        {chart}
+      </ResponsiveContainer>
+    </div>
+    <div className="mt-4 flex justify-between">
+      <CSVLink data={exportData} filename={`${exportTitle}.csv`} className="text-blue-600 hover:underline">Descargar CSV</CSVLink>
+      <button onClick={() => exportToPDF(exportTitle, exportData)} className="bg-blue-500 text-white px-4 py-2 rounded">Exportar a PDF</button>
+    </div>
+  </div>
+);
+
+// ChartsGrid Component
 const ChartsGrid = ({ monthlySales, productRevenue, annualComparison }) => (
   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-    <ChartCard title="Ventas Mensuales" chart={<SalesChart data={monthlySales} />} />
-    <ChartCard title="Ingresos por Productos" chart={<RevenueChart data={productRevenue} />} />
-    <ChartCard title="Comparativa Anual/Mensual" chart={<ComparisonChart data={annualComparison} />} />
+    <ChartCard title="Ventas Mensuales" chart={<SalesChart data={monthlySales} />} exportTitle="Ventas Mensuales" exportData={monthlySales} />
+    <ChartCard title="Ingresos por Productos" chart={<RevenueChart data={productRevenue} />} exportTitle="Ingresos por Productos" exportData={productRevenue} />
+    <ChartCard title="Comparativa Anual/Mensual" chart={<ComparisonChart data={annualComparison} />} exportTitle="Comparativa Anual" exportData={annualComparison} />
   </div>
 );
 
 const SalesChart = ({ data }) => (
   <ResponsiveContainer width="100%" height={300}>
     <LineChart data={data}>
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="month" />
-      <YAxis />
-      <Tooltip />
+      <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+      <XAxis dataKey="month" tick={{ fill: "#374151" }} />
+      <YAxis tick={{ fill: "#374151" }} />
+      <Tooltip contentStyle={{ backgroundColor: '#F9FAFB', borderColor: 'gray' }} />
       <Legend />
-      <Line type="monotone" dataKey="sales" stroke="#3b82f6" strokeWidth={2} />
+      <Line type="monotone" dataKey="sales" stroke="#3B82F6" strokeWidth={2} />
     </LineChart>
   </ResponsiveContainer>
 );
@@ -144,75 +158,72 @@ const SalesChart = ({ data }) => (
 const RevenueChart = ({ data }) => (
   <ResponsiveContainer width="100%" height={300}>
     <BarChart data={data}>
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="product" />
-      <YAxis />
-      <Tooltip />
+      <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+      <XAxis dataKey="product" tick={{ fill: "#374151" }} />
+      <YAxis tick={{ fill: "#374151" }} />
+      <Tooltip contentStyle={{ backgroundColor: '#F9FAFB', borderColor: 'gray' }} />
       <Legend />
-      <Bar dataKey="revenue" fill="#3b82f6" />
+      <Bar dataKey="revenue" fill="#10B981" />
     </BarChart>
   </ResponsiveContainer>
 );
 
 const ComparisonChart = ({ data }) => (
   <ResponsiveContainer width="100%" height={300}>
-    <BarChart data={data}>
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="year" />
-      <YAxis />
-      <Tooltip />
+    <LineChart data={data}>
+      <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+      <XAxis dataKey="year" tick={{ fill: "#374151" }} />
+      <YAxis tick={{ fill: "#374151" }} />
+      <Tooltip contentStyle={{ backgroundColor: '#F9FAFB', borderColor: 'gray' }} />
       <Legend />
-      <Bar dataKey="sales" fill="#3b82f6" />
-    </BarChart>
+      <Line type="monotone" dataKey="sales" stroke="#3B82F6" strokeWidth={2} />
+      <Line type="monotone" dataKey="revenue" stroke="#F59E0B" strokeWidth={2} />
+    </LineChart>
   </ResponsiveContainer>
 );
 
+// Latest Sales Table Component
 const LatestSalesTable = ({ data }) => (
   <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
-    <h2 className="text-2xl font-bold mb-4">Ventas Recientes</h2>
-    <table className="min-w-full bg-white rounded-lg shadow-md">
-      <thead>
-        <tr className="bg-gray-200">
-          <th className="py-2 px-4 text-left">Producto</th>
-          <th className="py-2 px-4 text-left">Cantidad</th>
-          <th className="py-2 px-4 text-left">Fecha</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((sale) => (
-          <tr key={sale.id} className="border-t">
-            <td className="py-2 px-4">{sale.product}</td>
-            <td className="py-2 px-4">{sale.quantity}</td>
-            <td className="py-2 px-4">{sale.date}</td>
+    <h2 className="text-2xl font-bold mb-4 text-primary">Ventas Recientes</h2>
+    <div className="overflow-x-auto">
+      <table className="w-full text-left">
+        <thead>
+          <tr className="bg-gray-200 text-gray-700 uppercase text-sm">
+            <th className="py-3 px-6">ID</th>
+            <th className="py-3 px-6">Producto</th>
+            <th className="py-3 px-6">Cantidad</th>
+            <th className="py-3 px-6">Fecha</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {data.map((sale, index) => (
+            <tr key={index} className="hover:bg-gray-100">
+              <td className="py-3 px-6">{sale.id}</td>
+              <td className="py-3 px-6">{sale.product}</td>
+              <td className="py-3 px-6">{sale.quantity}</td>
+              <td className="py-3 px-6">{new Date(sale.date).toLocaleDateString()}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   </div>
 );
 
+// Summary Panel Component
 const SummaryPanel = ({ summary }) => (
   <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
-    <h2 className="text-2xl font-bold mb-4">Resumen</h2>
-    <p>{summary.text}</p>
+    <h2 className="text-2xl font-bold mb-4 text-primary">Resumen de Actividades</h2>
+    <p>{summary.description}</p>
   </div>
 );
 
+// Customer Analysis Component
 const CustomerAnalysis = ({ analysis }) => (
   <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
-    <h2 className="text-2xl font-bold mb-4">Análisis de Productos</h2>
-    {/* Aquí podrías mostrar gráficos o tablas detalladas */}
-    <p>{JSON.stringify(analysis)}</p>
-  </div>
-);
-
-const StatCard = ({ title, value, icon }) => (
-  <div className="bg-white p-6 rounded-lg shadow-lg flex items-center transition-transform transform hover:scale-105">
-    <div className="mr-4 text-blue-500 text-4xl">{icon}</div>
-    <div>
-      <h3 className="text-lg font-semibold mb-2">{title}</h3>
-      <p className="text-3xl font-bold text-gray-700">{value}</p>
-    </div>
+    <h2 className="text-2xl font-bold mb-4 text-primary">Análisis de Clientes</h2>
+    {/* Similar table or chart could go here */}
   </div>
 );
 
