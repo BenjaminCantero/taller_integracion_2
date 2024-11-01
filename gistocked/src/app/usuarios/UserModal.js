@@ -8,7 +8,6 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
   const [email, setEmail] = useState('');
   const [idRol, setIdRol] = useState(2); // Id de rol predeterminado
 
-
   useEffect(() => {
     if (onEditUser) {
       setNombreUsuario(onEditUser.nombre_usuario);
@@ -27,19 +26,12 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Si al editar un usuario NO se cambia la contraseña se Mantendra la existente
-    //console.log(password === ('A'.repeat(onEditUser.password.length)));
-    //console.log(onEditUser.password);
-    if (onEditUser && password === ('A'.repeat(onEditUser.password.length))) {
-      setPassword(onEditUser.password);
-    }
-
     // Carga al usuario con la información requerida por la API
     const userPayload = {
       codigo_vendedor: onEditUser ? onEditUser.codigo_vendedor : undefined,
       nombre_usuario: nombreUsuario,
       nombre_empresa: nombreEmpresa,
-      password: password,
+      password: password || onEditUser.password,
       email: email,
       pin: 123,
       id_rol: idRol,
@@ -125,7 +117,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
                 required={!onEditUser} // Es obligatorio cuando se crea un usuario nuevo
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder={onEditUser ? '' : 'Nueva Contraseña'}
+                placeholder={onEditUser ? ('X'.repeat(onEditUser.password.length)) : 'Nueva Contraseña'}
                 className='w-full px-4 py-2 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200'
               />
             </li>
