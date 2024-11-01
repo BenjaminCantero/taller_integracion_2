@@ -1,43 +1,52 @@
+
 import React from 'react';
 
 const UserTable = ({ users, onEdit, onDelete }) => {
   return (
-    <div className="overflow-x-auto mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-8">
-      <table className="min-w-full bg-white border border-gray-200 shadow-lg rounded-lg">
-        <thead className="bg-gradient-to-r from-gray-800 to-gray-600 text-white">
-          <tr>
-            <th className="py-4 px-6 border-b text-left text-lg font-semibold">Código Vendedor</th>
-            <th className="py-4 px-6 border-b text-left text-lg font-semibold">Nombre Usuario</th>
-            <th className="py-4 px-6 border-b text-left text-lg font-semibold">Nombre Empresa</th>
-            <th className="py-4 px-6 border-b text-left text-lg font-semibold">Email</th>
-            <th className="py-4 px-6 border-b text-left text-lg font-semibold">Rol</th>
-            <th className="py-4 px-6 border-b text-left text-lg font-semibold">Acciones</th>
+    <div className='mt-8'>
+      <table className='min-w-full bg-white shadow-lg shadow-blue-950'>
+        <thead className='sticky top-0'>
+          <tr className='text-white bg-gray-800'>
+            <th className='p-3 text-center text-md font-semibold border-r border-b border-white rounded-tl-lg'>Código Vendedor</th>
+            <th className='p-3 text-center text-md font-semibold border-r border-b border-white'>Nombre Usuario</th>
+            <th className='p-3 text-center text-md font-semibold border-r border-b border-white'>Nombre Empresa</th>
+            <th className='p-3 text-center text-md font-semibold border-r border-b border-white'>Email</th>
+            <th className='p-3 text-center text-md font-semibold border-r border-b border-white'>Rol</th>
+            <th className='p-3 text-center text-md font-semibold          border-b border-white rounded-tr-lg'>Acciones</th>
           </tr>
         </thead>
+
         <tbody>
           {users.map(user => (
-            <tr key={user.codigo_vendedor} className="hover:bg-gray-50 transition duration-150 ease-in-out">
-              <td className="py-5 px-6 border-b text-md">{user.codigo_vendedor}</td>
-              <td className="py-5 px-6 border-b text-md">{user.nombre_usuario}</td>
-              <td className="py-5 px-6 border-b text-md">{user.nombre_empresa}</td>
-              <td className="py-5 px-6 border-b text-md">{user.email}</td>
-              <td className="py-5 px-6 border-b text-md">{user.id_rol}</td>
-              <td className="py-5 px-6 border-b text-md">
-                <button
-                  className="inline-block px-4 py-2 mr-3 bg-blue-500 text-white font-semibold rounded-md shadow-md hover:bg-blue-600 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition duration-300 ease-in-out"
-                  onClick={() => onEdit(user)}
-                >
-                  Editar
-                </button>
-                <button
-                  className="inline-block px-4 py-2 bg-red-500 text-white font-semibold rounded-md shadow-md hover:bg-red-600 focus:ring-2 focus:ring-red-400 focus:ring-opacity-75 transition duration-300 ease-in-out"
-                  onClick={() => onDelete(user.codigo_vendedor)}
-                >
-                  Eliminar
-                </button>
-              </td>
+            <tr 
+              key={user.codigo_vendedor} 
+              className='text-black rounded-b-lg transition duration-1000 hover:bg-gray-200 '>
+                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.codigo_vendedor}</td>
+                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.nombre_usuario}</td>
+                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.nombre_empresa}</td>
+                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.email}</td>
+                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol}</td>
+
+                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>
+                  <div className='flex flex-col'>
+                    <button
+                      className='px-4 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition duration-500'
+                      onClick={() => onEdit(user)}
+                    >
+                      Editar
+                    </button>
+
+                    <button
+                      className='px-4 py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600   focus:ring-2 focus:ring-red-400  focus:ring-opacity-75 transition duration-500'
+                      onClick={() => onDelete(user.codigo_vendedor)}
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </td>
             </tr>
           ))}
+
         </tbody>
       </table>
     </div>

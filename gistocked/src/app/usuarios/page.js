@@ -1,15 +1,18 @@
-"use client";
-import { useState, useEffect } from 'react';
+
+'use client';
 import UserTable from './UserTable';
 import UserModal from './UserModal';
+
+import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserPlus } from '@fortawesome/free-solid-svg-icons';
 
 const Usuarios = () => {
-  const [modalOpen, setModalOpen] = useState(false);
   const [users, setUsers] = useState([]);
   const [editUser, setEditUser] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
+  {/* Carga inicial de los usuarios de la empresa */}
   useEffect(() => {
     fetch('http://190.114.252.218:8000/api/usuarios/')
       .then(response => response.json())
@@ -17,15 +20,18 @@ const Usuarios = () => {
       .catch(error => console.error('Error al cargar usuarios:', error));
   }, []);
 
+  {/* Abre el formulario */}
   const handleOpenModal = () => {
     setModalOpen(true);
   };
 
+  {/* Cierra el formulario */}
   const handleCloseModal = () => {
     setModalOpen(false);
     setEditUser(null);
   };
 
+  {/* Agrega un nuevo usuario a la base de datos */}
   const handleAddUser = (newUser) => {
     fetch('http://190.114.252.218:8000/api/usuarios/', {
       method: 'POST',
@@ -42,6 +48,7 @@ const Usuarios = () => {
       .catch(error => console.error('Error al agregar usuario:', error));
   };
 
+  {/* Elimina a un usuario de la base de datos */}
   const handleDelete = (codigoVendedor) => {
     fetch(`http://190.114.252.218:8000/api/usuarios/${codigoVendedor}/`, {
       method: 'DELETE'
@@ -52,11 +59,13 @@ const Usuarios = () => {
       .catch(error => console.error('Error al eliminar usuario:', error));
   };
 
+  {/* obtiene la información del usuario que se va a editar */}
   const handleEdit = (user) => {
     setEditUser(user);
     handleOpenModal();
   };
 
+  {/* Edita la información de un usuario de la base de datos */}
   const handleSaveEdit = (updatedUser) => {
     fetch(`http://190.114.252.218:8000/api/usuarios/${updatedUser.codigo_vendedor}/`, {
       method: 'PUT',
@@ -74,16 +83,25 @@ const Usuarios = () => {
   };
 
   return (
-    <main className="p-8 bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-semibold mb-6 text-blue-600">Gestión de Usuarios</h1>
+    <main className='p-8 min-h-screen bg-white '>
+      <h1 className='mb-6 font-semibold text-blue-600 text-3xl'>Gestión de Usuarios</h1>
       <button
         onClick={handleOpenModal}
-        className="add-user-btn bg-blue-600 text-white px-6 py-2 rounded-md flex items-center mb-4 hover:bg-blue-700 transition"
+        className='px-6 py-2 mb-4 flex items-center text-white bg-blue-600 rounded-md add-user-btn hover:bg-blue-700 transition duration-500'
       >
-        <FontAwesomeIcon icon={faUserPlus} className="mr-2" />
-        Agregar Usuario
+        <FontAwesomeIcon 
+          icon={faUserPlus} 
+          className="mr-2" />
+          Agregar Usuario
       </button>
-      <UserTable users={users} onEdit={handleEdit} onDelete={handleDelete} />
+
+      <UserTable 
+        users={users} 
+        onEdit={handleEdit} 
+        onDelete={handleDelete} 
+      />
+
+      {/* Formaulario oculto */}
       {modalOpen && (
         <UserModal
           onClose={handleCloseModal}
