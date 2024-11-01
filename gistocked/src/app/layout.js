@@ -30,7 +30,7 @@ const Layout = () => {
     } else if (pagina === 'Dashboard') {
       return <Dasboard />;
     } else if (pagina === 'Usuarios') {
-      return <Usuarios />
+      return <Usuarios usuarioInfo={usuarioInfo} />
     } else if (pagina === 'Productos') {
       return <Productos />
     } else if (pagina === 'Ventas') {

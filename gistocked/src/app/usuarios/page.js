@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserPlus } from '@fortawesome/free-solid-svg-icons';
 
-const Usuarios = () => {
+const Usuarios = ( {usuarioInfo} ) => {
   const [users, setUsers] = useState([]);
   const [editUser, setEditUser] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -83,6 +83,7 @@ const Usuarios = () => {
     <main className='p-8 min-h-screen bg-white '>
       <h1 className='mb-6 font-semibold text-blue-600 text-3xl'>Gestión de Usuarios</h1>
       <button
+        disabled={usuarioInfo.id_rol != 1}
         onClick={handleOpenModal}
         className='px-6 py-2 mb-4 flex items-center text-white bg-blue-600 rounded-md add-user-btn hover:bg-blue-700 transition duration-500'
       >
@@ -92,8 +93,18 @@ const Usuarios = () => {
           Agregar Usuario
       </button>
 
+      {usuarioInfo.id_rol != 1 &&
+      <div className='flex flex-col'>
+        <span className='py-2 mt-4 w-full font-racing_sans_one text-center text-lg text-white bg-red-600 rounded-lg'>
+            <p>Lo sentimos NO cuenta con los permisos necesarios para realizar alguna acción en esta pagina</p>
+        </span>
+      </div>
+        
+      }
+
       <UserTable 
-        users={users} 
+        usuarioInfo={usuarioInfo} // Info del usuario activo
+        users={users} // Info de los usuarios que se mostrarán en la tabla
         onEdit={handleEdit} 
         onDelete={handleDelete} 
       />

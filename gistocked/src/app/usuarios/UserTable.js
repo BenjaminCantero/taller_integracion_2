@@ -1,18 +1,18 @@
 
 import React from 'react';
 
-const UserTable = ({ users, onEdit, onDelete }) => {
+const UserTable = ({ usuarioInfo, users, onEdit, onDelete }) => {
   return (
-    <div className='mt-8'>
-      <table className='min-w-full bg-white shadow-lg shadow-blue-950'>
+    <div className='mt-8 bg-gray-100 shadow-lg shadow-blue-950'>
+      <table className='min-w-full bg-white'>
         <thead className='sticky top-0'>
           <tr className='text-white bg-gray-800'>
-            <th className='p-3 text-center text-md font-semibold border-r border-b border-white rounded-tl-lg'>Código Vendedor</th>
-            <th className='p-3 text-center text-md font-semibold border-r border-b border-white'>Nombre Usuario</th>
-            <th className='p-3 text-center text-md font-semibold border-r border-b border-white'>Nombre Empresa</th>
-            <th className='p-3 text-center text-md font-semibold border-r border-b border-white'>Email</th>
-            <th className='p-3 text-center text-md font-semibold border-r border-b border-white'>Rol</th>
-            <th className='p-3 text-center text-md font-semibold          border-b border-white rounded-tr-lg'>Acciones</th>
+            <th className='p-3 text-center text-md font-semibold'>Código Vendedor</th>
+            <th className='p-3 text-center text-md font-semibold'>Nombre Usuario</th>
+            <th className='p-3 text-center text-md font-semibold'>Nombre Empresa</th>
+            <th className='p-3 text-center text-md font-semibold'>Email</th>
+            <th className='p-3 text-center text-md font-semibold'>Rol</th>
+            <th className='p-3 text-center text-md font-semibold'>Acciones</th>
           </tr>
         </thead>
 
@@ -30,6 +30,7 @@ const UserTable = ({ users, onEdit, onDelete }) => {
                 <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>
                   <div className='flex flex-col'>
                     <button
+                      disabled={usuarioInfo.id_rol != 1}
                       className='px-4 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition duration-500'
                       onClick={() => onEdit(user)}
                     >
@@ -37,6 +38,7 @@ const UserTable = ({ users, onEdit, onDelete }) => {
                     </button>
 
                     <button
+                      disabled={usuarioInfo.id_rol != 1}
                       className='px-4 py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600   focus:ring-2 focus:ring-red-400  focus:ring-opacity-75 transition duration-500'
                       onClick={() => onDelete(user.codigo_vendedor)}
                     >
