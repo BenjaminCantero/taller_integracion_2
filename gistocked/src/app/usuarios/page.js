@@ -33,11 +33,10 @@ const Usuarios = () => {
 
   {/* Agrega un nuevo usuario a la base de datos */}
   const handleAddUser = (newUser) => {
+    console.log(JSON.stringify(newUser));
     fetch('http://190.114.252.218:8000/api/usuarios/', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(newUser)
     })
       .then(response => response.json())
@@ -69,9 +68,7 @@ const Usuarios = () => {
   const handleSaveEdit = (updatedUser) => {
     fetch(`http://190.114.252.218:8000/api/usuarios/${updatedUser.codigo_vendedor}/`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(updatedUser)
     })
       .then(response => response.json())

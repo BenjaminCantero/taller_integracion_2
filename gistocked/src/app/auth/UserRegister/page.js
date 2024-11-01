@@ -33,7 +33,7 @@ export default function Register( {setActual, setUsuariosAdminTemporales} ) {
                 id_admin: 1
             });
         } catch (error) {
-            console.error('Error al conectar con la api:', error);
+            console.error('Error al agregar el usuario:', error);
         }
     };
     
