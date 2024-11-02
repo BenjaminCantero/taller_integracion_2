@@ -2,24 +2,31 @@
 'use client'
 import { useState, useEffect } from 'react';
 
-const Configuraciones = ({ usuarioInfo, setUsuarioInfo }) => {
-    // 
+const Configuraciones = ({ usuarioInfo, setUsuarioInfo, usuariosAdminTemporales, setUsuariosAdminTemporales }) => {
+    // Guardarán los cambios que quiera realizar el usuario
     const [nuevoNombre, setNuevoNombre] = useState('');
     const [nuevoCorreo, setNuevoCorreo] = useState('');
 
     // Variables gobales para todos los usuarios
     const [nombre, setNombre] = useState('');
-
-    // Variable para los administradoress
     const [correo, setCorreo] = useState('');
-    const [rol, setRol] = useState('');
+    const [contrasena, setContrasena] = useState('');
+
+    const [aux, setAux] = useState(0);
 
     useEffect(() => {
     if (usuarioInfo) {
         if (usuarioInfo.id_rol === 1) {
             setNombre(usuarioInfo.nombre_usuario);
             setCorreo(usuarioInfo.email);
-            setRol('Administrador');
+            setContrasena(usuarioInfo.password);
+            
+            for (let i=0; i<usuariosAdminTemporales.length; i++) {
+                if ( nombre == usuariosAdminTemporales[i].nombre_usuario && correo == usuariosAdminTemporales[i].email && contrasena == usuariosAdminTemporales[i].password ) {
+                    setAux(usuariosAdminTemporales[i].codigo_vendedor);
+                }
+            }
+
         } else {
             console.log('No hay un usuario activo');
         }
@@ -31,9 +38,22 @@ const Configuraciones = ({ usuarioInfo, setUsuarioInfo }) => {
         return regex.test(correo);
     };
 
-    const aceptar = () => {
+    const editarInformacion = () => {
         // Validar el nuevo correo
         const correoValido = validarCorreo(nuevoCorreo);
+        
+        // Actualiza la bd ficticia
+        setUsuariosAdminTemporales(prevState => {
+            return prevState.map(usuario => 
+                usuario.codigo_vendedor === aux
+                    ? {
+                        ...usuario,
+                        ...(nuevoNombre && { nombre_usuario: nuevoNombre }),
+                        ...(correoValido ? { email: nuevoCorreo } : {})
+                        }
+                    : usuario // Retorna el usuario sin cambios si no coincide
+            );
+        });
 
         // Actualiza el estado de usuarioInfo solo si el correo es válido
         setUsuarioInfo(prevState => ({
@@ -41,13 +61,14 @@ const Configuraciones = ({ usuarioInfo, setUsuarioInfo }) => {
             ...(nuevoNombre && { nombre_usuario: nuevoNombre }),
             ...(correoValido ? { email: nuevoCorreo } : {}) // Cambia correo solo si es válido
         }));
-
+        
         // Limpiar los campos
         setNuevoNombre('');
         setNuevoCorreo('');
     };
 
-    const cancelar = () => {
+    // Elimina la información de los campos
+    const cancelarEdicion = () => {
         setNuevoNombre('');
         setNuevoCorreo('');
         return;
@@ -119,7 +140,7 @@ const Configuraciones = ({ usuarioInfo, setUsuarioInfo }) => {
                                 <div className='flex justify-between items-center'>
                                     <button
                                         type='button'
-                                        onClick={aceptar}
+                                        onClick={editarInformacion}
                                         className='px-6 py-2 text-lg text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors'
                                     >
                                         Aceptar
@@ -127,7 +148,7 @@ const Configuraciones = ({ usuarioInfo, setUsuarioInfo }) => {
 
                                     <button
                                         type='button'
-                                        onClick={cancelar}
+                                        onClick={cancelarEdicion}
                                         className='px-6 py-2 text-lg text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors'
                                     >
                                         Cancelar

@@ -1,15 +1,30 @@
 
 import React from 'react';
 
-const UserTable = ({ usuariosAdminTemporales, usuariosVendedoresTemporales, usuarioInfo, users, onEdit, onDelete }) => {
+const UserTable = ({ 
+                      usuariosAdminTemporales, 
+                      usuariosVendedoresTemporales,
+                      setUsuariosAdminTemporales,
+                      usuarioInfo, 
+                      users, 
+                      onEdit, 
+                      onDelete,
+                      usuarioActivoTemporal,
+                      usuarioActivoApi
+                  }) => {
+
   const usuariosTablaApi = users.filter(user => user.nombre_empresa === usuarioInfo.nombre_empresa);
   const tablaEstaVaciaApi = usuariosTablaApi.length < 1;
 
   const usuariosTablaTemporales = usuariosAdminTemporales.filter(admin => admin.nombre_empresa === usuarioInfo.nombre_empresa);
   const tablaEstaVaciaTemporales = usuariosTablaTemporales.length < 1;
 
-  console.log(usuariosTablaTemporales);
-  console.log(tablaEstaVaciaTemporales);
+    // Valido solo para los usuarios Temporales
+    const eliminarUsuario = (codigo) => {
+      setUsuariosAdminTemporales(prevState => {
+        return prevState.filter(usuario => usuario.codigo_vendedor !== codigo);
+      });
+    }
 
   return (
     <div className='mt-8 bg-gray-100 shadow-md shadow-blue-950'>
@@ -26,13 +41,17 @@ const UserTable = ({ usuariosAdminTemporales, usuariosVendedoresTemporales, usua
         </thead>
 
         <tbody>
-          {tablaEstaVaciaApi && tablaEstaVaciaTemporales ? (
+        {/* ----------------------------------------------------------------------------------------------------- */}
+        {/* ---------------------------------- Muestra los usuarios de la API ----------------------------------- */}
+        {/* ----------------------------------------------------------------------------------------------------- */}
+        {usuarioActivoApi ? (
+          tablaEstaVaciaApi ? (
             <tr>
               <td colSpan='6' className='py-5 px-6 text-center text-md font-semibold'>
                 No se encontraron usuarios
               </td>
             </tr>
-          ) : !tablaEstaVaciaApi ? (
+          ) : (
             usuariosTablaApi.map(user => (
               <tr 
                 key={user.codigo_vendedor} 
@@ -62,7 +81,20 @@ const UserTable = ({ usuariosAdminTemporales, usuariosVendedoresTemporales, usua
                 </td>
               </tr>
             ))
-          ) : !tablaEstaVaciaTemporales ? (
+          )
+        ) : null}
+
+        {/* ----------------------------------------------------------------------------------------------------- */}
+        {/* --------------------------------- Muestra los usuarios Temporales ----------------------------------- */}
+        {/* ----------------------------------------------------------------------------------------------------- */}
+        {usuarioActivoTemporal ? (
+          tablaEstaVaciaTemporales ? (
+            <tr>
+              <td colSpan='6' className='py-5 px-6 text-center text-md font-semibold'>
+                No se encontraron usuarios
+              </td>
+            </tr>
+          ) : (
             usuariosTablaTemporales.map(user => (
               <tr 
                 key={user.codigo_vendedor} 
@@ -84,7 +116,7 @@ const UserTable = ({ usuariosAdminTemporales, usuariosVendedoresTemporales, usua
                     <button
                       disabled={usuarioInfo.id_rol !== 1}
                       className='px-4 py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600 focus:ring-2 focus:ring-red-400 focus:ring-opacity-75 transition duration-500'
-                      onClick={() => onDelete(user.codigo_vendedor)}
+                      onClick={() => eliminarUsuario(user.codigo_vendedor)}
                     >
                       Eliminar
                     </button>
@@ -92,7 +124,8 @@ const UserTable = ({ usuariosAdminTemporales, usuariosVendedoresTemporales, usua
                 </td>
               </tr>
             ))
-          ) : null}
+          )
+        ) : null}
         </tbody>
       </table>
     </div>

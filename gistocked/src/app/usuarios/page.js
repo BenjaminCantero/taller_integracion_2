@@ -7,7 +7,15 @@ import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserPlus } from '@fortawesome/free-solid-svg-icons';
 
-const Usuarios = ( {usuarioInfo, usuariosAdminTemporales, usuariosVendedoresTemporales} ) => {
+const Usuarios = ({
+                    usuarioInfo, 
+                    usuariosAdminTemporales, 
+                    usuariosVendedoresTemporales, 
+                    setUsuariosAdminTemporales, 
+                    usuarioActivoTemporal, 
+                    usuarioActivoApi
+                }) => {
+
   const [users, setUsers] = useState([]);
   const [editUser, setEditUser] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -105,10 +113,13 @@ const Usuarios = ( {usuarioInfo, usuariosAdminTemporales, usuariosVendedoresTemp
       <UserTable 
         usuariosAdminTemporales={usuariosAdminTemporales}
         usuariosVendedoresTemporales={usuariosVendedoresTemporales}
+        setUsuariosAdminTemporales={setUsuariosAdminTemporales}
         usuarioInfo={usuarioInfo} // Info del usuario activo
         users={users} // Info de los usuarios que se mostrarán en la tabla
         onEdit={handleEdit} 
-        onDelete={handleDelete} 
+        onDelete={handleDelete}
+        usuarioActivoTemporal={usuarioActivoTemporal}
+        usuarioActivoApi={usuarioActivoApi}
       />
 
       {/* Formaulario oculto */}
@@ -118,6 +129,10 @@ const Usuarios = ( {usuarioInfo, usuariosAdminTemporales, usuariosVendedoresTemp
           onAddUser={handleAddUser}
           onEditUser={editUser}
           onSaveEdit={handleSaveEdit}
+          usuarioActivoTemporal={usuarioActivoTemporal}
+          usuarioActivoApi={usuarioActivoApi}
+          usuariosAdminTemporales={usuariosAdminTemporales}
+          setUsuariosAdminTemporales={setUsuariosAdminTemporales}
         />
       )}
     </main>

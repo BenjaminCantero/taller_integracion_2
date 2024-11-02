@@ -6,7 +6,17 @@ import Register from './auth/UserRegister/page';
 
 import { useState } from 'react';
 
-const Autentificacion = ({ usuariosAdminTemporales, usuariosVendedoresTemporales, setUsuariosAdminTemporales, usuarioActivo, setUsuarioActivo, setUsuarioInfo }) => {
+const Autentificacion = ({ 
+                            usuariosAdminTemporales, 
+                            usuariosVendedoresTemporales, 
+                            setUsuariosAdminTemporales, 
+                            usuarioActivo, 
+                            setUsuarioActivo, 
+                            setUsuarioInfo, 
+                            setUsuarioActivoTemporal, 
+                            setUsuarioActivoApi
+                        }) => {
+                          
 const [actual, setActual] = useState('Login');
 
   const controlRutas = () => {
@@ -19,6 +29,8 @@ const [actual, setActual] = useState('Login');
             setUsuarioActivo={setUsuarioActivo}
             setUsuarioInfo={setUsuarioInfo}
             setActual={setActual}
+            setUsuarioActivoTemporal={setUsuarioActivoTemporal}
+            setUsuarioActivoApi={setUsuarioActivoApi}
           />
       );
     } else if (actual == 'Register') {
@@ -26,6 +38,7 @@ const [actual, setActual] = useState('Login');
           <Register
             setActual={setActual}
             setUsuariosAdminTemporales={setUsuariosAdminTemporales}
+            usuariosAdminTemporales={usuariosAdminTemporales}
           />
       )
     }

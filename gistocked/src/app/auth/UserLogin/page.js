@@ -4,7 +4,16 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios';
 
-export default function Login( {usuariosAdminTemporales, usuariosVendedoresTemporales, usuarioActivo, setUsuarioActivo, setUsuarioInfo, setActual} ) {
+export default function Login({
+                                    usuariosAdminTemporales, 
+                                    usuariosVendedoresTemporales, 
+                                    usuarioActivo, setUsuarioActivo, 
+                                    setUsuarioInfo, 
+                                    setActual, 
+                                    setUsuarioActivoTemporal, 
+                                    setUsuarioActivoApi
+                            }) {
+                                
     const [baseForm, setBaseForm] = useState(true);
     const [tipoLogin, setTipoLogin] = useState(false);
     const [loginAdmin, setLoginAdmin] = useState(false);
@@ -46,6 +55,7 @@ export default function Login( {usuariosAdminTemporales, usuariosVendedoresTempo
         for (let i = 0; i < usuariosAdminTemporales.length; i++) {
             if (inputCorreoFormAdmins === usuariosAdminTemporales[i].email && inputContrasenaFormAdmins === usuariosAdminTemporales[i].password && inputEmpresaFormAdmins === usuariosAdminTemporales[i].nombre_empresa &&  1 === usuariosAdminTemporales[i].id_rol) {
                 setUsuarioInfo(usuariosAdminTemporales[i]);
+                setUsuarioActivoTemporal(true);
                 setUsuarioActivo(true);
                 setMensaje('');
                 return true;
@@ -59,6 +69,7 @@ export default function Login( {usuariosAdminTemporales, usuariosVendedoresTempo
         for (let i = 0; i < usuariosAdminApi.length; i++) {
             if (inputCorreoFormAdmins === usuariosAdminApi[i].email && inputContrasenaFormAdmins === usuariosAdminApi[i].password && inputEmpresaFormAdmins === usuariosAdminApi[i].nombre_empresa && 1 === usuariosAdminApi[i].id_rol) {
                 setUsuarioInfo(usuariosAdminApi[i]);
+                setUsuarioActivoApi(true);
                 setUsuarioActivo(true);
                 setMensaje('');
                 return true;

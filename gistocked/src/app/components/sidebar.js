@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome, faTachometerAlt, faUsers, faBoxes, faShoppingCart, faCog, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 
-const Sidebar = ( {children, setUsuarioActivo, setUsuarioInfo, usuarioInfo, setPagina} ) => {
+const Sidebar = ( {children, setUsuarioActivo, setUsuarioInfo, usuarioInfo, setPagina, setUsuarioActivoTemporal, setUsuarioActivoApi} ) => {
   const cambiarPagina = (pagina) => {
     console.log(pagina)
     setPagina(pagina);
@@ -14,6 +14,8 @@ const Sidebar = ( {children, setUsuarioActivo, setUsuarioInfo, usuarioInfo, setP
     setPagina('Home');
     setUsuarioInfo({});
     setUsuarioActivo(false);
+    setUsuarioActivoTemporal(false);
+    setUsuarioActivoApi(false);
     return
   }
   return (

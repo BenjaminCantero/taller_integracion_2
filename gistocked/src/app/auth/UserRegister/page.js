@@ -4,7 +4,7 @@
 import { useState } from "react"
 import axios from "axios";
 
-export default function Register( {setActual, setUsuariosAdminTemporales} ) {
+export default function Register( {setActual, setUsuariosAdminTemporales, usuariosAdminTemporales} ) {
 
     const [inputNombreForm, setInputNombreForm] = useState('');
     const [inputCorreoForm, setInputCorreoForm] = useState('');
@@ -40,6 +40,7 @@ export default function Register( {setActual, setUsuariosAdminTemporales} ) {
     // Crear un nuevo usuario
     const crearUsuarioAdministrador = () => {
         const usuarioNuevo = {
+            codigo_vendedor: usuariosAdminTemporales.length +1,
             nombre_usuario: inputNombreForm,
             nombre_empresa: inputEmpresaForm,
             email: inputCorreoForm,

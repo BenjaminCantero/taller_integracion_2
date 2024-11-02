@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 
-const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
+const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTemporal, usuarioActivoApi, usuariosAdminTemporales, setUsuariosAdminTemporales }) => {
   const [nombreUsuario, setNombreUsuario] = useState('');
   const [nombreEmpresa, setNombreEmpresa] = useState('');
   const [password, setPassword] = useState('');
@@ -23,6 +23,45 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
     }
   }, [onEditUser]);
 
+  // Valido solo para los usuarios Temporales
+  const crearUsuario = () => {
+    const usuarioNuevo = {
+      codigo_vendedor: usuariosAdminTemporales.length +1,
+      nombre_usuario: nombreUsuario,
+      nombre_empresa: nombreEmpresa,
+      password: password,
+      email: email,
+      pin: 123,
+      id_rol: idRol,
+      id_admin: 1,
+    }
+    setUsuariosAdminTemporales(prevUsuarios => [
+        ...prevUsuarios,
+        usuarioNuevo
+    ]);
+    onClose();
+};
+
+  const editarInformacion = () => {  
+    // Actualiza la bd ficticia
+    setUsuariosAdminTemporales(prevState => {
+        return prevState.map(usuario => 
+            usuario.codigo_vendedor === onEditUser.codigo_vendedor
+                ? {
+                    ...usuario,
+                    ...(nombreUsuario && { nombre_usuario: nombreUsuario }),
+                    ...(email ? { email: email } : {}),
+                    ...(password ? { password: password} : {}),
+                    ...(nombreEmpresa ? { nombre_empresa: nombreEmpresa} : {}),
+                    ...(idRol ? {id_rol: idRol} : {})
+                    }
+                : usuario // Retorna el usuario sin cambios si no coincide
+        );
+    });
+    onClose();
+};
+
+  /* ---------------------------------------------------------- */
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -40,12 +79,19 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
 
     // Selecciona la operación a realizar
     if (onEditUser) {
-      onSaveEdit(userPayload);
+      if (usuarioActivoApi) {
+        onSaveEdit(userPayload);
+      } else if (usuarioActivoTemporal) {
+        editarInformacion();
+      }
     } else {
-      onAddUser(userPayload);
+      if (usuarioActivoApi) {
+        onAddUser(userPayload);
+      } else if (usuarioActivoTemporal) {
+        crearUsuario();
+      }
     }
-
-    // Cierra el formulario
+    
     onClose();
   };
 
@@ -84,19 +130,6 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
             </li>
 
             <li className='mb-6'>
-              <label htmlFor='nombreEmpresa' className='block text-lg text-gray-700 font-medium mb-2'>Nombre de Empresa</label>
-              <input
-                type='text'
-                id='nombreEmpresa'
-                required
-                value={nombreEmpresa}
-                onChange={(e) => setNombreEmpresa(e.target.value)}
-                placeholder={onEditUser ? onEditUser.nombreUsuario : 'Nombre de la Empresa'}
-                className='inputsUsuarios px-4 py-2 w-full text-black text-lg border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
-              />
-            </li>
-
-            <li className='mb-6'>
               <label htmlFor='email' className='block text-lg text-gray-700 font-medium mb-2'>Email</label>
               <input
                 type='email'
@@ -109,7 +142,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
               />
             </li>
 
-            <li className='mb-6'>
+                        <li className='mb-6'>
               <label htmlFor='password' className='block text-lg text-gray-700 font-medium mb-2'>Contraseña</label>
               <input
                 type='password'
@@ -118,6 +151,19 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder={onEditUser ? ('X'.repeat(onEditUser.password.length)) : 'Nueva Contraseña'}
+                className='inputsUsuarios px-4 py-2 w-full text-black text-lg border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
+              />
+            </li>
+
+            <li className='mb-6'>
+              <label htmlFor='nombreEmpresa' className='block text-lg text-gray-700 font-medium mb-2'>Nombre de Empresa</label>
+              <input
+                type='text'
+                id='nombreEmpresa'
+                required
+                value={nombreEmpresa}
+                onChange={(e) => setNombreEmpresa(e.target.value)}
+                placeholder={onEditUser ? onEditUser.nombreUsuario : 'Nombre de la Empresa'}
                 className='inputsUsuarios px-4 py-2 w-full text-black text-lg border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
               />
             </li>

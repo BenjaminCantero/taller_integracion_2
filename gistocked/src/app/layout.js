@@ -16,6 +16,8 @@ import Configuraciones from './configuraciones/page';
 import { useState, useEffect } from 'react';
 
 const Layout = () => {
+  const [usuarioActivoTemporal, setUsuarioActivoTemporal] = useState(false);
+  const [usuarioActivoApi, setUsuarioActivoApi] = useState(false);
   const [usuarioActivo, setUsuarioActivo] = useState(false);
   const [usuarioInfo, setUsuarioInfo] = useState({});
   const [pagina, setPagina] = useState('');
@@ -23,6 +25,7 @@ const Layout = () => {
   const [usuariosAdminTemporales, setUsuariosAdminTemporales] = useState({});
   const [usuariosVendedoresTemporales, setUsuariosVendedoresTemporales] = useState({});
 
+  console.log(usuariosAdminTemporales);
 
 // -----------------------------------------------
 // Carga la información de los usuarios temporales
@@ -55,13 +58,13 @@ const Layout = () => {
     } else if (pagina === 'Dashboard') {
       return <Dasboard />;
     } else if (pagina === 'Usuarios') {
-      return <Usuarios usuarioInfo={usuarioInfo} usuariosAdminTemporales={usuariosAdminTemporales} usuariosVendedoresTemporales={usuariosVendedoresTemporales}/>
+      return <Usuarios usuarioInfo={usuarioInfo} usuariosAdminTemporales={usuariosAdminTemporales} usuariosVendedoresTemporales={usuariosVendedoresTemporales} setUsuariosAdminTemporales={setUsuariosAdminTemporales} usuarioActivoTemporal={usuarioActivoTemporal} usuarioActivoApi={usuarioActivoApi}/>
     } else if (pagina === 'Productos') {
       return <Productos />
     } else if (pagina === 'Ventas') {
       return <ProductManager />
     } else if  (pagina === 'Configuraciones') {
-      return <Configuraciones usuarioInfo={usuarioInfo} setUsuarioInfo={setUsuarioInfo}/>
+      return <Configuraciones usuarioInfo={usuarioInfo} setUsuarioInfo={setUsuarioInfo} usuariosAdminTemporales={usuariosAdminTemporales} setUsuariosAdminTemporales={setUsuariosAdminTemporales}/>
     }
   };
 
@@ -78,6 +81,8 @@ const Layout = () => {
               setUsuarioActivo={setUsuarioActivo}
               setUsuarioInfo={setUsuarioInfo}
               usuarioInfo={usuarioInfo}
+              setUsuarioActivoTemporal={setUsuarioActivoTemporal}
+              setUsuarioActivoApi={setUsuarioActivoApi}
             />
           ) : (
             <Sidebar
@@ -85,6 +90,8 @@ const Layout = () => {
               setUsuarioInfo={setUsuarioInfo}
               usuarioInfo={usuarioInfo}
               setPagina={setPagina}
+              setUsuarioActivoTemporal={setUsuarioActivoTemporal}
+              setUsuarioActivoApi={setUsuarioActivoApi}
               >
                 {renderPage()}
             </Sidebar>
