@@ -21,7 +21,7 @@ const Layout = () => {
   const [pagina, setPagina] = useState('');
 
   useEffect(() => {
-    setPagina('Home'); // Esto se ejecutará solo una vez al montar el componente
+    setPagina('Home'); 
   }, []);
 
   const renderPage = () => {
@@ -30,7 +30,7 @@ const Layout = () => {
     } else if (pagina === 'Dashboard') {
       return <Dasboard />;
     } else if (pagina === 'Usuarios') {
-      return <Usuarios />
+      return <Usuarios usuarioInfo={usuarioInfo} />
     } else if (pagina === 'Productos') {
       return <Productos />
     } else if (pagina === 'Ventas') {

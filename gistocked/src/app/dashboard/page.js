@@ -1,291 +1,229 @@
-"use client"; 
-import React, { useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { LineChart, Line } from 'recharts';
-import { jsPDF } from 'jspdf';
-import html2canvas from 'html2canvas';
-import { FaShoppingCart, FaMoneyBill, FaUsers, FaBoxOpen } from 'react-icons/fa'; // Iconos
-import { saveAs } from 'file-saver';
-import Papa from 'papaparse'; // Librería para exportar CSV
+'use client';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { CSVLink } from "react-csv";
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import { FaShoppingCart, FaMoneyBill, FaUsers, FaBoxOpen } from 'react-icons/fa';
 
-// Datos de ejemplo
-const salesData = [
-  { period: 'Ene', sales: 30 },
-  { period: 'Feb', sales: 40 },
-  { period: 'Mar', sales: 45 },
-  { period: 'Abr', sales: 55 },
-  { period: 'May', sales: 50 },
-  { period: 'Jun', sales: 60 },
-];
-
-const revenueData = [
-  { name: 'Monitor Samsung', value: 1200 },
-  { name: 'Laptop HP', value: 1500 },
-  { name: 'Teclado Logitech', value: 300 },
-  { name: 'Mouse Razer', value: 200 },
-];
-
-const latestSales = [
-  { id: 1, product: 'Monitor Samsung', quantity: 2, date: '08/10/2024' },
-  { id: 2, product: 'Laptop HP', quantity: 1, date: '07/10/2024' },
-  { id: 3, product: 'Teclado Logitech', quantity: 3, date: '06/10/2024' },
-];
-
-// Función para descargar el gráfico como PDF
-const downloadChartAsPDF = (chartId, title) => {
-  const input = document.getElementById(chartId);
-
-  html2canvas(input).then((canvas) => {
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF();
-    pdf.addImage(imgData, 'PNG', 10, 10, 180, 160);
-    pdf.save(`${title}.pdf`);
+// Función para exportar a PDF
+const exportToPDF = (title, data) => {
+  const doc = new jsPDF();
+  doc.text(title, 10, 10);
+  doc.autoTable({
+    head: [Object.keys(data[0])],
+    body: data.map(row => Object.values(row)),
   });
-};
-
-// Función para descargar datos en CSV
-const downloadDataAsCSV = (data, filename) => {
-  const csv = Papa.unparse(data);
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  saveAs(blob, `${filename}.csv`);
+  doc.save(`${title}.pdf`);
 };
 
 const Dashboard = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState('Mensual');
+  const [salesCount, setSalesCount] = useState(null);
+  const [salesRevenue, setSalesRevenue] = useState(null);
+  const [userCount, setUserCount] = useState(null);
+  const [productCount, setProductCount] = useState(null);
+  const [monthlySales, setMonthlySales] = useState([]);
+  const [productRevenue, setProductRevenue] = useState([]);
+  const [annualComparison, setAnnualComparison] = useState([]);
+  const [recentSales, setRecentSales] = useState([]);
+  const [summary, setSummary] = useState({});
+  const [productAnalysis, setProductAnalysis] = useState([]);
 
-  const getSalesData = () => {
-    switch (selectedPeriod) {
-      case 'Diario':
-        return salesData.slice(0, 1); // Solo un día como ejemplo
-      case 'Mensual':
-        return salesData;
-      case 'Anual':
-        return salesData; 
-      default:
-        return salesData;
-    }
-  };
+  useEffect(() => {
+    // Cargar datos con Axios
+    axios.get('http://190.114.252.218:8000/api/ventas')
+      .then(response => {
+        setSalesCount(response.data.length);
+        const totalRevenue = response.data.reduce((acc, sale) => acc + sale.amount, 0);
+        setSalesRevenue(totalRevenue);
+      })
+      .catch(error => console.error("Error fetching sales data:", error));
+
+    axios.get('http://190.114.252.218:8000/api/usuarios')
+      .then(response => setUserCount(response.data.length))
+      .catch(error => console.error("Error fetching user data:", error));
+
+    axios.get('http://190.114.252.218:8000/api/inventarios')
+      .then(response => setProductCount(response.data.length))
+      .catch(error => console.error("Error fetching product data:", error));
+
+    axios.get('http://190.114.252.218:8000/api/ventas-mensuales')
+      .then(response => setMonthlySales(response.data))
+      .catch(error => console.error("Error fetching monthly sales data:", error));
+
+    axios.get('http://190.114.252.218:8000/api/ingresos-productos')
+      .then(response => setProductRevenue(response.data))
+      .catch(error => console.error("Error fetching product revenue data:", error));
+
+    axios.get('http://190.114.252.218:8000/api/comparativa-anual')
+      .then(response => setAnnualComparison(response.data))
+      .catch(error => console.error("Error fetching annual comparison data:", error));
+
+    axios.get('http://190.114.252.218:8000/api/ventas-recientes')
+      .then(response => setRecentSales(response.data))
+      .catch(error => console.error("Error fetching recent sales data:", error));
+
+    axios.get('http://190.114.252.218:8000/api/resumen')
+      .then(response => setSummary(response.data))
+      .catch(error => console.error("Error fetching summary data:", error));
+
+    axios.get('http://190.114.252.218:8000/api/analisis-productos')
+      .then(response => setProductAnalysis(response.data))
+      .catch(error => console.error("Error fetching product analysis data:", error));
+  }, []);
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-5xl font-bold text-gray-800 text-center mb-10">Dashboard de Ventas</h1>
+    <div className="p-6 bg-white min-h-screen text-gray-800">
+      <h1 className="text-5xl font-extrabold text-center mb-10 text-primary">Dashboard de Ventas</h1>
 
-      <StatsGrid />
-      <ChartsGrid
-        selectedPeriod={selectedPeriod}
-        setSelectedPeriod={setSelectedPeriod}
-        getSalesData={getSalesData}
+      <StatsGrid 
+        salesCount={salesCount} 
+        salesRevenue={salesRevenue} 
+        userCount={userCount} 
+        productCount={productCount} 
       />
-      <LatestSalesTable data={latestSales} />
-      <SummaryPanel salesData={salesData} />
-      <ExportReportButton data={salesData} />
-      <CustomerAnalysis latestSales={latestSales} />
 
-      <button 
-        onClick={() => downloadDataAsCSV(salesData, 'SalesData')} 
-        className="mt-6 w-full px-4 py-3 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition duration-200">
-        Descargar Datos en CSV
-      </button>
+      <ChartsGrid 
+        monthlySales={monthlySales} 
+        productRevenue={productRevenue} 
+        annualComparison={annualComparison} 
+      />
+
+      <LatestSalesTable data={recentSales} />
+      <SummaryPanel summary={summary} />
+      <CustomerAnalysis analysis={productAnalysis} />
     </div>
   );
 };
 
-// Definición del componente StatCard
+// StatsGrid Component
+const StatsGrid = ({ salesCount, salesRevenue, userCount, productCount }) => (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <StatCard title="Cantidad de Ventas" value={salesCount ?? "Cargando..."} icon={<FaShoppingCart />} />
+    <StatCard title="Ingresos por Ventas" value={salesRevenue != null ? `$${salesRevenue}` : "Cargando..."} icon={<FaMoneyBill />} />
+    <StatCard title="Usuarios Registrados" value={userCount ?? "Cargando..."} icon={<FaUsers />} />
+    <StatCard title="Productos Disponibles" value={productCount ?? "Cargando..."} icon={<FaBoxOpen />} />
+  </div>
+);
+
 const StatCard = ({ title, value, icon }) => (
-  <div className="bg-white p-6 rounded-lg shadow-lg flex items-center transition-transform transform hover:scale-105">
-    <div className="mr-4 text-blue-500 text-4xl">{icon}</div>
+  <div className="bg-white p-6 rounded-lg shadow-lg flex items-center transition-transform transform hover:scale-105 hover:shadow-xl">
+    <div className="mr-4 text-primary text-4xl">{icon}</div>
     <div>
       <h3 className="text-lg font-semibold mb-2">{title}</h3>
-      <p className="text-3xl font-bold text-gray-700">{value}</p>
+      <p className="text-3xl font-bold text-gray-800">{value}</p>
     </div>
   </div>
 );
 
-const StatsGrid = () => (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <StatCard title="Cantidad de Ventas" value="13" icon={<FaShoppingCart />} />
-    <StatCard title="Ingresos por Ventas" value="$25,060" icon={<FaMoneyBill />} />
-    <StatCard title="Usuarios Registrados" value="180" icon={<FaUsers />} />
-    <StatCard title="Productos Disponibles" value="60" icon={<FaBoxOpen />} />
+// ChartCard Component with export options
+const ChartCard = ({ title, chart, exportTitle, exportData }) => (
+  <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
+    <h2 className="text-2xl font-bold mb-4 text-primary">{title}</h2>
+    <div className="h-64">
+      <ResponsiveContainer width="100%" height="100%">
+        {chart}
+      </ResponsiveContainer>
+    </div>
+    <div className="mt-4 flex justify-between">
+      <CSVLink data={exportData} filename={`${exportTitle}.csv`} className="text-blue-600 hover:underline">Descargar CSV</CSVLink>
+      <button onClick={() => exportToPDF(exportTitle, exportData)} className="bg-blue-500 text-white px-4 py-2 rounded">Exportar a PDF</button>
+    </div>
   </div>
 );
 
-// Componente del Panel de Resumen
-const SummaryPanel = ({ salesData }) => {
-  const totalSales = salesData.reduce((acc, item) => acc + item.sales, 0);
-  const averageSales = totalSales / salesData.length;
-
-  return (
-    <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
-      <h3 className="text-xl font-bold mb-4">Resumen</h3>
-      <p className="text-lg">Total Ventas: <span className="font-semibold">{totalSales}</span></p>
-      <p className="text-lg">Promedio Mensual: <span className="font-semibold">{averageSales.toFixed(2)}</span></p>
-    </div>
-  );
-};
-
-// Componente para exportar informes
-const ExportReportButton = ({ data }) => {
-  const handleExport = () => {
-    const csvData = Papa.unparse(data);
-    const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
-    saveAs(blob, 'Informe_Personalizado.csv');
-  };
-
-  return (
-    <button onClick={handleExport} className="mt-4 w-full px-4 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition duration-200">
-      Exportar Informe
-    </button>
-  );
-};
-
-// Análisis de Clientes
-const CustomerAnalysis = ({ latestSales }) => {
-  const productSalesCount = latestSales.reduce((acc, sale) => {
-    acc[sale.product] = (acc[sale.product] || 0) + sale.quantity;
-    return acc;
-  }, {});
-
-  const sortedProducts = Object.entries(productSalesCount).sort((a, b) => b[1] - a[1]);
-
-  return (
-    <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
-      <h3 className="text-xl font-bold mb-4">Análisis de Productos</h3>
-      <ul className="list-disc list-inside">
-        {sortedProducts.map(([product, count]) => (
-          <li key={product} className="py-1">
-            {product}: <span className="font-semibold">{count} vendidos</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-};
-
-const ChartsGrid = ({ selectedPeriod, setSelectedPeriod, getSalesData }) => (
+// ChartsGrid Component
+const ChartsGrid = ({ monthlySales, productRevenue, annualComparison }) => (
   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-    <ChartCard
-      title={`Ventas ${selectedPeriod}`}
-      chart={<SalesChart data={getSalesData()} chartId="salesChart" />}
-      buttons={[
-        { label: 'Diario', onClick: () => setSelectedPeriod('Diario') },
-        { label: 'Mensual', onClick: () => setSelectedPeriod('Mensual') },
-        { label: 'Anual', onClick: () => setSelectedPeriod('Anual') },
-      ]}
-      onDownload={() => downloadChartAsPDF('salesChart', `Ventas_${selectedPeriod}`)}
-    />
-    <ChartCard
-      title="Ingresos por Producto"
-      chart={<RevenueChart data={revenueData} chartId="revenueChart" />}
-      onDownload={() => downloadChartAsPDF('revenueChart', 'Ingresos')}
-    />
-    {/* Comparativa Anual/Mensual */}
-    <ChartCard
-      title="Comparativa Mensual/Anual"
-      chart={<SalesComparisonChart currentSalesData={salesData} previousSalesData={salesData} />}
-    />
+    <ChartCard title="Ventas Mensuales" chart={<SalesChart data={monthlySales} />} exportTitle="Ventas Mensuales" exportData={monthlySales} />
+    <ChartCard title="Ingresos por Productos" chart={<RevenueChart data={productRevenue} />} exportTitle="Ingresos por Productos" exportData={productRevenue} />
+    <ChartCard title="Comparativa Anual/Mensual" chart={<ComparisonChart data={annualComparison} />} exportTitle="Comparativa Anual" exportData={annualComparison} />
   </div>
 );
 
-// Componente para gráficos de ventas
 const SalesChart = ({ data }) => (
   <ResponsiveContainer width="100%" height={300}>
     <LineChart data={data}>
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="period" />
-      <YAxis />
-      <Tooltip />
+      <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+      <XAxis dataKey="month" tick={{ fill: "#374151" }} />
+      <YAxis tick={{ fill: "#374151" }} />
+      <Tooltip contentStyle={{ backgroundColor: '#F9FAFB', borderColor: 'gray' }} />
       <Legend />
-      <Line type="monotone" dataKey="sales" stroke="#3b82f6" strokeWidth={2} />
+      <Line type="monotone" dataKey="sales" stroke="#3B82F6" strokeWidth={2} />
     </LineChart>
   </ResponsiveContainer>
 );
 
-// Gráfico de ingresos
 const RevenueChart = ({ data }) => (
   <ResponsiveContainer width="100%" height={300}>
     <BarChart data={data}>
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="name" />
-      <YAxis />
-      <Tooltip />
+      <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+      <XAxis dataKey="product" tick={{ fill: "#374151" }} />
+      <YAxis tick={{ fill: "#374151" }} />
+      <Tooltip contentStyle={{ backgroundColor: '#F9FAFB', borderColor: 'gray' }} />
       <Legend />
-      <Bar dataKey="value" fill="#3b82f6" />
+      <Bar dataKey="revenue" fill="#10B981" />
     </BarChart>
   </ResponsiveContainer>
 );
 
-// Gráfico de comparativa
-const SalesComparisonChart = ({ currentSalesData, previousSalesData }) => {
-  const currentSales = currentSalesData.reduce((acc, item) => acc + item.sales, 0);
-  const previousSales = previousSalesData.reduce((acc, item) => acc + item.sales, 0);
-  
-  const data = [
-    { name: 'Este Año', sales: currentSales },
-    { name: 'Año Pasado', sales: previousSales },
-  ];
+const ComparisonChart = ({ data }) => (
+  <ResponsiveContainer width="100%" height={300}>
+    <LineChart data={data}>
+      <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+      <XAxis dataKey="year" tick={{ fill: "#374151" }} />
+      <YAxis tick={{ fill: "#374151" }} />
+      <Tooltip contentStyle={{ backgroundColor: '#F9FAFB', borderColor: 'gray' }} />
+      <Legend />
+      <Line type="monotone" dataKey="sales" stroke="#3B82F6" strokeWidth={2} />
+      <Line type="monotone" dataKey="revenue" stroke="#F59E0B" strokeWidth={2} />
+    </LineChart>
+  </ResponsiveContainer>
+);
 
-  return (
-    <ResponsiveContainer width="100%" height={300}>
-      <BarChart data={data}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
-        <YAxis />
-        <Tooltip />
-        <Legend />
-        <Bar dataKey="sales" fill="#3b82f6" />
-      </BarChart>
-    </ResponsiveContainer>
-  );
-};
-
-// Tabla de ventas recientes
+// Latest Sales Table Component
 const LatestSalesTable = ({ data }) => (
   <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
-    <h2 className="text-2xl font-bold mb-4">Ventas Recientes</h2>
-    <table className="min-w-full bg-white rounded-lg shadow-md">
-      <thead>
-        <tr className="bg-gray-200">
-          <th className="py-2 px-4 text-left">Producto</th>
-          <th className="py-2 px-4 text-left">Cantidad</th>
-          <th className="py-2 px-4 text-left">Fecha</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((sale) => (
-          <tr key={sale.id} className="border-t">
-            <td className="py-2 px-4">{sale.product}</td>
-            <td className="py-2 px-4">{sale.quantity}</td>
-            <td className="py-2 px-4">{sale.date}</td>
+    <h2 className="text-2xl font-bold mb-4 text-primary">Ventas Recientes</h2>
+    <div className="overflow-x-auto">
+      <table className="w-full text-left">
+        <thead>
+          <tr className="bg-gray-200 text-gray-700 uppercase text-sm">
+            <th className="py-3 px-6">ID</th>
+            <th className="py-3 px-6">Producto</th>
+            <th className="py-3 px-6">Cantidad</th>
+            <th className="py-3 px-6">Fecha</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {data.map((sale, index) => (
+            <tr key={index} className="hover:bg-gray-100">
+              <td className="py-3 px-6">{sale.id}</td>
+              <td className="py-3 px-6">{sale.product}</td>
+              <td className="py-3 px-6">{sale.quantity}</td>
+              <td className="py-3 px-6">{new Date(sale.date).toLocaleDateString()}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   </div>
 );
 
-// Componente para las tarjetas de gráficos
-const ChartCard = ({ title, chart, buttons, onDownload }) => (
-  <div className="bg-white rounded-lg shadow-lg p-6 transition-all duration-200 hover:shadow-xl">
-    <h2 className="text-xl font-bold mb-4">{title}</h2>
-    <div className="flex justify-between mb-4">
-      <div>
-        {buttons && buttons.map((btn, index) => (
-          <button 
-            key={index} 
-            onClick={btn.onClick} 
-            className="mr-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-200">
-            {btn.label}
-          </button>
-        ))}
-      </div>
-      <button 
-        onClick={onDownload} 
-        className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition duration-200">
-        Descargar Gráfico
-      </button>
-    </div>
-    {chart}
+// Summary Panel Component
+const SummaryPanel = ({ summary }) => (
+  <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
+    <h2 className="text-2xl font-bold mb-4 text-primary">Resumen de Actividades</h2>
+    <p>{summary.description}</p>
+  </div>
+);
+
+// Customer Analysis Component
+const CustomerAnalysis = ({ analysis }) => (
+  <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
+    <h2 className="text-2xl font-bold mb-4 text-primary">Análisis de Clientes</h2>
+    {/* Similar table or chart could go here */}
   </div>
 );
 
