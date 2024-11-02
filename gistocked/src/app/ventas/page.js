@@ -2,10 +2,11 @@
 
 import BarcodeScanner from 'react-qr-barcode-scanner';
 import React, { useState } from 'react';
-import BarcodeScannerModal from '../components/CodigoDeBarras';
 import SalesTable from '../components/SalesTable';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import axios from '../../app/api/services/axiosConfig';
+import { getProductos, addProducto, updateProducto, deleteProducto } from '../api/services/apiServices';
+import jsPDF from 'jspdf';
 
 const SalesPage = () => {
   const [sales, setSales] = useState([]);
@@ -15,14 +16,25 @@ const SalesPage = () => {
   const [isNewSaleModalOpen, setIsNewSaleModalOpen] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
-
   const [newSaleData, setNewSaleData] = useState({
     producto: '',
     cantidad: 1,
     precio: 0,
     fecha: new Date().toLocaleDateString('es-ES'),
   });
+
+  React.useEffect(() => {
+    const fetchSales = async () => {
+      try {
+        const response = await axios.get('api/ventas');
+        setSales(response.data);
+      } catch (error) {
+        console.error("Error al cargar las ventas:", error);
+      }
+    };
+    fetchSales();
+  }, []);
+
   const handleEditSale = (id) => {
     const saleToEdit = sales.find((sale) => sale.id === id);
     if (saleToEdit) {
@@ -32,56 +44,36 @@ const SalesPage = () => {
         precio: saleToEdit.precio,
         fecha: new Date(saleToEdit.fecha).toLocaleDateString('es-ES'),
       });
-      setIsNewSaleModalOpen(true); // Abre el modal para editar la venta
-    }
-  };  
- 
-  React.useEffect(() => {
-    const fetchSales = async () => {
-      try {
-        const response = await axios.get('/ventas');
-        setSales(response.data);
-      } catch (error) {
-        console.error("Error al cargar las ventas:", error);
-      }
-    };
-    fetchSales();
-  }, []);
-
-  const handleNewSaleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const newSale = {
-        ...newSaleData,
-        total: newSaleData.cantidad * newSaleData.precio,
-      };
-
-      const response = await axios.post('/ventas', newSale);
-      setSales([...sales, response.data]);
-      
-      setNewSaleData({
-        producto: '',
-        cantidad: 1,
-        precio: 0,
-        fecha: new Date().toLocaleDateString('es-ES'),
-      });
-      setIsNewSaleModalOpen(false);
-    } catch (error) {
-      alert("Error al añadir la venta");
+      setIsNewSaleModalOpen(true);
     }
   };
+
+  const handleNewSaleSubmit = async () => {
+    if (!newSaleData.producto || newSaleData.cantidad <= 0 || newSaleData.precio <= 0) {
+      alert("Por favor, completa todos los campos de producto, cantidad y precio correctamente.");
+      return;
+    }
+
+    try {
+      const response = await addProducto(newSaleData); // Usando addProducto para agregar una nueva venta
+      setSales([...sales, response]);
+      alert("Producto agregado con éxito.");
+    } catch (error) {
+      console.error("Error al agregar el producto:", error);
+      alert("No se pudo agregar el producto. Por favor, verifica los datos.");
+    }
+  };
+
   const handleNewSale = () => {
-    // Abre el modal o el formulario para registrar una nueva venta
     setIsNewSaleModalOpen(true);
-  };  
+  };
+
   const handleScan = async (data) => {
     if (data) {
       const scannedBarcode = data;
       try {
-        const response = await axios.get(`/producto/${scannedBarcode}`);
-        const producto = response.data;
-
-        if (response.status === 200 && producto) {
+        const producto = await getProductos(`/producto/${scannedBarcode}`); // Ajuste para usar getProductos con un parámetro
+        if (producto) {
           const newSale = {
             producto: producto.nombre,
             cantidad: 1,
@@ -106,16 +98,11 @@ const SalesPage = () => {
 
     const newQuantity = sale.cantidad + 1;
     try {
-      const response = await axios.patch(`/producto/${sale.codigoBarras}`, {
-        stock: sale.stock - 1,
-      });
-
-      if (response.status === 200) {
-        const updatedSales = sales.map((sale) =>
-          sale.id === id ? { ...sale, cantidad: newQuantity, total: newQuantity * sale.precio } : sale
-        );
-        setSales(updatedSales);
-      }
+      await updateProducto(sale.codigoBarras, { stock: sale.stock - 1 }); // Usando updateProducto para actualizar el stock
+      const updatedSales = sales.map((sale) =>
+        sale.id === id ? { ...sale, cantidad: newQuantity, total: newQuantity * sale.precio } : sale
+      );
+      setSales(updatedSales);
     } catch (error) {
       alert('Error al actualizar la cantidad');
     }
@@ -127,18 +114,25 @@ const SalesPage = () => {
 
     const newQuantity = sale.cantidad - 1;
     try {
-      const response = await axios.patch(`/producto/${sale.codigoBarras}`, {
-        stock: sale.stock + 1,
-      });
-
-      if (response.status === 200) {
-        const updatedSales = sales.map((sale) =>
-          sale.id === id ? { ...sale, cantidad: newQuantity, total: newQuantity * sale.precio } : sale
-        );
-        setSales(updatedSales);
-      }
+      await updateProducto(sale.codigoBarras, { stock: sale.stock + 1 }); // Usando updateProducto para actualizar el stock
+      const updatedSales = sales.map((sale) =>
+        sale.id === id ? { ...sale, cantidad: newQuantity, total: newQuantity * sale.precio } : sale
+      );
+      setSales(updatedSales);
     } catch (error) {
       alert('Error al disminuir la cantidad');
+    }
+  };
+
+  const handleDeleteSale = async (id) => {
+    try {
+      await deleteProducto(id); // Usando deleteProducto para eliminar la venta
+      const updatedSales = sales.filter((sale) => sale.id !== id);
+      setSales(updatedSales);
+      alert('Venta eliminada con éxito.');
+    } catch (error) {
+      console.error('Error al eliminar la venta:', error);
+      alert('No se pudo eliminar la venta. Por favor, intenta de nuevo.');
     }
   };
 
@@ -209,7 +203,7 @@ const generateInvoicePDF = async (venta) => {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = 'factura.pdf';
+  link.download = `factura.pdf`; 
   link.click();
 };
 
@@ -296,21 +290,6 @@ const handleGenerateDocument = () => {
   }
 };
 
-
-  const handleDeleteSale = async (id) => {
-    try {
-      await axios.delete(`/ventas/${id}`);
-      const updatedSales = sales.filter((sale) => sale.id !== id);
-      setSales(updatedSales);
-    } catch (error) {
-      alert('Error al eliminar la venta');
-    }
-  };
-
-  const handleSelectDocumentType = (tipoDocumento) => {
-    setIsInvoice(tipoDocumento === 'factura');
-  };
-
   const handleInvoiceSubmit = (e) => {
     e.preventDefault();
     alert(`Factura generada para RUT: ${e.target.rut.value}, Razón Social: ${e.target.razonSocial.value}`);
@@ -321,6 +300,70 @@ const handleGenerateDocument = () => {
     setPaymentMethodModal(true);
   };
 
+const FormularioFacturaBoleta = () => {
+  const [formData, setFormData] = useState({
+    tipoDocumento: 'factura', // 'factura' o 'boleta'
+    nombreCliente: '',
+    direccion: '',
+    telefono: '',
+    productos: [],
+    total: 0,
+  });
+  const [producto, setProducto] = useState({
+    nombre: '',
+    cantidad: 0,
+    precio: 0,
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleProductoChange = (e) => {
+    const { name, value } = e.target;
+    setProducto({ ...producto, [name]: value });
+  };
+
+  const agregarProducto = () => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      productos: [...prevFormData.productos, { ...producto, cantidad: Number(producto.cantidad), precio: Number(producto.precio) }],
+      total: prevFormData.total + producto.cantidad * producto.precio,
+    }));
+    setProducto({ nombre: '', cantidad: 0, precio: 0 });
+  };
+
+  const generarPDF = () => {
+    const doc = new jsPDF();
+
+    // Título del documento
+    doc.setFontSize(18);
+    doc.text(`Documento: ${formData.tipoDocumento.toUpperCase()}`, 10, 10);
+
+    // Información del cliente
+    doc.setFontSize(12);
+    doc.text(`Cliente: ${formData.nombreCliente}`, 10, 20);
+    doc.text(`Dirección: ${formData.direccion}`, 10, 30);
+    doc.text(`Teléfono: ${formData.telefono}`, 10, 40);
+
+    // Tabla de productos
+    doc.text('Productos:', 10, 50);
+    formData.productos.forEach((prod, index) => {
+      doc.text(
+        `${index + 1}. ${prod.nombre} - Cantidad: ${prod.cantidad} - Precio: ${prod.precio} - Total: ${prod.cantidad * prod.precio}`,
+        10,
+        60 + index * 10
+      );
+    });
+
+    // Total general
+    doc.text(`Total: ${formData.total.toFixed(2)}`, 10, 60 + formData.productos.length * 10);
+
+    // Guardar el PDF
+    doc.save(`${formData.tipoDocumento}.pdf`);
+  };
+};
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Gestión de Ventas</h1>
