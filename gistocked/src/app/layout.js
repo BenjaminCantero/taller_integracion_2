@@ -20,9 +20,34 @@ const Layout = () => {
   const [usuarioInfo, setUsuarioInfo] = useState({});
   const [pagina, setPagina] = useState('');
 
+  const [usuariosAdminTemporales, setUsuariosAdminTemporales] = useState({});
+  const [usuariosVendedoresTemporales, setUsuariosVendedoresTemporales] = useState({});
+
+
+// -----------------------------------------------
+// Carga la información de los usuarios temporales
+// -----------------------------------------------
   useEffect(() => {
-    setPagina('Home'); 
-  }, []);
+    const cargaUsuariosAdminTemporales = () => {
+      setUsuariosAdminTemporales(
+           [
+               { codigo_vendedor:1, nombre_usuario:'admin1', nombre_empresa:'Empresa 0', password:'123', email:'admin1@gmail.com', id_rol:1, id_admin:1}
+           ]
+       );
+   }
+
+   const cargaUsuariosVendedoresTemporales = () => {
+       setUsuariosVendedoresTemporales(
+           [
+               { id_vendedores:2, nombres:'vendedor1', apellidos:'v1', rut:'111111111', contraseña:'123', id_admin:1, id_rol:2, nombre_empresa:'Empresa 0'}
+           ]
+       )
+   }
+
+   setPagina('Home'); // Primera pagina que vera el usuario
+   cargaUsuariosAdminTemporales();
+   cargaUsuariosVendedoresTemporales();
+}, []);
 
   const renderPage = () => {
     if (pagina === 'Home') {
@@ -30,7 +55,7 @@ const Layout = () => {
     } else if (pagina === 'Dashboard') {
       return <Dasboard />;
     } else if (pagina === 'Usuarios') {
-      return <Usuarios usuarioInfo={usuarioInfo} />
+      return <Usuarios usuarioInfo={usuarioInfo} usuariosAdminTemporales={usuariosAdminTemporales} usuariosVendedoresTemporales={usuariosVendedoresTemporales}/>
     } else if (pagina === 'Productos') {
       return <Productos />
     } else if (pagina === 'Ventas') {
@@ -46,6 +71,9 @@ const Layout = () => {
         {
           !usuarioActivo ? (
             <Autentificacion
+              usuariosAdminTemporales={usuariosAdminTemporales}
+              usuariosVendedoresTemporales={usuariosVendedoresTemporales}
+              setUsuariosAdminTemporales={setUsuariosAdminTemporales}
               usuarioActivo={usuarioActivo}
               setUsuarioActivo={setUsuarioActivo}
               setUsuarioInfo={setUsuarioInfo}

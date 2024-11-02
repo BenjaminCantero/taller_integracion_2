@@ -79,7 +79,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
                 value={nombreUsuario}
                 onChange={(e) => setNombreUsuario(e.target.value)}
                 placeholder={onEditUser ? onEditUser.nombreUsuario : 'Nombre de Usuario'}
-                className='px-4 py-2 w-full text-black text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200'
+                className='inputsUsuarios px-4 py-2 w-full text-black text-lg border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
               />
             </li>
 
@@ -92,7 +92,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
                 value={nombreEmpresa}
                 onChange={(e) => setNombreEmpresa(e.target.value)}
                 placeholder={onEditUser ? onEditUser.nombreUsuario : 'Nombre de la Empresa'}
-                className='w-full px-4 py-2 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200'
+                className='inputsUsuarios px-4 py-2 w-full text-black text-lg border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
               />
             </li>
 
@@ -105,7 +105,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={onEditUser ? onEditUser.nombreUsuario : 'Nuevo Email'}
-                className='w-full px-4 py-2 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200'
+                className='inputsUsuarios px-4 py-2 w-full text-black text-lg border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
               />
             </li>
 
@@ -118,7 +118,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder={onEditUser ? ('X'.repeat(onEditUser.password.length)) : 'Nueva Contraseña'}
-                className='w-full px-4 py-2 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200'
+                className='inputsUsuarios px-4 py-2 w-full text-black text-lg border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
               />
             </li>
 

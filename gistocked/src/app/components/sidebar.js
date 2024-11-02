@@ -11,6 +11,7 @@ const Sidebar = ( {children, setUsuarioActivo, setUsuarioInfo, usuarioInfo, setP
   }
 
   const cerrarSesion = () => {
+    setPagina('Home');
     setUsuarioInfo({});
     setUsuarioActivo(false);
     return
@@ -159,7 +160,7 @@ const Sidebar = ( {children, setUsuarioActivo, setUsuarioInfo, usuarioInfo, setP
                 <li className='w-full'>
                   <div className='px-2 py-4 flex items-center hover:bg-gray-700 hover:text-red-500 transition-colors duration-700'>
                     <button
-                      type='submit'
+                      type='button'
                       onClick={cerrarSesion}
                     >
                       <FontAwesomeIcon icon={faSignOutAlt} className='mx-5 text-lg' />

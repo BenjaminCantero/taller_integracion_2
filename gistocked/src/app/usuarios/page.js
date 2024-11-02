@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserPlus } from '@fortawesome/free-solid-svg-icons';
 
-const Usuarios = ( {usuarioInfo} ) => {
+const Usuarios = ( {usuarioInfo, usuariosAdminTemporales, usuariosVendedoresTemporales} ) => {
   const [users, setUsers] = useState([]);
   const [editUser, setEditUser] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -103,6 +103,8 @@ const Usuarios = ( {usuarioInfo} ) => {
       }
 
       <UserTable 
+        usuariosAdminTemporales={usuariosAdminTemporales}
+        usuariosVendedoresTemporales={usuariosVendedoresTemporales}
         usuarioInfo={usuarioInfo} // Info del usuario activo
         users={users} // Info de los usuarios que se mostrarán en la tabla
         onEdit={handleEdit} 
