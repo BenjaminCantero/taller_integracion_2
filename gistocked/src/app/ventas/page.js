@@ -5,12 +5,12 @@ import React, { useState } from 'react';
 import SalesTable from '../components/SalesTable';
 import axios from '../../app/api/services/axiosConfig';
 import { getProductos, addProducto, updateProducto, deleteProducto } from '../api/services/apiServices';
-import jsPDF from 'jspdf';
 import { generateInvoicePDF, generateReceiptPDF } from '../ventas/pdfUtils';
 
 const SalesPage = () => {
   const [sales, setSales] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [productos, setProductos] = useState([]);
   const [isInvoice, setIsInvoice] = useState(false);
   const [paymentMethodModal, setPaymentMethodModal] = useState(false);
   const [isNewSaleModalOpen, setIsNewSaleModalOpen] = useState(false);
@@ -22,6 +22,7 @@ const SalesPage = () => {
     cantidad: 1,
     precio: 0,
     fecha: new Date().toLocaleDateString('es-ES'),
+    vendedorNombre: '',
   });
   const [formData, setFormData] = useState({
     tipoDocumento: 'boleta',
@@ -43,17 +44,17 @@ const SalesPage = () => {
       }
     };
 
-    const fetchProducts = async () => {
+    const fetchProductos = async () => {
       try {
-        const response = await getProductos(); // Obtener productos
-        setProducts(response.data);
+        const response = await axios.get('http://190.114.252.218:8000/api/inventarios/');
+        setProductos(response.data);
       } catch (error) {
-        console.error("Error al cargar los productos:", error);
+        console.error('Error al obtener productos:', error);
       }
     };
 
     fetchSales();
-    fetchProducts(); // Llamar a la función para obtener productos
+    fetchProductos(); // Llamar a la función para obtener productos
   }, []);
 
   const handleEditSale = (id) => {
@@ -69,7 +70,8 @@ const SalesPage = () => {
     }
   };
 
-  const handleNewSaleSubmit = async () => {
+  const handleNewSaleSubmit = async (e) => {
+    e.preventDefault();
     if (!newSaleData.producto || newSaleData.cantidad <= 0 || newSaleData.precio <= 0) {
       alert("Por favor, completa todos los campos de producto, cantidad y precio correctamente.");
       return;
@@ -78,6 +80,8 @@ const SalesPage = () => {
     try {
       const response = await addProducto(newSaleData); // Usando addProducto para agregar una nueva venta
       setSales([...sales, response]);
+      setIsNewSaleModalOpen(false);
+      setNewSaleData({ producto: '', cantidad: 1, precio: 0, fecha: new Date().toLocaleDateString('es-ES'), vendedorNombre: '' });
       alert("Producto agregado con éxito.");
     } catch (error) {
       console.error("Error al agregar el producto:", error);
@@ -89,7 +93,7 @@ const SalesPage = () => {
     if (data) {
       const scannedBarcode = data;
       try {
-        const response = await getInventario(); // Obteniendo el inventario completo
+        const response = await axios.get('http://190.114.252.218:8000/api/inventarios/'); // Obteniendo el inventario completo
         const producto = response.data.find(item => item.codigoBarras === scannedBarcode);
   
         if (producto) {
@@ -100,6 +104,7 @@ const SalesPage = () => {
               precio: producto.precio,
               total: producto.precio,
               fecha: new Date().toLocaleDateString('es-ES'),
+              vendedorNombre: newSaleData.vendedorNombre, // Agregar el nombre del vendedor
             };
   
             // Descontar stock del producto en el inventario
@@ -120,7 +125,6 @@ const SalesPage = () => {
     }
   };
   
-
   const handleIncreaseQuantity = async (id) => {
     const sale = sales.find((sale) => sale.id === id);
     if (!sale) return;
@@ -148,7 +152,7 @@ const SalesPage = () => {
     if (!sale || sale.cantidad <= 1) return;
   
     try {
-      const response = await getInventario();
+      const response = await axios.get('http://190.114.252.218:8000/api/inventarios/');
       const producto = response.data.find(item => item.nombre === sale.producto);
   
       if (producto) {
@@ -230,77 +234,6 @@ const SalesPage = () => {
     setPaymentMethodModal(true);
   };
 
-
-const FormularioFacturaBoleta = () => {
-  const [formData, setFormData] = useState({
-    tipoDocumento: 'boleta', // o 'factura'
-    rut: '',
-    razonSocial: '',
-    direccion: '',
-    telefono: '',
-    productos: [],
-    total: 0,
-  });
-
-  const [producto, setProducto] = useState({
-    nombre: '',
-    cantidad: 0,
-    precio: 0,
-  });
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleProductoChange = (e) => {
-    const { name, value } = e.target;
-    setProducto({ ...producto, [name]: value });
-  };
-
-  const agregarProducto = () => {
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      productos: [...prevFormData.productos, { ...producto, cantidad: Number(producto.cantidad), precio: Number(producto.precio) }],
-      total: prevFormData.total + producto.cantidad * producto.precio,
-    }));
-    setProducto({ nombre: '', cantidad: 0, precio: 0 });
-  };
-
-  const generarPDF = () => {
-    const doc = new jsPDF();
-
-    // Título del documento
-    doc.setFontSize(18);
-    doc.text(`Documento: ${formData.tipoDocumento.toUpperCase()}`, 10, 10);
-
-    // Información del cliente
-    doc.setFontSize(12);
-    doc.text(`RUT: ${formData.rut}`, 10, 20);
-    doc.text(`Razón Social: ${formData.razonSocial}`, 10, 30);
-    doc.text(`Dirección: ${formData.direccion}`, 10, 40);
-    doc.text(`Teléfono: ${formData.telefono}`, 10, 50);
-
-    // Tabla de productos
-    doc.text('Productos:', 10, 60);
-    formData.productos.forEach((prod, index) => {
-      doc.text(
-        `${index + 1}. ${prod.nombre} - Cantidad: ${prod.cantidad} - Precio: ${prod.precio} - Total: ${prod.cantidad * prod.precio}`,
-        10,
-        70 + index * 10
-      );
-    });
-
-    // Total general
-    doc.text(`Total: ${formData.total.toFixed(2)}`, 10, 70 + formData.productos.length * 10);
-
-    // Guardar el PDF
-    doc.save(`${formData.tipoDocumento}.pdf`);
-  };
-}
-
-
-
 return (
   <div className="container mx-auto p-6">
     <h1 className="text-3xl font-bold mb-6">Gestión de Ventas</h1>
@@ -330,8 +263,7 @@ return (
       handleDeleteSale={handleDeleteSale}
       handleIncreaseQuantity={handleIncreaseQuantity}
       handleDecreaseQuantity={handleDecreaseQuantity}
-    />
-
+    /> 
     {isNewSaleModalOpen && (
       <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setIsNewSaleModalOpen(false)}>
         <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
@@ -360,7 +292,7 @@ return (
               value={newSaleData.precio}
               onChange={(e) => setNewSaleData({ ...newSaleData, precio: parseFloat(e.target.value) })}
               className="border rounded w-full py-2 px-3 mb-4"
-              min="0"
+              min=" 0"
               required
             />
             <label className="block mb-2">Fecha:</label>
