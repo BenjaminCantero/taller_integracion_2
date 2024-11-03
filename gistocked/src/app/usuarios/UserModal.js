@@ -23,7 +23,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
     }
   }, [onEditUser]);
 
-  // Valido solo para los usuarios Temporales
+  // Valido solo para los usuarios Temporales (API apagada)
   const crearUsuario = () => {
     const usuarioNuevo = {
       codigo_vendedor: usuariosAdminTemporales.length +1,
@@ -42,6 +42,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
     onClose();
 };
 
+  // Valido solo para los usuarios Temporales (API apagada)
   const editarInformacion = () => {  
     // Actualiza la bd ficticia
     setUsuariosAdminTemporales(prevState => {
@@ -61,7 +62,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
     onClose();
 };
 
-  /* ---------------------------------------------------------- */
+  // Selecciona la función correcta dependiendo de si la 'API esta encendida o apagada'
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -77,17 +78,17 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
       id_admin: 1,
     };
 
-    // Selecciona la operación a realizar
-    if (onEditUser) {
-      if (usuarioActivoApi) {
+    // Controla que acción se ejecutará
+    if (onEditUser) { // Edición de un usuario
+      if (usuarioActivoApi) { // Función de la API encendida
         onSaveEdit(userPayload);
-      } else if (usuarioActivoTemporal) {
+      } else if (usuarioActivoTemporal) { // Función de la API apagada
         editarInformacion();
       }
-    } else {
-      if (usuarioActivoApi) {
+    } else { // Creación de usuario
+      if (usuarioActivoApi) { // Función de la API encendida
         onAddUser(userPayload);
-      } else if (usuarioActivoTemporal) {
+      } else if (usuarioActivoTemporal) { // Función de la API apagada
         crearUsuario();
       }
     }
@@ -142,7 +143,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
               />
             </li>
 
-                        <li className='mb-6'>
+            <li className='mb-6'>
               <label htmlFor='password' className='block text-lg text-gray-700 font-medium mb-2'>Contraseña</label>
               <input
                 type='password'

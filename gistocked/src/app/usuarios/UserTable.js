@@ -13,18 +13,20 @@ const UserTable = ({
                       usuarioActivoApi
                   }) => {
 
-  const usuariosTablaApi = users.filter(user => user.nombre_empresa === usuarioInfo.nombre_empresa);
+  // Guardan la información de los usuarios cuando la API esta encendida
+  const usuariosTablaApi = users.filter(user => user.nombre_empresa === usuarioInfo.nombre_empresa && user.codigo_vendedor !== usuarioInfo.codigo_vendedor);
   const tablaEstaVaciaApi = usuariosTablaApi.length < 1;
 
-  const usuariosTablaTemporales = usuariosAdminTemporales.filter(admin => admin.nombre_empresa === usuarioInfo.nombre_empresa);
+  // Guardan la información de los usuarios cuando la API esta apagada
+  const usuariosTablaTemporales = usuariosAdminTemporales.filter(admin => admin.nombre_empresa === usuarioInfo.nombre_empresa && admin.codigo_vendedor !== usuarioInfo.codigo_vendedor);
   const tablaEstaVaciaTemporales = usuariosTablaTemporales.length < 1;
 
-    // Valido solo para los usuarios Temporales
-    const eliminarUsuario = (codigo) => {
+  // Valido solo para los usuarios Temporales (API apagada)
+  const eliminarUsuario = (codigo) => {
       setUsuariosAdminTemporales(prevState => {
         return prevState.filter(usuario => usuario.codigo_vendedor !== codigo);
       });
-    }
+  }
 
   return (
     <div className='mt-8 bg-gray-100 shadow-md shadow-blue-950'>
@@ -42,7 +44,7 @@ const UserTable = ({
 
         <tbody>
         {/* ----------------------------------------------------------------------------------------------------- */}
-        {/* ---------------------------------- Muestra los usuarios de la API ----------------------------------- */}
+        {/* ----------------------- Muestra los usuarios de la API cuando esta encendida ------------------------ */}
         {/* ----------------------------------------------------------------------------------------------------- */}
         {usuarioActivoApi ? (
           tablaEstaVaciaApi ? (
@@ -85,7 +87,7 @@ const UserTable = ({
         ) : null}
 
         {/* ----------------------------------------------------------------------------------------------------- */}
-        {/* --------------------------------- Muestra los usuarios Temporales ----------------------------------- */}
+        {/* ------------------------ Muestra los usuarios de la API cuando esta apagada ------------------------- */}
         {/* ----------------------------------------------------------------------------------------------------- */}
         {usuarioActivoTemporal ? (
           tablaEstaVaciaTemporales ? (

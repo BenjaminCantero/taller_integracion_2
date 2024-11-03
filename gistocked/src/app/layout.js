@@ -1,5 +1,5 @@
-"use client";
 
+'use client';
 import './globals.css';
 import Autentificacion from './autentificacion';
 import Sidebar from './components/sidebar';
