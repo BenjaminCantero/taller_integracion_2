@@ -4,15 +4,18 @@ import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome, faTachometerAlt, faUsers, faBoxes, faShoppingCart, faCog, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 
-const Sidebar = ( {children, setUsuarioActivo, setUsuarioInfo, usuarioInfo, setPagina} ) => {
+const Sidebar = ( {children, setUsuarioActivo, setUsuarioInfo, usuarioInfo, setPagina, setUsuarioActivoTemporal, setUsuarioActivoApi} ) => {
   const cambiarPagina = (pagina) => {
     console.log(pagina)
     setPagina(pagina);
   }
 
   const cerrarSesion = () => {
+    setPagina('Home');
     setUsuarioInfo({});
     setUsuarioActivo(false);
+    setUsuarioActivoTemporal(false);
+    setUsuarioActivoApi(false);
     return
   }
   return (
@@ -159,7 +162,7 @@ const Sidebar = ( {children, setUsuarioActivo, setUsuarioInfo, usuarioInfo, setP
                 <li className='w-full'>
                   <div className='px-2 py-4 flex items-center hover:bg-gray-700 hover:text-red-500 transition-colors duration-700'>
                     <button
-                      type='submit'
+                      type='button'
                       onClick={cerrarSesion}
                     >
                       <FontAwesomeIcon icon={faSignOutAlt} className='mx-5 text-lg' />

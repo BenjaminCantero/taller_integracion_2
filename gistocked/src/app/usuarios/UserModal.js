@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 
-const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
+const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTemporal, usuarioActivoApi, usuariosAdminTemporales, setUsuariosAdminTemporales }) => {
   const [nombreUsuario, setNombreUsuario] = useState('');
   const [nombreEmpresa, setNombreEmpresa] = useState('');
   const [password, setPassword] = useState('');
@@ -23,6 +23,46 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
     }
   }, [onEditUser]);
 
+  // Valido solo para los usuarios Temporales (API apagada)
+  const crearUsuario = () => {
+    const usuarioNuevo = {
+      codigo_vendedor: usuariosAdminTemporales.length +1,
+      nombre_usuario: nombreUsuario,
+      nombre_empresa: nombreEmpresa,
+      password: password,
+      email: email,
+      pin: 123,
+      id_rol: idRol,
+      id_admin: 1,
+    }
+    setUsuariosAdminTemporales(prevUsuarios => [
+        ...prevUsuarios,
+        usuarioNuevo
+    ]);
+    onClose();
+};
+
+  // Valido solo para los usuarios Temporales (API apagada)
+  const editarInformacion = () => {  
+    // Actualiza la bd ficticia
+    setUsuariosAdminTemporales(prevState => {
+        return prevState.map(usuario => 
+            usuario.codigo_vendedor === onEditUser.codigo_vendedor
+                ? {
+                    ...usuario,
+                    ...(nombreUsuario && { nombre_usuario: nombreUsuario }),
+                    ...(email ? { email: email } : {}),
+                    ...(password ? { password: password} : {}),
+                    ...(nombreEmpresa ? { nombre_empresa: nombreEmpresa} : {}),
+                    ...(idRol ? {id_rol: idRol} : {})
+                    }
+                : usuario // Retorna el usuario sin cambios si no coincide
+        );
+    });
+    onClose();
+};
+
+  // Selecciona la función correcta dependiendo de si la 'API esta encendida o apagada'
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -38,14 +78,21 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
       id_admin: 1,
     };
 
-    // Selecciona la operación a realizar
-    if (onEditUser) {
-      onSaveEdit(userPayload);
-    } else {
-      onAddUser(userPayload);
+    // Controla que acción se ejecutará
+    if (onEditUser) { // Edición de un usuario
+      if (usuarioActivoApi) { // Función de la API encendida
+        onSaveEdit(userPayload);
+      } else if (usuarioActivoTemporal) { // Función de la API apagada
+        editarInformacion();
+      }
+    } else { // Creación de usuario
+      if (usuarioActivoApi) { // Función de la API encendida
+        onAddUser(userPayload);
+      } else if (usuarioActivoTemporal) { // Función de la API apagada
+        crearUsuario();
+      }
     }
-
-    // Cierra el formulario
+    
     onClose();
   };
 
@@ -79,20 +126,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
                 value={nombreUsuario}
                 onChange={(e) => setNombreUsuario(e.target.value)}
                 placeholder={onEditUser ? onEditUser.nombreUsuario : 'Nombre de Usuario'}
-                className='px-4 py-2 w-full text-black text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200'
-              />
-            </li>
-
-            <li className='mb-6'>
-              <label htmlFor='nombreEmpresa' className='block text-lg text-gray-700 font-medium mb-2'>Nombre de Empresa</label>
-              <input
-                type='text'
-                id='nombreEmpresa'
-                required
-                value={nombreEmpresa}
-                onChange={(e) => setNombreEmpresa(e.target.value)}
-                placeholder={onEditUser ? onEditUser.nombreUsuario : 'Nombre de la Empresa'}
-                className='w-full px-4 py-2 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200'
+                className='inputsUsuarios px-4 py-2 w-full text-black text-lg border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
               />
             </li>
 
@@ -105,7 +139,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={onEditUser ? onEditUser.nombreUsuario : 'Nuevo Email'}
-                className='w-full px-4 py-2 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200'
+                className='inputsUsuarios px-4 py-2 w-full text-black text-lg border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
               />
             </li>
 
@@ -118,7 +152,20 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder={onEditUser ? ('X'.repeat(onEditUser.password.length)) : 'Nueva Contraseña'}
-                className='w-full px-4 py-2 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200'
+                className='inputsUsuarios px-4 py-2 w-full text-black text-lg border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
+              />
+            </li>
+
+            <li className='mb-6'>
+              <label htmlFor='nombreEmpresa' className='block text-lg text-gray-700 font-medium mb-2'>Nombre de Empresa</label>
+              <input
+                type='text'
+                id='nombreEmpresa'
+                required
+                value={nombreEmpresa}
+                onChange={(e) => setNombreEmpresa(e.target.value)}
+                placeholder={onEditUser ? onEditUser.nombreUsuario : 'Nombre de la Empresa'}
+                className='inputsUsuarios px-4 py-2 w-full text-black text-lg border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
               />
             </li>
 
