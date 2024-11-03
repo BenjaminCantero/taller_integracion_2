@@ -15,6 +15,7 @@ const SalesPage = () => {
   const [paymentMethodModal, setPaymentMethodModal] = useState(false);
   const [isNewSaleModalOpen, setIsNewSaleModalOpen] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [registeredSales, setRegisteredSales] = useState([]); // Estado para el registro de ventas
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [newSaleData, setNewSaleData] = useState({
     producto: '',
@@ -31,8 +32,6 @@ const SalesPage = () => {
     productos: [],
     total: 0,
   });
-  
-
 
   React.useEffect(() => {
     const fetchSales = async () => {
@@ -43,7 +42,18 @@ const SalesPage = () => {
         console.error("Error al cargar las ventas:", error);
       }
     };
+
+    const fetchProducts = async () => {
+      try {
+        const response = await getProductos(); // Obtener productos
+        setProducts(response.data);
+      } catch (error) {
+        console.error("Error al cargar los productos:", error);
+      }
+    };
+
     fetchSales();
+    fetchProducts(); // Llamar a la función para obtener productos
   }, []);
 
   const handleEditSale = (id) => {
@@ -73,10 +83,6 @@ const SalesPage = () => {
       console.error("Error al agregar el producto:", error);
       alert("No se pudo agregar el producto. Por favor, verifica los datos.");
     }
-  };
-
-  const handleNewSale = () => {
-    setIsNewSaleModalOpen(true);
   };
 
   const handleScan = async (data) => {
@@ -166,30 +172,17 @@ const SalesPage = () => {
   const handleDeleteSale = async (id) => {
     const sale = sales.find((sale) => sale.id === id);
     if (!sale) return;
-  
+
     try {
-      const response = await getInventario();
-      const producto = response.data.find(item => item.nombre === sale.producto);
-  
-      if (producto) {
-        // Devolver el stock al inventario al eliminar la venta
-        await updateProducto(producto.id, { stock: producto.stock + sale.cantidad });
-  
-        // Eliminar la venta de la lista
-        const updatedSales = sales.filter((sale) => sale.id !== id);
-        setSales(updatedSales);
-  
-        alert('Venta eliminada con éxito.');
-      } else {
-        alert('Producto no encontrado en el inventario');
-      }
+      await deleteProducto(sale.productoId); // Llama a deleteProducto para eliminar el producto
+      const updatedSales = sales.filter((sale) => sale.id !== id);
+      setSales(updatedSales);
+      alert('Venta eliminada con éxito.');
     } catch (error) {
       console.error('Error al eliminar la venta:', error);
       alert('No se pudo eliminar la venta. Por favor, intenta de nuevo.');
     }
   };
-  
-
 
   const handleGenerateDocument = async () => {
     // Define la variable venta con la información necesaria
@@ -306,273 +299,228 @@ const FormularioFacturaBoleta = () => {
   };
 }
 
-  return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Gestión de Ventas</h1>
-  
-      <div className="mb-6 space-x-4">
-        <button 
-          className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-          onClick={() => setIsModalOpen(true)}
-        >
-          Registrar Nueva Venta
-        </button>
-        <button 
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          onClick={() => setIsScannerOpen(true)}
-        >
-          Escanear Código de Barras
-        </button>
-      </div>
-  
-      <SalesTable
-        sales={sales.map(sale => ({
-          ...sale,
-          fecha: new Date(sale.fecha).toLocaleDateString('es-ES'),
-        }))}
-        handleEditSale={handleEditSale}
-        handleDeleteSale={handleDeleteSale}
-        handleIncreaseQuantity={handleIncreaseQuantity}
-        handleDecreaseQuantity={handleDecreaseQuantity}
-      />
-  
-      {isNewSaleModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setIsNewSaleModalOpen(false)}>
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-2xl font-bold mb-4">Registrar Nueva Venta</h2>
-            <form onSubmit={handleNewSaleSubmit}>
-              <label className="block mb-2">Producto:</label>
-              <input 
-                type="text" 
-                value={newSaleData.producto}
-                onChange={(e) => setNewSaleData({ ...newSaleData, producto: e.target.value })}
-                className="border rounded w-full py-2 px-3 mb-4"
-                required
-              />
-              <label className="block mb-2">Cantidad:</label>
-              <input 
-                type="number" 
-                value={newSaleData.cantidad}
-                onChange={(e) => setNewSaleData({ ...newSaleData, cantidad: Math.max(1, parseInt(e.target.value)) })}
-                className="border rounded w-full py-2 px-3 mb-4"
-                min="1"
-                required
-              />
-              <label className="block mb-2">Precio Unitario:</label>
-              <input 
-                type="number" 
-                value={newSaleData.precio}
-                onChange={(e) => setNewSaleData({ ...newSaleData, precio: parseFloat(e.target.value) })}
-                className="border rounded w-full py-2 px-3 mb-4"
-                min="0"
-                required
-              />
-              <label className="block mb-2">Fecha:</label>
-              <input 
-                type="date" 
-                value={newSaleData.fecha}
-                onChange={(e) => setNewSaleData({ ...newSaleData, fecha: e.target.value })}
-                className="border rounded w-full py-2 px-3 mb-4"
-                required
-              />
-              <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Agregar Venta</button>
-              <button 
-                type="button" 
-                className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
-                onClick={() => setIsNewSaleModalOpen(false)}
-              >
-                Volver
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-  
-      {isEditModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setIsEditModalOpen(false)}>
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-2xl font-bold mb-4">Editar Venta</h2>
-            <form onSubmit={handleEditSubmit}>
-              <label className="block mb-2">Producto:</label>
-              <input 
-                type="text" 
-                value={editingSale.producto}
-                onChange={(e) => setEditingSale({ ...editingSale, producto: e.target.value })}
-                className="border rounded w-full py-2 px-3 mb-4"
-                required
-              />
-              <label className="block mb-2">Cantidad:</label>
-              <input 
-                type="number" 
-                value={editingSale.cantidad}
-                onChange={(e) => setEditingSale({ ...editingSale, cantidad: Math.max(1, parseInt(e.target.value)) })}
-                className="border rounded w-full py-2 px-3 mb-4"
-                min="1"
-                required
-              />
-              <label className="block mb-2">Precio:</label>
-              <input 
-                type="number" 
-                value={editingSale.total / editingSale.cantidad}
-                onChange={(e) => setEditingSale({ ...editingSale, total: e.target.value * editingSale.cantidad })}
-                className="border rounded w-full py-2 px-3 mb-4"
-                min="0"
-                required
-              />
-              <label className="block mb-2">Fecha:</label>
-              <input 
-                type="date" 
-                value={editingSale.fecha}
-                onChange={(e) => setEditingSale({ ...editingSale, fecha: e.target.value })}
-                className="border rounded w-full py-2 px-3 mb-4"
-                required
-              />
-              <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Guardar Cambios</button>
-              <button 
-                type="button" 
-                className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
-                onClick={() => setIsEditModalOpen(false)}
-              >
-                Volver
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-  
-      {isScannerOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setIsScannerOpen(false)}>
-          <div className="bg-white p-6 rounded-lg shadow-lg" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-2xl font-bold mb-4">Escanear Código de Barras</h2>
-            <BarcodeScanner
-              onUpdate={(err, result) => {
-                if (result) handleScan(result);
-              }}
+
+
+return (
+  <div className="container mx-auto p-6">
+    <h1 className="text-3xl font-bold mb-6">Gestión de Ventas</h1>
+
+    <div className="mb- 6 space-x-4">
+      <button 
+        className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+        onClick={() => setIsNewSaleModalOpen(true)}
+      >
+        Registrar Nueva Venta
+      </button>
+      <button 
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        onClick={() => setIsScannerOpen(true)}
+      >
+        Escanear Código de Barras
+      </button>
+    </div>
+
+    <SalesTable
+      sales={sales.map(sale => ({
+        ...sale,
+        fecha: new Date(sale.fecha).toLocaleDateString('es-ES'),
+      }))}
+      registeredSales={registeredSales} // Pasa el registro de ventas a la tabla
+      handleEditSale={handleEditSale}
+      handleDeleteSale={handleDeleteSale}
+      handleIncreaseQuantity={handleIncreaseQuantity}
+      handleDecreaseQuantity={handleDecreaseQuantity}
+    />
+
+    {isNewSaleModalOpen && (
+      <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setIsNewSaleModalOpen(false)}>
+        <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
+          <h2 className="text-2xl font-bold mb-4">Registrar Nueva Venta</h2>
+          <form onSubmit={handleNewSaleSubmit}>
+            <label className="block mb-2">Producto:</label>
+            <input 
+              type="text" 
+              value={newSaleData.producto}
+              onChange={(e) => setNewSaleData({ ...newSaleData, producto: e.target.value })}
+              className="border rounded w-full py-2 px-3 mb-4"
+              required
             />
-            <button 
-              className="mt-4 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-              onClick={() => setIsScannerOpen(false)}
-            >
-              Cerrar Escáner
-            </button>
+            <label className="block mb-2">Cantidad:</label>
+            <input 
+              type="number" 
+              value={newSaleData.cantidad}
+              onChange={(e) => setNewSaleData({ ...newSaleData, cantidad: Math.max(1, parseInt(e.target.value)) })}
+              className="border rounded w-full py-2 px-3 mb-4"
+              min="1"
+              required
+            />
+            <label className="block mb-2">Precio Unitario:</label>
+            <input 
+              type="number" 
+              value={newSaleData.precio}
+              onChange={(e) => setNewSaleData({ ...newSaleData, precio: parseFloat(e.target.value) })}
+              className="border rounded w-full py-2 px-3 mb-4"
+              min="0"
+              required
+            />
+            <label className="block mb-2">Fecha:</label>
+            <input 
+              type="date" 
+              value={newSaleData.fecha}
+              onChange={(e) => setNewSaleData({ ...newSaleData, fecha: e.target.value })}
+              className="border rounded w-full py-2 px-3 mb-4"
+              required
+            />
+            <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Agregar Venta</button>
             <button 
               type="button" 
-              className="mt-4 bg-gray-500 text-white py-2 px-4 rounded ml-2"
-              onClick={() => setIsScannerOpen(false)}
+              className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
+              onClick={() => setIsNewSaleModalOpen(false)}
             >
               Volver
             </button>
-          </div>
-        </div>
-      )}
-  
-      <div className="mt-6 flex justify-start space-x-4">
-        <button 
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          onClick={() => {
-            setIsModalOpen(true);
-            setIsInvoice(false); // Inicialmente selecciona boleta
-          }}
-        >
-          Generar Factura/Boleta
-        </button>
-        <button 
-          className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
-          onClick={handleSelectPaymentMethod}
-        >
-          Seleccionar Medio de Pago
-        </button>
-      </div>
-  
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-            <h2 className="text-2xl font-bold mb-4">Datos de {isInvoice ? 'Factura' : 'Boleta'}</h2>
-            <button 
-              className={`mb-4 py-2 px-4 rounded ${isInvoice ? 'bg-blue-500' : 'bg-gray-300'}`}
-              onClick={toggleDocumentType}
-            >
-              {isInvoice ? 'Cambiar a Boleta' : 'Cambiar a Factura'}
-            </button>
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              handleGenerateDocument();
-            }}>
-              {isInvoice && (
-              <>
-                <label className="block mb-2">RUT:</label>
-                <input type="text" name="rut" className="border rounded w-full py-2 px-3 mb-4" 
-                      value={formData.rut} onChange={(e) => setFormData({ ...formData, rut: e.target.value })} required />
-                <label className="block mb-2">Razón Social:</label>
-                <input type="text" name="razonSocial" className="border rounded w-full py-2 px-3 mb-4" 
-                      value={formData.razonSocial} onChange={(e) => setFormData({ ...formData, razonSocial: e.target.value })} required />
-              </>
-            )}
-            <label className="block mb-2">Dirección:</label>
-            <input type="text" name="direccion" className="border rounded w-full py-2 px-3 mb-4" 
-                  value ={formData.direccion} onChange={(e) => setFormData({ ...formData, direccion: e.target.value })} required />
-            <label className="block mb-2">Teléfono:</label>
-            <input type="text" name="telefono" className="border rounded w-full py-2 px-3 mb-4" 
-                  value={formData.telefono} onChange={(e) => setFormData({ ...formData, telefono: e.target.value })} required />
-            <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Generar {isInvoice ? 'Factura' : 'Boleta'}</button>
-            <button type="button" className="bg-gray-500 text-white py-2 px-4 rounded ml-2" onClick={() => setIsModalOpen(false)}>Volver</button>
           </form>
         </div>
       </div>
     )}
-  
-    {isInvoice && (
+
+    {isScannerOpen && (
+      <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setIsScannerOpen(false)}>
+        <div className="bg-white p-6 rounded-lg shadow-lg" onClick={(e) => e.stopPropagation()}>
+          <h2 className="text-2xl font-bold mb-4">Escanear Código de Barras</h2>
+          <BarcodeScanner
+            onUpdate={(err, result) => {
+              if (result) handleScan(result);
+            }}
+          />
+          <button 
+            className="mt-4 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+            onClick={() => setIsScannerOpen(false)}
+          >
+            Cerrar Escáner
+          </button>
+          <button 
+            type="button" 
+            className="mt-4 bg-gray-500 text-white py-2 px-4 rounded ml-2"
+            onClick={() => setIsScannerOpen(false)}
+          >
+            Volver
+          </button>
+        </div>
+      </div>
+    )}
+
+    <div className="mt-6 flex justify-start space-x-4">
+      <button 
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        onClick={() => {
+          setIsModalOpen(true);
+setIsInvoice(false); // Inicialmente selecciona boleta
+        }}
+      >
+        Generar Factura/Boleta
+      </button>
+      <button 
+        className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
+        onClick={handleSelectPaymentMethod}
+      >
+        Seleccionar Medio de Pago
+      </button>
+    </div>
+
+    {isModalOpen && (
       <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
         <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-          <h2 className="text-2xl font-bold mb-4">Datos de Factura</h2>
-          <form onSubmit={handleInvoiceSubmit}>
-            <label className="block mb-2">RUT:</label>
-            <input type="text" name="rut" className="border rounded w-full py-2 px-3 mb-4" required />
-            <label className="block mb-2">Razón Social:</label>
-            <input type="text" name="razonSocial" className="border rounded w-full py-2 px-3 mb-4" required />
-            <button type="button"
-                      onClick={() => {
-                        generateInvoicePDF(false);
-                        setIsModalOpen(false);
-                      }}
-              className="bg-blue-500 text-white py-2 px-4 rounded">Generar Factura</button>
-            <button
-              type="button"
-              className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
-              onClick={() => setIsInvoice(false)}
-            >
-              Volver
-            </button>
-          </form>
-        </div>
+          <h2 className="text-2xl font-bold mb-4">Datos de {isInvoice ? 'Factura' : 'Boleta'}</h2>
+          <button 
+            className={`mb-4 py-2 px-4 rounded ${isInvoice ? 'bg-blue-500' : 'bg-gray-300'}`}
+            onClick={toggleDocumentType}
+          >
+            {isInvoice ? 'Cambiar a Boleta' : 'Cambiar a Factura'}
+          </button>
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            handleGenerateDocument();
+          }}>
+            {isInvoice && (
+            <>
+              <label className="block mb-2">RUT:</label>
+              <input type="text" name="rut" className="border rounded w-full py-2 px-3 mb-4" 
+                    value={formData.rut} onChange={(e) => setFormData({ ...formData, rut: e.target.value })} required />
+              <label className="block mb-2">Razón Social:</label>
+              <input type="text" name="razonSocial" className="border rounded w-full py-2 px-3 mb-4" 
+                    value={formData.razonSocial} onChange={(e) => setFormData({ ...formData, razonSocial: e.target.value })} required />
+            </>
+          )}
+          <label className="block mb-2">Dirección:</label>
+          <input type="text" name="direccion" className="border rounded w-full py-2 px-3 mb-4" 
+                value ={formData.direccion} onChange={(e) => setFormData({ ...formData, direccion: e.target.value })} required />
+          <label className="block mb-2">Teléfono:</label>
+          <input type="text" name="telefono" className="border rounded w-full py-2 px-3 mb-4" 
+                value={formData.telefono} onChange={(e) => setFormData({ ...formData, telefono: e.target.value })} required />
+          <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Generar {isInvoice ? 'Factura' : 'Boleta'}</button>
+          <button type="button" className="bg-gray-500 text-white py-2 px-4 rounded ml-2" onClick={() => setIsModalOpen(false)}>Volver</button>
+        </form>
       </div>
-    )}
-  
-    {paymentMethodModal && (
-      <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setPaymentMethodModal(false)}>
-        <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
-          <h2 className="text-2xl font-bold mb-4">Seleccionar Medio de Pago</h2>
-          <form>
-            <label className="block mb-2">Medio de Pago:</label>
-            <select className="border rounded w-full py-2 px-3 mb-4">
-              <option value="efectivo">Efectivo</option>
-              <option value="tarjeta">Tarjeta</option>
-              <option value="transferencia">Transferencia</option>
-            </select>
-            <button type="button" className="bg-blue-500 text-white py-2 px-4 rounded" onClick={() => alert('Medio de pago seleccionado')}>Seleccionar</button>
-            <button
-              type="button"
-              className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
-              onClick={() => setPaymentMethodModal(false)}
-            >
-              Volver
-            </button>
-          </form>
-        </div>
+    </div>
+  )}
+
+  {isInvoice && (
+    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+        <h2 className="text-2xl font-bold mb-4">Datos de Factura</h2>
+        <form onSubmit={handleInvoiceSubmit}>
+          <label className="block mb-2">RUT:</label>
+          <input type="text" name="rut" className="border rounded w-full py-2 px-3 mb-4" required />
+          <label className="block mb-2">Razón Social:</label>
+          <input type="text" name="razonSocial" className="border rounded w-full py-2 px-3 mb-4" required />
+          <button
+            type="button"
+            onClick={() => {
+              generateInvoicePDF(false);
+              setIsModalOpen(false);
+            }}
+            className="bg-blue-500 text-white py-2 px-4 rounded"
+          >
+            Generar Factura
+          </button>
+          <button
+            type="button"
+            className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
+            onClick={() => setIsInvoice(false)}
+          >
+            Volver
+          </button>
+        </form>
       </div>
-    )}
-  </div>
-  );
+    </div>
+  )}
+
+  {paymentMethodModal && (
+    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setPaymentMethodModal(false)}>
+      <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
+        <h2 className="text- 2xl font-bold mb-4">Seleccionar Medio de Pago</h2>
+        <form>
+          <label className="block mb-2">Medio de Pago:</label>
+          <select className="border rounded w-full py-2 px-3 mb-4">
+            <option value="efectivo">Efectivo</option>
+            <option value="tarjeta">Tarjeta</option>
+            <option value="transferencia">Transferencia</option>
+          </select>
+          <button type="button" className="bg-blue-500 text-white py-2 px-4 rounded" onClick={() => alert('Medio de pago seleccionado')}>Seleccionar</button>
+          <button
+            type="button"
+            className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
+            onClick={() => setPaymentMethodModal(false)}
+          >
+            Volver
+          </button>
+        </form>
+      </div>
+    </div>
+  )}
+</div>
+);
 };
 
 export default SalesPage;
