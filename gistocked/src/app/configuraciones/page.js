@@ -20,12 +20,7 @@ const Configuraciones = ({ usuarioInfo, setUsuarioInfo, usuariosAdminTemporales,
             setNombre(usuarioInfo.nombre_usuario);
             setCorreo(usuarioInfo.email);
             setContrasena(usuarioInfo.password);
-            
-            for (let i=0; i<usuariosAdminTemporales.length; i++) {
-                if ( nombre == usuariosAdminTemporales[i].nombre_usuario && correo == usuariosAdminTemporales[i].email && contrasena == usuariosAdminTemporales[i].password ) {
-                    setAux(usuariosAdminTemporales[i].codigo_vendedor);
-                }
-            }
+            setAux(usuarioInfo.codigo_vendedor);
 
         } else {
             console.log('No hay un usuario activo');
