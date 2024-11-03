@@ -3,10 +3,10 @@
 import BarcodeScanner from 'react-qr-barcode-scanner';
 import React, { useState } from 'react';
 import SalesTable from '../components/SalesTable';
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import axios from '../../app/api/services/axiosConfig';
 import { getProductos, addProducto, updateProducto, deleteProducto } from '../api/services/apiServices';
 import jsPDF from 'jspdf';
+import { generateInvoicePDF, generateReceiptPDF } from '../ventas/pdfUtils';
 
 const SalesPage = () => {
   const [sales, setSales] = useState([]);
@@ -22,11 +22,22 @@ const SalesPage = () => {
     precio: 0,
     fecha: new Date().toLocaleDateString('es-ES'),
   });
+  const [formData, setFormData] = useState({
+    tipoDocumento: 'boleta',
+    rut: '',
+    razonSocial: '',
+    direccion: '',
+    telefono: '',
+    productos: [],
+    total: 0,
+  });
+  
+
 
   React.useEffect(() => {
     const fetchSales = async () => {
       try {
-        const response = await axios.get('api/ventas');
+        const response = await axios.get('http://190.114.252.218:8000/api/ventas/');
         setSales(response.data);
       } catch (error) {
         console.error("Error al cargar las ventas:", error);
@@ -72,223 +83,149 @@ const SalesPage = () => {
     if (data) {
       const scannedBarcode = data;
       try {
-        const producto = await getProductos(`/producto/${scannedBarcode}`); // Ajuste para usar getProductos con un parámetro
+        const response = await getInventario(); // Obteniendo el inventario completo
+        const producto = response.data.find(item => item.codigoBarras === scannedBarcode);
+  
         if (producto) {
-          const newSale = {
-            producto: producto.nombre,
-            cantidad: 1,
-            precio: producto.precio,
-            total: producto.precio,
-            fecha: new Date().toLocaleDateString('es-ES'),
-          };
-          setSales([...sales, newSale]);
-          setIsScannerOpen(false);
+          if (producto.stock > 0) {
+            const newSale = {
+              producto: producto.nombre,
+              cantidad: 1,
+              precio: producto.precio,
+              total: producto.precio,
+              fecha: new Date().toLocaleDateString('es-ES'),
+            };
+  
+            // Descontar stock del producto en el inventario
+            await updateProducto(producto.id, { stock: producto.stock - 1 });
+  
+            setSales([...sales, newSale]);
+            setIsScannerOpen(false);
+          } else {
+            alert('Producto sin stock');
+          }
         } else {
           alert('Producto no encontrado en la base de datos');
         }
       } catch (error) {
+        console.error('Error al conectar con la base de datos:', error);
         alert('Error al conectar con la base de datos');
       }
     }
   };
+  
 
   const handleIncreaseQuantity = async (id) => {
     const sale = sales.find((sale) => sale.id === id);
     if (!sale) return;
-
-    const newQuantity = sale.cantidad + 1;
-    try {
-      await updateProducto(sale.codigoBarras, { stock: sale.stock - 1 }); // Usando updateProducto para actualizar el stock
-      const updatedSales = sales.map((sale) =>
-        sale.id === id ? { ...sale, cantidad: newQuantity, total: newQuantity * sale.precio } : sale
-      );
-      setSales(updatedSales);
-    } catch (error) {
-      alert('Error al actualizar la cantidad');
+  
+    const response = await getInventario();
+    const producto = response.data.find(item => item.nombre === sale.producto);
+  
+    if (producto && producto.stock > 0) {
+      try {
+        await updateProducto(producto.id, { stock: producto.stock - 1 });
+        const updatedSales = sales.map((sale) =>
+          sale.id === id ? { ...sale, cantidad: sale.cantidad + 1, total: (sale.cantidad + 1) * sale.precio } : sale
+        );
+        setSales(updatedSales);
+      } catch (error) {
+        alert('Error al aumentar la cantidad');
+      }
+    } else {
+      alert('No hay suficiente stock');
     }
   };
-
+  
   const handleDecreaseQuantity = async (id) => {
     const sale = sales.find((sale) => sale.id === id);
     if (!sale || sale.cantidad <= 1) return;
-
-    const newQuantity = sale.cantidad - 1;
+  
     try {
-      await updateProducto(sale.codigoBarras, { stock: sale.stock + 1 }); // Usando updateProducto para actualizar el stock
-      const updatedSales = sales.map((sale) =>
-        sale.id === id ? { ...sale, cantidad: newQuantity, total: newQuantity * sale.precio } : sale
-      );
-      setSales(updatedSales);
+      const response = await getInventario();
+      const producto = response.data.find(item => item.nombre === sale.producto);
+  
+      if (producto) {
+        // Incrementar el stock en el inventario al disminuir la cantidad en la venta
+        await updateProducto(producto.id, { stock: producto.stock + 1 });
+  
+        const updatedSales = sales.map((sale) =>
+          sale.id === id ? { ...sale, cantidad: sale.cantidad - 1, total: (sale.cantidad - 1) * sale.precio } : sale
+        );
+        setSales(updatedSales);
+      } else {
+        alert('Producto no encontrado en el inventario');
+      }
     } catch (error) {
+      console.error('Error al disminuir la cantidad:', error);
       alert('Error al disminuir la cantidad');
     }
   };
+  
 
   const handleDeleteSale = async (id) => {
+    const sale = sales.find((sale) => sale.id === id);
+    if (!sale) return;
+  
     try {
-      await deleteProducto(id); // Usando deleteProducto para eliminar la venta
-      const updatedSales = sales.filter((sale) => sale.id !== id);
-      setSales(updatedSales);
-      alert('Venta eliminada con éxito.');
+      const response = await getInventario();
+      const producto = response.data.find(item => item.nombre === sale.producto);
+  
+      if (producto) {
+        // Devolver el stock al inventario al eliminar la venta
+        await updateProducto(producto.id, { stock: producto.stock + sale.cantidad });
+  
+        // Eliminar la venta de la lista
+        const updatedSales = sales.filter((sale) => sale.id !== id);
+        setSales(updatedSales);
+  
+        alert('Venta eliminada con éxito.');
+      } else {
+        alert('Producto no encontrado en el inventario');
+      }
     } catch (error) {
       console.error('Error al eliminar la venta:', error);
       alert('No se pudo eliminar la venta. Por favor, intenta de nuevo.');
     }
   };
-
-const generateInvoicePDF = async (venta) => {
-  const pdfDoc = await PDFDocument.create();
-  const page = pdfDoc.addPage([595, 842]);
-  const { width, height } = page.getSize();
-
-  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-  const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-
-  // Datos de la empresa
-  page.drawText('Razón Social Empresa', { x: 50, y: height - 50, size: 14, font: boldFont });
-  page.drawText('Giro: Giro de la Empresa', { x: 50, y: height - 70, size: 10, font });
-  page.drawText('Dirección de la Empresa', { x: 50, y: height - 85, size: 10, font });
-  page.drawText('Comuna - Ciudad', { x: 50, y: height - 100, size: 10, font });
-
-  // Datos de la factura/boleta
-  page.drawText('R.U.T.: 99.999.999-9', { x: width - 200, y: height - 50, size: 10, font });
-  page.drawText('FACTURA ELECTRONICA', { x: width - 200, y: height - 65, size: 12, font: boldFont, color: rgb(1, 0, 0) });
-  page.drawText('N° 1111', { x: width - 200, y: height - 80, size: 12, font: boldFont });
-  page.drawText('S.I.I.', { x: width - 200, y: height - 95, size: 10, font });
-  page.drawText('Fecha Emisión: ' + (venta.fecha || 'N/A'), { x: width - 200, y: height - 110, size: 10, font });
-
-  // Datos del cliente
-  const cliente = venta.cliente || {};
-  page.drawText('Señores: ' + (cliente.nombre || 'N/A'), { x: 50, y: height - 130, size: 10, font });
-  page.drawText('R.U.T.: ' + (cliente.rut || 'N/A'), { x: 50, y: height - 145, size: 10, font });
-  page.drawText('Giro: ' + (cliente.giro || 'N/A'), { x: 50, y: height - 160, size: 10, font });
-  page.drawText('Dirección: ' + (cliente.direccion || 'N/A'), { x: 50, y: height - 175, size: 10, font });
-  page.drawText('Comuna: ' + (cliente.comuna || 'N/A'), { x: 50, y: height - 190, size: 10, font });
-  page.drawText('Ciudad: ' + (cliente.ciudad || 'N/A'), { x: 50, y: height - 205, size: 10, font });
-  page.drawText('Contacto: ' + (cliente.contacto || 'N/A'), { x: 50, y: height - 220, size: 10, font });
-
-  // Tabla de productos
-  const tableTop = height - 250;
-  page.drawText('CÓDIGO', { x: 50, y: tableTop, size: 10, font: boldFont });
-  page.drawText('DESCRIPCIÓN', { x: 120, y: tableTop, size: 10, font: boldFont });
-  page.drawText('CANTIDAD', { x: 300, y: tableTop, size: 10, font: boldFont });
-  page.drawText('PRECIO', { x: 400, y: tableTop, size: 10, font: boldFont });
-  page.drawText('VALOR', { x: 500, y: tableTop, size: 10, font: boldFont });
-
-  let yPosition = tableTop - 20;
-  (venta.productos || []).forEach((producto) => {
-    page.drawText(producto.codigo || 'N/A', { x: 50, y: yPosition, size: 10, font });
-    page.drawText(producto.descripcion || 'N/A', { x: 120, y: yPosition, size: 10, font });
-    page.drawText((producto.cantidad || 'N/A').toString(), { x: 300, y: yPosition, size: 10, font });
-    page.drawText('$ ' + (producto.precio ? producto.precio.toFixed(2) : 'N/A'), { x: 400, y: yPosition, size: 10, font });
-    page.drawText('$ ' + (producto.cantidad && producto.precio ? (producto.cantidad * producto.precio).toFixed(2) : 'N/A'), { x: 500, y: yPosition, size: 10, font });
-    yPosition -= 15;
-  });
-
-  // Totales
-  const subtotal = (venta.productos || []).reduce((acc, p) => acc + (p.cantidad || 0) * (p.precio || 0), 0);
-  const iva = subtotal * 0.19;
-  const total = subtotal + iva;
-
-  page.drawText('MONTO NETO $', { x: 400, y: yPosition - 20, size: 10, font });
-  page.drawText(subtotal.toFixed(2), { x: 500, y: yPosition - 20, size: 10, font });
-  page.drawText('I.V.A. 19% $', { x: 400, y: yPosition - 35, size: 10, font });
-  page.drawText(iva.toFixed(2), { x: 500, y: yPosition - 35, size: 10, font });
-  page.drawText('TOTAL $', { x: 400, y: yPosition - 50, size: 10, font: boldFont });
-  page.drawText(total.toFixed(2), { x: 500, y: yPosition - 50, size: 10, font: boldFont });
-
-  // Descargar el PDF
-  const pdfBytes = await pdfDoc.save();
-  const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `factura.pdf`; 
-  link.click();
-};
-
-const generateReceiptPDF = async (venta, tipoDocumento = 'boleta') => {
-  const pdfDoc = await PDFDocument.create();
-  const page = pdfDoc.addPage([595, 842]);
-  const { width, height } = page.getSize();
-
-  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-  const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-
-  // Datos de la empresa
-  page.drawText('Razón Social Empresa', { x: 50, y: height - 50, size: 14, font: boldFont });
-  page.drawText('Giro: Giro de la Empresa', { x: 50, y: height - 70, size: 10, font });
-  page.drawText('Dirección de la Empresa', { x: 50, y: height - 85, size: 10, font });
-  page.drawText('Comuna - Ciudad', { x: 50, y: height - 100, size: 10, font });
-
-  // Datos de la factura o boleta
-  page.drawText('R.U.T.: 99.999.999-9', { x: width - 200, y: height - 50, size: 10, font });
-  page.drawText(
-    tipoDocumento === 'factura' ? 'FACTURA ELECTRÓNICA' : 'BOLETA ELECTRÓNICA',
-    { x: width - 200, y: height - 65, size: 12, font: boldFont, color: rgb(1, 0, 0) }
-  );
-  page.drawText('N° 1111', { x: width - 200, y: height - 80, size: 12, font: boldFont });
-  page.drawText('S.I.I.', { x: width - 200, y: height - 95, size: 10, font });
-  page.drawText('Fecha Emisión: ' + (venta?.fecha || 'N/A'), { x: width - 200, y: height - 110, size: 10, font });
-
-  // Datos del cliente
-  const cliente = venta?.cliente || {};
-  page.drawText('Señores: ' + (cliente.nombre || 'N/A'), { x: 50, y: height - 130, size: 10, font });
-  page.drawText('R.U.T.: ' + (cliente.rut || 'N/A'), { x: 50, y: height - 145, size: 10, font });
-  page.drawText('Giro: ' + (cliente.giro || 'N/A'), { x: 50, y: height - 160, size: 10, font });
-  page.drawText('Dirección: ' + (cliente.direccion || 'N/A'), { x: 50, y: height - 175, size: 10, font });
-  page.drawText('Comuna: ' + (cliente.comuna || 'N/A'), { x: 50, y: height - 190, size: 10, font });
-  page.drawText('Ciudad: ' + (cliente.ciudad || 'N/A'), { x: 50, y: height - 205, size: 10, font });
-  page.drawText('Contacto: ' + (cliente.contacto || 'N/A'), { x: 50, y: height - 220, size: 10, font });
-
-  // Tabla de productos
-  const tableTop = height - 250;
-  page.drawText('CÓDIGO', { x: 50, y: tableTop, size: 10, font: boldFont });
-  page.drawText('DESCRIPCIÓN', { x: 120, y: tableTop, size: 10, font: boldFont });
-  page.drawText('CANTIDAD', { x: 300, y: tableTop, size: 10, font: boldFont });
-  page.drawText('PRECIO', { x: 400, y: tableTop, size: 10, font: boldFont });
-  page.drawText('VALOR', { x: 500, y: tableTop, size: 10, font: boldFont });
-
-  let yPosition = tableTop - 20;
-  (venta?.productos || []).forEach((producto) => {
-    page.drawText(producto.codigo || 'N/A', { x: 50, y: yPosition, size: 10, font });
-    page.drawText(producto.descripcion || 'N/A', { x: 120, y: yPosition, size: 10, font });
-    page.drawText((producto.cantidad || 'N/A').toString(), { x: 300, y: yPosition, size: 10, font });
-    page.drawText('$ ' + (producto.precio ? producto.precio.toFixed(2) : 'N/A'), { x: 400, y: yPosition, size: 10, font });
-    page.drawText('$ ' + (producto.cantidad && producto.precio ? (producto.cantidad * producto.precio).toFixed(2) : 'N/A'), { x: 500, y: yPosition, size: 10, font });
-    yPosition -= 15;
-  });
-
-  // Totales
-  const subtotal = (venta?.productos || []).reduce((acc, p) => acc + (p.cantidad || 0) * (p.precio || 0), 0);
-  const iva = subtotal * 0.19;
-  const total = subtotal + iva;
-
-  page.drawText('MONTO NETO $', { x: 400, y: yPosition - 20, size: 10, font });
-  page.drawText(subtotal.toFixed(2), { x: 500, y: yPosition - 20, size: 10, font });
-  page.drawText('I.V.A. 19% $', { x: 400, y: yPosition - 35, size: 10, font });
-  page.drawText(iva.toFixed(2), { x: 500, y: yPosition - 35, size: 10, font });
-  page.drawText('TOTAL $', { x: 400, y: yPosition - 50, size: 10, font: boldFont });
-  page.drawText(total.toFixed(2), { x: 500, y: yPosition - 50, size: 10, font: boldFont });
-
-  // Descargar el PDF
-  const pdfBytes = await pdfDoc.save();
-  const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `${tipoDocumento}.pdf`;  // Nombre dinámico según el tipo de documento
-  link.click();
-};
+  
 
 
-const handleGenerateDocument = () => {
-  if (isInvoice) {
-    generateInvoicePDF();
-  } else {
-    generateReceiptPDF();
-  }
-};
+  const handleGenerateDocument = async () => {
+    // Define la variable venta con la información necesaria
+    const venta = {
+      rut: formData.rut,
+      razonSocial: formData.razonSocial,
+      direccion: formData.direccion,
+      telefono: formData.telefono,
+      productos: formData.productos,
+      total: formData.total,
+    };
+
+    if (isInvoice) {
+      const pdfBytes = await generateInvoicePDF(venta);
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `factura.pdf`;
+      link.click();
+    } else {
+      const pdfBytes = await generateReceiptPDF(venta, 'boleta');
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `boleta.pdf`;
+      link.click();
+    }
+  };
+
+  // Definición de la función para alternar entre factura y boleta
+  const toggleDocumentType = () => {
+    setIsInvoice(!isInvoice); // Cambia entre factura y boleta
+    setFormData({ ...formData, tipoDocumento: isInvoice ? 'boleta' : 'factura' }); // Actualiza el tipo de documento en el estado
+  };
 
   const handleInvoiceSubmit = (e) => {
     e.preventDefault();
@@ -300,15 +237,18 @@ const handleGenerateDocument = () => {
     setPaymentMethodModal(true);
   };
 
+
 const FormularioFacturaBoleta = () => {
   const [formData, setFormData] = useState({
-    tipoDocumento: 'factura', // 'factura' o 'boleta'
-    nombreCliente: '',
+    tipoDocumento: 'boleta', // o 'factura'
+    rut: '',
+    razonSocial: '',
     direccion: '',
     telefono: '',
     productos: [],
     total: 0,
   });
+
   const [producto, setProducto] = useState({
     nombre: '',
     cantidad: 0,
@@ -343,27 +283,29 @@ const FormularioFacturaBoleta = () => {
 
     // Información del cliente
     doc.setFontSize(12);
-    doc.text(`Cliente: ${formData.nombreCliente}`, 10, 20);
-    doc.text(`Dirección: ${formData.direccion}`, 10, 30);
-    doc.text(`Teléfono: ${formData.telefono}`, 10, 40);
+    doc.text(`RUT: ${formData.rut}`, 10, 20);
+    doc.text(`Razón Social: ${formData.razonSocial}`, 10, 30);
+    doc.text(`Dirección: ${formData.direccion}`, 10, 40);
+    doc.text(`Teléfono: ${formData.telefono}`, 10, 50);
 
     // Tabla de productos
-    doc.text('Productos:', 10, 50);
+    doc.text('Productos:', 10, 60);
     formData.productos.forEach((prod, index) => {
       doc.text(
         `${index + 1}. ${prod.nombre} - Cantidad: ${prod.cantidad} - Precio: ${prod.precio} - Total: ${prod.cantidad * prod.precio}`,
         10,
-        60 + index * 10
+        70 + index * 10
       );
     });
 
     // Total general
-    doc.text(`Total: ${formData.total.toFixed(2)}`, 10, 60 + formData.productos.length * 10);
+    doc.text(`Total: ${formData.total.toFixed(2)}`, 10, 70 + formData.productos.length * 10);
 
     // Guardar el PDF
     doc.save(`${formData.tipoDocumento}.pdf`);
   };
-};
+}
+
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Gestión de Ventas</h1>
@@ -371,7 +313,7 @@ const FormularioFacturaBoleta = () => {
       <div className="mb-6 space-x-4">
         <button 
           className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-          onClick={handleNewSale}
+          onClick={() => setIsModalOpen(true)}
         >
           Registrar Nueva Venta
         </button>
@@ -545,89 +487,91 @@ const FormularioFacturaBoleta = () => {
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-            <h2 className="text-2xl font-bold mb-4">Seleccionar Tipo de Documento</h2>
-            <div className="mb-4">
-              <button
-                className="bg-blue-500 text-white py-2 px-4 rounded mr-2"
-                onClick={() => {setIsInvoice(true);
-                                setIsModalOpen(false); 
-                }}
-              >
-                Factura
-              </button>
-              <button
-                className="bg-green-500 text-white py-2 px-4 rounded"
-                onClick={() => {  
-                  handleGenerateDocument();
-                  setIsModalOpen(false);
-                }}
-                
-              >
-                Boleta
-              </button>
-              <button
-                type="button"
-                className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
-                onClick={() => setIsModalOpen(false)}
-              >
-                Volver
-              </button>
-            </div>
-          </div>
+            <h2 className="text-2xl font-bold mb-4">Datos de {isInvoice ? 'Factura' : 'Boleta'}</h2>
+            <button 
+              className={`mb-4 py-2 px-4 rounded ${isInvoice ? 'bg-blue-500' : 'bg-gray-300'}`}
+              onClick={toggleDocumentType}
+            >
+              {isInvoice ? 'Cambiar a Boleta' : 'Cambiar a Factura'}
+            </button>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              handleGenerateDocument();
+            }}>
+              {isInvoice && (
+              <>
+                <label className="block mb-2">RUT:</label>
+                <input type="text" name="rut" className="border rounded w-full py-2 px-3 mb-4" 
+                      value={formData.rut} onChange={(e) => setFormData({ ...formData, rut: e.target.value })} required />
+                <label className="block mb-2">Razón Social:</label>
+                <input type="text" name="razonSocial" className="border rounded w-full py-2 px-3 mb-4" 
+                      value={formData.razonSocial} onChange={(e) => setFormData({ ...formData, razonSocial: e.target.value })} required />
+              </>
+            )}
+            <label className="block mb-2">Dirección:</label>
+            <input type="text" name="direccion" className="border rounded w-full py-2 px-3 mb-4" 
+                  value ={formData.direccion} onChange={(e) => setFormData({ ...formData, direccion: e.target.value })} required />
+            <label className="block mb-2">Teléfono:</label>
+            <input type="text" name="telefono" className="border rounded w-full py-2 px-3 mb-4" 
+                  value={formData.telefono} onChange={(e) => setFormData({ ...formData, telefono: e.target.value })} required />
+            <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Generar {isInvoice ? 'Factura' : 'Boleta'}</button>
+            <button type="button" className="bg-gray-500 text-white py-2 px-4 rounded ml-2" onClick={() => setIsModalOpen(false)}>Volver</button>
+          </form>
         </div>
-      )}
-
-      {isInvoice && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-            <h2 className="text-2xl font-bold mb-4">Datos de Factura</h2>
-            <form onSubmit={handleInvoiceSubmit}>
-              <label className="block mb-2">RUT:</label>
-              <input type="text" name="rut" className="border rounded w-full py-2 px-3 mb-4" required />
-              <label className="block mb-2">Razón Social:</label>
-              <input type="text" name="razonSocial" className="border rounded w-full py-2 px-3 mb-4" required />
-              <button type="button"
-                                onClick={() => {
-                                  generateInvoicePDF(false);
-                                  setIsModalOpen(false);
-                                }}
-                className="bg-blue-500 text-white py-2 px-4 rounded">Generar Factura</button>
-              <button
-                type="button"
-                className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
-                onClick={() => setIsInvoice(false)}
-              >
-                Volver
-              </button>
-            </form>
-          </div>
+      </div>
+    )}
+  
+    {isInvoice && (
+      <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+        <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+          <h2 className="text-2xl font-bold mb-4">Datos de Factura</h2>
+          <form onSubmit={handleInvoiceSubmit}>
+            <label className="block mb-2">RUT:</label>
+            <input type="text" name="rut" className="border rounded w-full py-2 px-3 mb-4" required />
+            <label className="block mb-2">Razón Social:</label>
+            <input type="text" name="razonSocial" className="border rounded w-full py-2 px-3 mb-4" required />
+            <button type="button"
+                      onClick={() => {
+                        generateInvoicePDF(false);
+                        setIsModalOpen(false);
+                      }}
+              className="bg-blue-500 text-white py-2 px-4 rounded">Generar Factura</button>
+            <button
+              type="button"
+              className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
+              onClick={() => setIsInvoice(false)}
+            >
+              Volver
+            </button>
+          </form>
         </div>
-      )}
-
-      {paymentMethodModal && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setPaymentMethodModal(false)}>
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-2xl font-bold mb-4">Seleccionar Medio de Pago</h2>
-            <form>
-              <label className="block mb-2">Medio de Pago:</label>
-              <select className="border rounded w-full py-2 px-3 mb-4">
-                <option value="efectivo">Efectivo</option>
-                <option value="tarjeta">Tarjeta</option>
-                <option value="transferencia">Transferencia</option>
-              </select>
-              <button type="button" className="bg-blue-500 text-white py-2 px-4 rounded" onClick={() => alert('Medio de pago seleccionado')}>Seleccionar</button>
-              <button
-                type="button"
-                className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
-                onClick={() => setPaymentMethodModal(false)}
-              >
-                Volver
-              </button>
-            </form>
-          </div>
+      </div>
+    )}
+  
+    {paymentMethodModal && (
+      <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setPaymentMethodModal(false)}>
+        <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
+          <h2 className="text-2xl font-bold mb-4">Seleccionar Medio de Pago</h2>
+          <form>
+            <label className="block mb-2">Medio de Pago:</label>
+            <select className="border rounded w-full py-2 px-3 mb-4">
+              <option value="efectivo">Efectivo</option>
+              <option value="tarjeta">Tarjeta</option>
+              <option value="transferencia">Transferencia</option>
+            </select>
+            <button type="button" className="bg-blue-500 text-white py-2 px-4 rounded" onClick={() => alert('Medio de pago seleccionado')}>Seleccionar</button>
+            <button
+              type="button"
+              className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
+              onClick={() => setPaymentMethodModal(false)}
+            >
+              Volver
+            </button>
+          </form>
         </div>
-      )}
-    </div>
+      </div>
+    )}
+  </div>
   );
 };
 
