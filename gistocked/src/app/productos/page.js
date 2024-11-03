@@ -87,7 +87,13 @@ const Page = () => {
   const manejarCambioProducto = (e) => {
     const { name, value } = e.target;
     setNuevoProducto((prev) => {
-      const updatedProducto = { ...prev, [name]: value };
+      // Convertir id_categoria a número si ese es el campo que está cambiando
+      const updatedProducto = { 
+        ...prev, 
+        [name]: name === "id_categoria" ? Number(value) : value 
+      };
+  
+      // Cálculo del precio neto y precio de venta si cambia porcentaje de ganancia o precio de compra
       if (name === "porcentaje_de_ganancia" || name === "precio_compra") {
         const gananciaDecimal = parseFloat(updatedProducto.porcentaje_de_ganancia) / 100;
         const precioNeto = parseFloat(updatedProducto.precio_compra) * (1 + gananciaDecimal);
@@ -95,6 +101,13 @@ const Page = () => {
         updatedProducto.precio_venta = precioNeto * 1.2;
         updatedProducto.precio_venta_final = updatedProducto.precio_venta;
       }
+  
+      // Cálculo de precio con descuento si cambia el descuento
+      if (name === "descuento") {
+        const descuentoDecimal = parseFloat(updatedProducto.descuento) / 100;
+        updatedProducto.precio_descuento = updatedProducto.precio_venta * (1 - descuentoDecimal);
+      }
+      
       return updatedProducto;
     });
   };
@@ -137,7 +150,16 @@ const Page = () => {
       setCategorias([...categorias, response.data]);
       cerrarModalCategoria();
     } catch (error) {
-      console.error("Error al guardar la categoría:", error.response ? error.response.data : error.message);
+      console.error("Error al guardar categoría:", error);
+    }
+  };
+
+  const eliminarProducto = async (id) => {
+    try {
+      await axios.delete(`http://190.114.252.218:8000/api/inventarios/${id}/`);
+      setProductos((prev) => prev.filter((prod) => prod.id_producto !== id));
+    } catch (error) {
+      console.error("Error al eliminar el producto:", error.response ? error.response.data : error.message);
     }
   };
 
@@ -169,175 +191,35 @@ const Page = () => {
         </div>
       </div>
 
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-60">
-          <div className="bg-white rounded-lg shadow-lg max-w-xl w-full p-8 overflow-y-auto max-h-[80vh]">
-            <h2 className="text-2xl font-bold mb-4 text-center text-gray-700">
-              {isEditing ? "Editar Producto" : "Añadir Producto"}
-            </h2>
-            <form className="grid grid-cols-2 gap-4">
-              <label className="flex flex-col mb-2">
-                <span className="text-gray-600">Nombre del producto:</span>
-                <input
-                  type="text"
-                  name="nombre_producto"
-                  value={nuevoProducto.nombre_producto}
-                  onChange={manejarCambioProducto}
-                  placeholder="Ej. Laptop"
-                  className="p-2 border border-gray-300 rounded"
-                  required
-                />
-              </label>
-              <label className="flex flex-col mb-2">
-                <span className="text-gray-600">Descripción:</span>
-                <input
-                  type="text"
-                  name="descripcion"
-                  value={nuevoProducto.descripcion}
-                  onChange={manejarCambioProducto}
-                  placeholder="Descripción del producto"
-                  className="p-2 border border-gray-300 rounded"
-                  required
-                />
-              </label>
-              <label className="flex flex-col mb-2">
-                <span className="text-gray-600">Precio de compra:</span>
-                <input
-                  type="number"
-                  name="precio_compra"
-                  value={nuevoProducto.precio_compra}
-                  onChange={manejarCambioProducto}
-                  placeholder="$0.00"
-                  className="p-2 border border-gray-300 rounded"
-                  required
-                />
-              </label>
-              <label className="flex flex-col mb-2">
-                <span className="text-gray-600">Porcentaje de ganancia (%):</span>
-                <input
-                  type="number"
-                  name="porcentaje_de_ganancia"
-                  value={nuevoProducto.porcentaje_de_ganancia}
-                  onChange={manejarCambioProducto}
-                  placeholder="Ej. 20"
-                  className="p-2 border border-gray-300 rounded"
-                  required
-                />
-              </label>
-              <label className="flex flex-col mb-2">
-                <span className="text-gray-600">Imagen:</span>
-                <input
-                  type="file"
-                  name="img"
-                  onChange={manejarCambioArchivo}
-                  className="p-2 border border-gray-300 rounded"
-                  accept="image/*"
-                  required
-                />
-              </label>
-              <label className="flex flex-col mb-2">
-                <span className="text-gray-600">Categoría:</span>
-                <select
-                  name="id_categoria"
-                  value={nuevoProducto.id_categoria}
-                  onChange={manejarCambioProducto}
-                  className="p-2 border border-gray-300 rounded"
-                  required
-                >
-                  <option value="">Seleccione una categoría</option>
-                  {categorias.map((categoria) => (
-                    <option key={categoria.id_categoria} value={categoria.id_categoria}>
-                      {categoria.nombre_categoria}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <div className="flex justify-end col-span-2 space-x-4 mt-4">
-                <button
-                  type="button"
-                  className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
-                  onClick={cerrarModalProducto}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="button"
-                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                  onClick={guardarProducto}
-                >
-                  Guardar
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {isCategoryModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-60">
-          <div className="bg-white rounded-lg shadow-lg max-w-xl w-full p-8">
-            <h2 className="text-2xl font-bold mb-6 text-center text-gray-700">Nueva Categoría</h2>
-            <form>
-              <label className="flex flex-col mb-2">
-                <span className="text-gray-600">Nombre de la categoría:</span>
-                <input
-                  type="text"
-                  name="nombre_categoria"
-                  value={nuevaCategoria.nombre_categoria}
-                  onChange={manejarCambioCategoria}
-                  placeholder="Ej. Electrónica"
-                  className="p-2 border border-gray-300 rounded mb-4"
-                  required
-                />
-              </label>
-              <div className="flex justify-end space-x-4">
-                <button
-                  type="button"
-                  className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
-                  onClick={cerrarModalCategoria}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="button"
-                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                  onClick={guardarCategoria}
-                >
-                  Guardar
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      <div className="overflow-x-auto mt-8">
-        <table className="min-w-full bg-white shadow rounded-lg">
-          <thead>
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white border border-gray-300">
+          <thead className="bg-gray-200">
             <tr>
-              <th className="py-2 border-b text-left">Imagen</th>
-              <th className="py-2 border-b text-left">Nombre</th>
-              <th className="py-2 border-b text-left">Descripción</th>
-              <th className="py-2 border-b text-left">Precio Compra</th>
-              <th className="py-2 border-b text-left">Precio Venta</th>
-              <th className="py-2 border-b text-left">Acciones</th>
+              <th className="px-4 py-2 border">Imagen</th>
+              <th className="px-4 py-2 border">Nombre</th>
+              <th className="px-4 py-2 border">Descripción</th>
+              <th className="px-4 py-2 border">Precio de Venta</th>
+              <th className="px-4 py-2 border">Cantidad</th>
+              <th className="px-4 py-2 border">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {productos
-              .filter((producto) =>
-                producto.nombre_producto.toLowerCase().includes(busqueda.toLowerCase())
-              )
+              .filter((prod) => prod.nombre_producto.toLowerCase().includes(busqueda.toLowerCase()))
               .map((producto) => (
-                <tr key={producto.id_producto}>
-                  <td className="py-2 border-b">
-                    <img src={producto.img} alt={producto.nombre_producto} className="w-16 h-16 object-cover rounded" />
+                <tr key={producto.id_producto} className="text-center">
+                  <td className="px-4 py-2 border">
+                    {producto.img ? (
+                      <img src={producto.img} alt={producto.nombre_producto} className="w-16 h-16 object-cover" />
+                    ) : (
+                      "Sin imagen"
+                    )}
                   </td>
-                  <td className="py-2 border-b">{producto.nombre_producto}</td>
-                  <td className="py-2 border-b">{producto.descripcion}</td>
-                  <td className="py-2 border-b">${producto.precio_compra.toFixed(2)}</td>
-                  <td className="py-2 border-b">${producto.precio_venta.toFixed(2)}</td>
-                  <td className="py-2 border-b">
+                  <td className="px-4 py-2 border">{producto.nombre_producto}</td>
+                  <td className="px-4 py-2 border">{producto.descripcion}</td>
+                  <td className="px-4 py-2 border">{producto.precio_venta_final.toFixed(2)} $</td>
+                  <td className="px-4 py-2 border">{producto.cantidad}</td>
+                  <td className="px-4 py-2 border">
                     <button
                       onClick={() => abrirModalProducto(producto)}
                       className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 mr-2"
@@ -346,7 +228,7 @@ const Page = () => {
                     </button>
                     <button
                       onClick={() => eliminarProducto(producto.id_producto)}
-                      className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                      className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
                     >
                       Eliminar
                     </button>
@@ -356,6 +238,208 @@ const Page = () => {
           </tbody>
         </table>
       </div>
+
+{/* Modal para añadir/editar producto */}
+{isModalOpen && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="bg-white w-full max-w-3xl p-8 mx-4 rounded-lg shadow-lg">
+      <h2 className="text-3xl font-semibold mb-6 text-center">
+        {isEditing ? "Editar Producto" : "Nuevo Producto"}
+      </h2>
+      <form className="grid grid-cols-2 gap-6">
+        
+        {/* Campo para la imagen */}
+        <div className="col-span-2">
+          <label className="block text-gray-700">Imagen del producto</label>
+          <input
+            type="file"
+            name="img"
+            onChange={manejarCambioArchivo}
+            className="w-full border p-2 mt-1"
+          />
+        </div>
+
+        {/* Campo para el nombre del producto */}
+        <div>
+          <label className="block text-gray-700">Nombre del producto</label>
+          <input
+            type="text"
+            name="nombre_producto"
+            placeholder="Nombre del producto"
+            className="w-full border p-2"
+            value={nuevoProducto.nombre_producto}
+            onChange={manejarCambioProducto}
+          />
+        </div>
+
+        {/* Campo para la descripción */}
+        <div>
+          <label className="block text-gray-700">Descripción</label>
+          <textarea
+            name="descripcion"
+            placeholder="Descripción del producto"
+            className="w-full border p-2 h-24"
+            value={nuevoProducto.descripcion}
+            onChange={manejarCambioProducto}
+          />
+        </div>
+
+        {/* Campo para el precio de compra */}
+        <div>
+          <label className="block text-gray-700">Precio de compra</label>
+          <input
+            type="number"
+            name="precio_compra"
+            placeholder="Precio de compra"
+            className="w-full border p-2"
+            value={nuevoProducto.precio_compra}
+            onChange={manejarCambioProducto}
+          />
+        </div>
+
+        {/* Campo para el porcentaje de ganancia */}
+        <div>
+          <label className="block text-gray-700">Porcentaje de ganancia</label>
+          <input
+            type="number"
+            name="porcentaje_de_ganancia"
+            placeholder="Porcentaje de ganancia"
+            className="w-full border p-2"
+            value={nuevoProducto.porcentaje_de_ganancia}
+            onChange={manejarCambioProducto}
+          />
+        </div>
+
+        {/* Campo para el precio neto */}
+        <div>
+          <label className="block text-gray-700">Precio neto</label>
+          <input
+            type="number"
+            name="precio_neto"
+            placeholder="Precio neto"
+            className="w-full border p-2"
+            value={nuevoProducto.precio_neto.toFixed(2)}
+            readOnly
+          />
+        </div>
+
+        {/* Campo para el precio de venta */}
+        <div>
+          <label className="block text-gray-700">Precio de venta</label>
+          <input
+            type="number"
+            name="precio_venta"
+            placeholder="Precio de venta"
+            className="w-full border p-2"
+            value={nuevoProducto.precio_venta.toFixed(2)}
+            readOnly
+          />
+        </div>
+
+        {/* Campo para el descuento */}
+        <div>
+          <label className="block text-gray-700">Descuento (%)</label>
+          <input
+            type="number"
+            name="descuento"
+            placeholder="Descuento"
+            className="w-full border p-2"
+            value={nuevoProducto.descuento}
+            onChange={manejarCambioProducto}
+          />
+        </div>
+
+        {/* Campo para el precio con descuento */}
+        <div>
+          <label className="block text-gray-700">Precio con descuento</label>
+          <input
+            type="number"
+            name="precio_descuento"
+            placeholder="Precio con descuento"
+            className="w-full border p-2"
+            value={nuevoProducto.precio_descuento.toFixed(2)}
+            readOnly
+          />
+        </div>
+
+        {/* Campo para la cantidad */}
+        <div>
+          <label className="block text-gray-700">Cantidad</label>
+          <input
+            type="number"
+            name="cantidad"
+            placeholder="Cantidad"
+            className="w-full border p-2"
+            value={nuevoProducto.cantidad}
+            onChange={manejarCambioProducto}
+          />
+        </div>
+
+        {/* Campo para la categoría */}
+        <div>
+          <label className="block text-gray-700">Categoría</label>
+          <select
+            name="id_categoria"
+            className="w-full border p-2"
+            value={nuevoProducto.id_categoria}
+            onChange={manejarCambioProducto}
+          >
+            <option value="">Selecciona una categoría</option>
+            {categorias.map((categoria) => (
+              <option key={categoria.id_categoria} value={categoria.id_categoria}>
+                {categoria.nombre_categoria}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Botones para guardar y cancelar */}
+        <div className="col-span-2 flex justify-between mt-6">
+          <button
+            type="button"
+            onClick={guardarProducto}
+            className="bg-green-500 text-white w-full py-2 rounded hover:bg-green-600 mr-2"
+          >
+            {isEditing ? "Guardar Cambios" : "Añadir Producto"}
+          </button>
+          <button
+            type="button"
+            onClick={cerrarModalProducto}
+            className="bg-gray-300 text-gray-700 w-full py-2 rounded hover:bg-gray-400 ml-2"
+          >
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+
+
+      {/* Modal para añadir nueva categoría */}
+      {isCategoryModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white w-full max-w-md p-8 mx-4">
+            <h2 className="text-2xl font-semibold mb-4">Nueva Categoría</h2>
+            <form>
+              <input
+                type="text"
+                name="nombre_categoria"
+                placeholder="Nombre de la categoría"
+                className="w-full border p-2 mb-4"
+                value={nuevaCategoria.nombre_categoria}
+                onChange={manejarCambioCategoria}
+              />
+              <button type="button" onClick={guardarCategoria} className="bg-blue-500 text-white w-full py-2 mt-4">
+                Añadir Categoría
+              </button>
+              <button type="button" onClick={cerrarModalCategoria} className="w-full py-2 mt-2 bg-gray-300">
+                Cancelar
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
