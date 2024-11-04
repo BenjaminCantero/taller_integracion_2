@@ -19,6 +19,7 @@ const Usuarios = ({
   const [users, setUsers] = useState([]);
   const [editUser, setEditUser] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [userType, setUserType] = useState(null);
 
   {/* Carga inicial de los usuarios de la empresa */}
   useEffect(() => {
@@ -31,6 +32,7 @@ const Usuarios = ({
   {/* Abre el formulario */}
   const handleOpenModal = () => {
     setModalOpen(true);
+
   };
 
   {/* Cierra el formulario */}

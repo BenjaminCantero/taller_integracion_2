@@ -18,7 +18,9 @@ const UserTable = ({
   const tablaEstaVaciaApi = usuariosTablaApi.length < 1;
 
   // Guardan la información de los usuarios cuando la API esta apagada
-  const usuariosTablaTemporales = usuariosAdminTemporales.filter(admin => admin.nombre_empresa === usuarioInfo.nombre_empresa && admin.codigo_vendedor !== usuarioInfo.codigo_vendedor);
+  const usuariosTablaTemporalesVendedores = usuariosVendedoresTemporales.filter(vendedor => vendedor.nombre_empresa === usuarioInfo.nombre_empresa)
+  const usuariosTablaTemporalesAdmins = usuariosAdminTemporales.filter(admin => admin.nombre_empresa === usuarioInfo.nombre_empresa && admin.codigo_vendedor !== usuarioInfo.codigo_vendedor);
+  const usuariosTablaTemporales =  usuariosTablaTemporalesVendedores.concat(usuariosTablaTemporalesAdmins);
   const tablaEstaVaciaTemporales = usuariosTablaTemporales.length < 1;
 
   // Valido solo para los usuarios Temporales (API apagada)
@@ -58,10 +60,10 @@ const UserTable = ({
               <tr 
                 key={user.codigo_vendedor} 
                 className='text-black rounded-b-lg hover:bg-[#ccdfe0] transition duration-500 ease-linear'>
-                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.codigo_vendedor}</td>
-                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.nombre_usuario}</td>
-                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.nombre_empresa}</td>
-                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.email}</td>
+                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? user.codigo_vendedor : userVendedor.id_vendedor}</td>
+                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? user.nombre_usuario  : userVendedor.nombres + userVendedor.apellidos}</td>
+                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? user.nombre_empresa  : userVendedor.nombre_empresa}</td>
+                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? user.email      : 'n/a'}</td>
                 <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? 'Administrador' : 'Vendedor'}</td>
                 <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>
                   <div className='flex flex-col'>
@@ -101,10 +103,10 @@ const UserTable = ({
               <tr 
                 key={user.codigo_vendedor} 
                 className='text-black rounded-b-lg hover:bg-[#ccdfe0] transition duration-500 ease-linear'>
-                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.codigo_vendedor}</td>
-                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.nombre_usuario}</td>
-                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.nombre_empresa}</td>
-                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.email}</td>
+                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? user.codigo_vendedor : user.id_vendedores}</td>
+                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? user.nombre_usuario  : user.nombres}</td>
+                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? user.nombre_empresa  : user.nombre_empresa}</td>
+                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? user.email      : 'N/A'}</td>
                 <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? 'Administrador' : 'Vendedor'}</td>
                 <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>
                   <div className='flex flex-col'>

@@ -25,8 +25,6 @@ const Layout = () => {
   const [usuariosAdminTemporales, setUsuariosAdminTemporales] = useState({});
   const [usuariosVendedoresTemporales, setUsuariosVendedoresTemporales] = useState({});
 
-  console.log(usuariosAdminTemporales);
-
 // -----------------------------------------------
 // Carga la información de los usuarios temporales
 // -----------------------------------------------
