@@ -1,7 +1,9 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line
+} from 'recharts';
 import { CSVLink } from "react-csv";
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -18,6 +20,7 @@ const exportToPDF = (title, data) => {
   doc.save(`${title}.pdf`);
 };
 
+// Componente principal del Dashboard
 const Dashboard = () => {
   const [salesCount, setSalesCount] = useState(null);
   const [salesRevenue, setSalesRevenue] = useState(null);
@@ -30,47 +33,43 @@ const Dashboard = () => {
   const [summary, setSummary] = useState({});
   const [productAnalysis, setProductAnalysis] = useState([]);
 
+  // Efecto para cargar los datos al montar el componente
   useEffect(() => {
-    // Cargar datos con Axios
-    axios.get('http://190.114.252.218:8000/api/ventas')
-      .then(response => {
-        setSalesCount(response.data.length);
-        const totalRevenue = response.data.reduce((acc, sale) => acc + sale.amount, 0);
-        setSalesRevenue(totalRevenue);
-      })
-      .catch(error => console.error("Error fetching sales data:", error));
+    const fetchData = async () => {
+      try {
+        const salesData = await axios.get('http://190.114.252.218:8000/api/ventas');
+        setSalesCount(salesData.data.length);
+        setSalesRevenue(salesData.data.reduce((acc, sale) => acc + sale.amount, 0));
 
-    axios.get('http://190.114.252.218:8000/api/usuarios')
-      .then(response => setUserCount(response.data.length))
-      .catch(error => console.error("Error fetching user data:", error));
+        const userData = await axios.get('http://190.114.252.218:8000/api/usuarios');
+        setUserCount(userData.data.length);
 
-    axios.get('http://190.114.252.218:8000/api/inventarios')
-      .then(response => setProductCount(response.data.length))
-      .catch(error => console.error("Error fetching product data:", error));
+        const productData = await axios.get('http://190.114.252.218:8000/api/inventarios');
+        setProductCount(productData.data.length);
 
-    axios.get('http://190.114.252.218:8000/api/ventas-mensuales')
-      .then(response => setMonthlySales(response.data))
-      .catch(error => console.error("Error fetching monthly sales data:", error));
+        const monthlySalesData = await axios.get('http://190.114.252.218:8000/api/ventas-mensuales');
+        setMonthlySales(monthlySalesData.data);
 
-    axios.get('http://190.114.252.218:8000/api/ingresos-productos')
-      .then(response => setProductRevenue(response.data))
-      .catch(error => console.error("Error fetching product revenue data:", error));
+        const productRevenueData = await axios.get('http://190.114.252.218:8000/api/ingresos-productos');
+        setProductRevenue(productRevenueData.data);
 
-    axios.get('http://190.114.252.218:8000/api/comparativa-anual')
-      .then(response => setAnnualComparison(response.data))
-      .catch(error => console.error("Error fetching annual comparison data:", error));
+        const annualComparisonData = await axios.get('http://190.114.252.218:8000/api/comparativa-anual');
+        setAnnualComparison(annualComparisonData.data);
 
-    axios.get('http://190.114.252.218:8000/api/ventas-recientes')
-      .then(response => setRecentSales(response.data))
-      .catch(error => console.error("Error fetching recent sales data:", error));
+        const recentSalesData = await axios.get('http://190.114.252.218:8000/api/ventas-recientes');
+        setRecentSales(recentSalesData.data);
 
-    axios.get('http://190.114.252.218:8000/api/resumen')
-      .then(response => setSummary(response.data))
-      .catch(error => console.error("Error fetching summary data:", error));
+        const summaryData = await axios.get('http://190.114.252.218:8000/api/resumen');
+        setSummary(summaryData.data);
 
-    axios.get('http://190.114.252.218:8000/api/analisis-productos')
-      .then(response => setProductAnalysis(response.data))
-      .catch(error => console.error("Error fetching product analysis data:", error));
+        const productAnalysisData = await axios.get('http://190.114.252.218:8000/api/analisis-productos');
+        setProductAnalysis(productAnalysisData.data);
+
+      } catch (error) {
+       
+      }
+    };
+    fetchData();
   }, []);
 
   return (
@@ -177,53 +176,55 @@ const ComparisonChart = ({ data }) => (
       <Tooltip contentStyle={{ backgroundColor: '#F9FAFB', borderColor: 'gray' }} />
       <Legend />
       <Line type="monotone" dataKey="sales" stroke="#3B82F6" strokeWidth={2} />
-      <Line type="monotone" dataKey="revenue" stroke="#F59E0B" strokeWidth={2} />
+      <Line type="monotone" dataKey="revenue" stroke="#EF4444" strokeWidth={2} />
     </LineChart>
   </ResponsiveContainer>
 );
 
-// Latest Sales Table Component
+// Tabla de ventas recientes
 const LatestSalesTable = ({ data }) => (
   <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
     <h2 className="text-2xl font-bold mb-4 text-primary">Ventas Recientes</h2>
-    <div className="overflow-x-auto">
-      <table className="w-full text-left">
-        <thead>
-          <tr className="bg-gray-200 text-gray-700 uppercase text-sm">
-            <th className="py-3 px-6">ID</th>
-            <th className="py-3 px-6">Producto</th>
-            <th className="py-3 px-6">Cantidad</th>
-            <th className="py-3 px-6">Fecha</th>
+    <table className="min-w-full bg-white">
+      <thead className="bg-gray-100">
+        <tr>
+          <th className="py-2 px-4 border">ID Venta</th>
+          <th className="py-2 px-4 border">Producto</th>
+          <th className="py-2 px-4 border">Cantidad</th>
+          <th className="py-2 px-4 border">Monto</th>
+        </tr>
+      </thead>
+      <tbody>
+        {data.map(sale => (
+          <tr key={sale.id} className="text-center">
+            <td className="py-2 px-4 border">{sale.id}</td>
+            <td className="py-2 px-4 border">{sale.product}</td>
+            <td className="py-2 px-4 border">{sale.quantity}</td>
+            <td className="py-2 px-4 border">${sale.amount}</td>
           </tr>
-        </thead>
-        <tbody>
-          {data.map((sale, index) => (
-            <tr key={index} className="hover:bg-gray-100">
-              <td className="py-3 px-6">{sale.id}</td>
-              <td className="py-3 px-6">{sale.product}</td>
-              <td className="py-3 px-6">{sale.quantity}</td>
-              <td className="py-3 px-6">{new Date(sale.date).toLocaleDateString()}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+        ))}
+      </tbody>
+    </table>
   </div>
 );
 
-// Summary Panel Component
+// Panel de Resumen
 const SummaryPanel = ({ summary }) => (
   <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
-    <h2 className="text-2xl font-bold mb-4 text-primary">Resumen de Actividades</h2>
-    <p>{summary.description}</p>
+    <h2 className="text-2xl font-bold mb-4 text-primary">Resumen</h2>
+    <p>{summary ? summary.text : "Cargando..."}</p>
   </div>
 );
 
-// Customer Analysis Component
+// Análisis de Clientes
 const CustomerAnalysis = ({ analysis }) => (
   <div className="bg-white p-6 rounded-lg shadow-lg mb-8">
     <h2 className="text-2xl font-bold mb-4 text-primary">Análisis de Clientes</h2>
-    {/* Similar table or chart could go here */}
+    <ul>
+      {analysis.map((item, index) => (
+        <li key={index} className="mb-2">{item}</li>
+      ))}
+    </ul>
   </div>
 );
 
