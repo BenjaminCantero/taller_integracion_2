@@ -4,7 +4,7 @@
 import { useState } from "react"
 import axios from "axios";
 
-export default function Register( {setActual, setUsuariosAdminTemporales} ) {
+export default function Register( {setActual, setUsuariosAdminTemporales, usuariosAdminTemporales} ) {
 
     const [inputNombreForm, setInputNombreForm] = useState('');
     const [inputCorreoForm, setInputCorreoForm] = useState('');
@@ -33,13 +33,14 @@ export default function Register( {setActual, setUsuariosAdminTemporales} ) {
                 id_admin: 1
             });
         } catch (error) {
-            console.error('Error al conectar con la api:', error);
+            console.error('Error al agregar el usuario:', error);
         }
     };
     
     // Crear un nuevo usuario
     const crearUsuarioAdministrador = () => {
         const usuarioNuevo = {
+            codigo_vendedor: usuariosAdminTemporales.length +1,
             nombre_usuario: inputNombreForm,
             nombre_empresa: inputEmpresaForm,
             email: inputCorreoForm,

@@ -1,5 +1,5 @@
-"use client";
 
+'use client';
 import './globals.css';
 import Autentificacion from './autentificacion';
 import Sidebar from './components/sidebar';
@@ -16,13 +16,41 @@ import Configuraciones from './configuraciones/page';
 import { useState, useEffect } from 'react';
 
 const Layout = () => {
+  const [usuarioActivoTemporal, setUsuarioActivoTemporal] = useState(false);
+  const [usuarioActivoApi, setUsuarioActivoApi] = useState(false);
   const [usuarioActivo, setUsuarioActivo] = useState(false);
   const [usuarioInfo, setUsuarioInfo] = useState({});
   const [pagina, setPagina] = useState('');
 
+  const [usuariosAdminTemporales, setUsuariosAdminTemporales] = useState({});
+  const [usuariosVendedoresTemporales, setUsuariosVendedoresTemporales] = useState({});
+
+  console.log(usuariosAdminTemporales);
+
+// -----------------------------------------------
+// Carga la información de los usuarios temporales
+// -----------------------------------------------
   useEffect(() => {
-    setPagina('Home'); 
-  }, []);
+    const cargaUsuariosAdminTemporales = () => {
+      setUsuariosAdminTemporales(
+           [
+               { codigo_vendedor:1, nombre_usuario:'admin1', nombre_empresa:'Empresa 0', password:'123', email:'admin1@gmail.com', id_rol:1, id_admin:1}
+           ]
+       );
+   }
+
+   const cargaUsuariosVendedoresTemporales = () => {
+       setUsuariosVendedoresTemporales(
+           [
+               { id_vendedores:2, nombres:'vendedor1', apellidos:'v1', rut:'111111111', contraseña:'123', id_admin:1, id_rol:2, nombre_empresa:'Empresa 0'}
+           ]
+       )
+   }
+
+   setPagina('Home'); // Primera pagina que vera el usuario
+   cargaUsuariosAdminTemporales();
+   cargaUsuariosVendedoresTemporales();
+}, []);
 
   const renderPage = () => {
     if (pagina === 'Home') {
@@ -30,13 +58,13 @@ const Layout = () => {
     } else if (pagina === 'Dashboard') {
       return <Dasboard />;
     } else if (pagina === 'Usuarios') {
-      return <Usuarios />
+      return <Usuarios usuarioInfo={usuarioInfo} usuariosAdminTemporales={usuariosAdminTemporales} usuariosVendedoresTemporales={usuariosVendedoresTemporales} setUsuariosAdminTemporales={setUsuariosAdminTemporales} usuarioActivoTemporal={usuarioActivoTemporal} usuarioActivoApi={usuarioActivoApi}/>
     } else if (pagina === 'Productos') {
       return <Productos />
     } else if (pagina === 'Ventas') {
       return <ProductManager />
     } else if  (pagina === 'Configuraciones') {
-      return <Configuraciones usuarioInfo={usuarioInfo} setUsuarioInfo={setUsuarioInfo}/>
+      return <Configuraciones usuarioInfo={usuarioInfo} setUsuarioInfo={setUsuarioInfo} usuariosAdminTemporales={usuariosAdminTemporales} setUsuariosAdminTemporales={setUsuariosAdminTemporales}/>
     }
   };
 
@@ -46,10 +74,15 @@ const Layout = () => {
         {
           !usuarioActivo ? (
             <Autentificacion
+              usuariosAdminTemporales={usuariosAdminTemporales}
+              usuariosVendedoresTemporales={usuariosVendedoresTemporales}
+              setUsuariosAdminTemporales={setUsuariosAdminTemporales}
               usuarioActivo={usuarioActivo}
               setUsuarioActivo={setUsuarioActivo}
               setUsuarioInfo={setUsuarioInfo}
               usuarioInfo={usuarioInfo}
+              setUsuarioActivoTemporal={setUsuarioActivoTemporal}
+              setUsuarioActivoApi={setUsuarioActivoApi}
             />
           ) : (
             <Sidebar
@@ -57,6 +90,8 @@ const Layout = () => {
               setUsuarioInfo={setUsuarioInfo}
               usuarioInfo={usuarioInfo}
               setPagina={setPagina}
+              setUsuarioActivoTemporal={setUsuarioActivoTemporal}
+              setUsuarioActivoApi={setUsuarioActivoApi}
               >
                 {renderPage()}
             </Sidebar>

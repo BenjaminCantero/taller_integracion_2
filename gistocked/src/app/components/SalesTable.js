@@ -1,7 +1,10 @@
-const SalesTable = ({ sales, handleEditSale, handleDeleteSale, handleIncreaseQuantity, handleDecreaseQuantity }) => {
+import React from 'react';
+
+const SalesTable = ({ sales, registeredSales, handleEditSale, handleDeleteSale, handleIncreaseQuantity, handleDecreaseQuantity }) => {
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow">
+      <h2 className="text-2xl font-bold mb-4">Ventas Actuales</h2>
+      <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow mb-6">
         <thead className="bg-gray-800 text-white">
           <tr>
             <th className="py-2 px-4 text-left">ID Venta</th>
@@ -54,9 +57,32 @@ const SalesTable = ({ sales, handleEditSale, handleDeleteSale, handleIncreaseQua
           ))}
         </tbody>
       </table>
+
+      <h2 className="text-2xl font-bold mb-4">Registro de Ventas</h2>
+      <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow">
+        <thead className="bg-gray-800 text-white">
+          <tr>
+            <th className="py-2 px-4 text-left">ID Venta</th>
+            <th className="py-2 px-4 text-left">Producto</th>
+            <th className="py-2 px-4 text-left">Cantidad</th>
+            <th className="py-2 px-4 text-left">Total</th>
+            <th className="py-2 px-4 text-left">Fecha</th>
+          </tr>
+        </thead>
+        <tbody>
+          {registeredSales.map((sale) => (
+            <tr key={sale.id} className="border-b border-gray-200">
+              <td className="py-2 px-4">{sale.id}</td>
+              <td className="py-2 px-4">{sale.producto}</td>
+              <td className="py-2 px-4">{sale.cantidad}</td>
+              <td className="py-2 px-4">${sale.total}</td>
+              <td className="py-2 px-4">{sale.fecha}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
 
 export default SalesTable;
-
