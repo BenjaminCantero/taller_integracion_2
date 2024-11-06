@@ -1,12 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
 
-const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTemporal, usuarioActivoApi, usuariosAdminTemporales, usuariosVendedoresTemporales, setUsuariosAdminTemporales, setUsuariosVendedoresTemporales }) => {
+const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTemporal, usuarioActivoApi, usuariosAdminTemporales, usuariosVendedoresTemporales, setUsuariosAdminTemporales, setUsuariosVendedoresTemporales, control, adminType, vendedorType, adminAddFrom, vendedorAddForm }) => {
   // Variables de control
   const [idRol, setIdRol] = useState(1);
-  const [control, setControl] = useState(true);
-  const [adminType, setAdminType] = useState(false);
-  const [vendedorType, setVededorType] = useState(false);
   
   // Atributos de los administradores
   const [nombreUsuario, setNombreUsuario] = useState('');
@@ -18,7 +15,6 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
   const [rut, setRut] = useState('');
   const [nombres, setNombres] = useState('');
   const [apellidos, setApellidos] = useState('');
-  const [idRolVendedor, setIdRolVendedor] = useState(2);
   const [passwordVendedor, setPasswordVendedor] = useState('');
   const [nombreEmpresaVendedor, setNombreEmpresaVendedor] = useState('');
 
@@ -36,16 +32,6 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
       setIdRol(2);
     }
   }, [onEditUser]);
-
-  const adminForm = () => {
-    setControl(false);
-    setAdminType(true);
-  }
-
-  const vendedorForm = () => {
-    setControl(false);
-    setVededorType(true);
-  }
 
   // Valido solo para los usuarios Temporales (API apagada)
   const crearUsuario = () => {
@@ -114,7 +100,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
                     ...(apellidos ? {apellidos: apellidos} : onEditUser.apellidos),
                     ...(passwordVendedor ? {contraseña: passwordVendedor}  : onEditUser.contraseña),
                     ...(nombreEmpresaVendedor ? {nombre_empresa: nombreEmpresaVendedor} : onEditUser.nombre_empresa),
-                    ...(idRolVendedor ? {id_rol: idRolVendedor} : onEditUser.id_rol)
+                    ...(idRol ? {id_rol: idRol} : onEditUser.id_rol)
                     }
                 : usuario // Retorna el usuario sin cambios si no coincide
         );
@@ -125,6 +111,32 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
     onClose();
 };
 
+  const crearAdminNuevo = () => {
+    const userAddApi = {
+      codigo_vendedor: undefined,
+      nombre_usuario: nombreUsuario,
+      nombre_empresa: nombreEmpresa,
+      password: password,
+      email: email,
+      pin: 123,
+      id_rol: idRol,
+      id_admin: 1,
+    };
+    return userAddApi
+  }
+
+  const crearVendedorNuevo = () => {
+    const userAddVendedor = {
+      id_vendedores: undefined,
+      nombres: nombres,
+      apellidos: apellidos,
+      rut: rut,
+      contraseña: passwordVendedor,
+      id_admin: 1,
+      nombre_empresa: nombreEmpresaVendedor
+    }
+    return userAddVendedor
+  }
   // Selecciona la función correcta dependiendo de si la 'API esta encendida o apagada'
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -149,7 +161,14 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
       }
     } else { // Creación de usuario
       if (usuarioActivoApi) { // Función de la API encendida
-        onAddUser(userPayload);
+        if (adminType) {
+          const userAddApi = crearAdminNuevo();
+          onAddUser(1, userAddApi);
+        } else if (vendedorType) {
+          const userAddVendedor = crearVendedorNuevo();
+          onAddUser(2, userAddVendedor);
+        }
+        
       } else if (usuarioActivoTemporal) { // Función de la API apagada
         crearUsuario();
       }
@@ -160,7 +179,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
 
   return (
     <div className='fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50'>
-      {control ? (
+      {control && !(onEditUser) ? (
       <div className='p-10 bg-white rounded-lg'>
         <ul className='space-y-5 text-black'>
               {/* ------------------ Bienvenida al cliente ------------------- */}
@@ -174,7 +193,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
             <li className='font-racing_sans_one text-center text-lg'>
                 <div className='py-1 border border-black rounded-xl'>
                     <button
-                    onClick={adminForm}
+                    onClick={adminAddFrom}
                     className='w-full'
                     >
                         Administrador
@@ -186,7 +205,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
             <li className='font-racing_sans_one text-center text-lg'>
                 <div className='py-1 border border-black rounded-xl'>
                     <button
-                    onClick={vendedorForm}
+                    onClick={vendedorAddForm}
                     className='w-full'
                     >
                         Vendedor
@@ -389,7 +408,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
                 className='inputsUsuarios p-2 w-full text-black bg-white border-2 border-gray-300 rounded-lg focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
               >
                 <option hidden={!onEditUser} value={1}>Administrador</option>
-                <option value={2}>Vendedor</option>
+                <option                      value={2}>Vendedor</option>
               </select>
             </li>
 

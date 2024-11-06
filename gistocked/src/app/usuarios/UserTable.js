@@ -15,7 +15,7 @@ const UserTable = ({
                   }) => {
 
   // Guardan la información de los usuarios cuando la API esta encendida
-  const usuariosTablaApi = users.filter(user => user.nombre_empresa === usuarioInfo.nombre_empresa && user.codigo_vendedor !== usuarioInfo.codigo_vendedor);
+  const usuariosTablaApi = users.filter(user => user.nombre_empresa === usuarioInfo.nombre_empresa && (user.codigo_vendedor !== usuarioInfo.codigo_vendedor || user.id_vendedor !== user.id_vendedor));
   const tablaEstaVaciaApi = usuariosTablaApi.length < 1;
 
   // Guardan la información de los usuarios cuando la API esta apagada
@@ -68,10 +68,10 @@ const UserTable = ({
               <tr 
                 key={user.codigo_vendedor} 
                 className='text-black rounded-b-lg hover:bg-[#ccdfe0] transition duration-500 ease-linear'>
-                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? user.codigo_vendedor : userVendedor.id_vendedor}</td>
-                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? user.nombre_usuario  : userVendedor.nombres + userVendedor.apellidos}</td>
-                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? user.nombre_empresa  : userVendedor.nombre_empresa}</td>
-                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? user.email      : 'n/a'}</td>
+                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? user.codigo_vendedor : user.id_vendedores}</td>
+                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? user.nombre_usuario  : user.nombres}</td>
+                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? user.nombre_empresa  : user.nombre_empresa}</td>
+                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? user.email      : 'N/A'}</td>
                 <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? 'Administrador' : 'Vendedor'}</td>
                 <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>
                   <div className='flex flex-col'>
@@ -85,7 +85,7 @@ const UserTable = ({
                     <button
                       disabled={usuarioInfo.id_rol !== 1}
                       className='px-4 py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600 focus:ring-2 focus:ring-red-400 focus:ring-opacity-75 transition duration-500'
-                      onClick={() => onDelete(user.codigo_vendedor)}
+                      onClick={() => onDelete(user)}
                     >
                       Eliminar
                     </button>
