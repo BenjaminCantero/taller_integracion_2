@@ -163,17 +163,37 @@ const Page = () => {
     }
   };
   
-  
-
   const guardarCategoria = async () => {
-    try {
-      const response = await axios.post("http://190.114.252.218:8000/api/categorias/", nuevaCategoria);
-      setCategorias([...categorias, response.data]);
-      cerrarModalCategoria();
-    } catch (error) {
-      console.error("Error al guardar categoría:", error);
+    if (!nuevaCategoria.nombre_categoria) {
+        console.error("El nombre de la categoría es obligatorio.");
+        return;
     }
-  };
+
+    console.log("Datos enviados para la nueva categoría:", nuevaCategoria);
+
+    const formData = new FormData();
+    formData.append("nombre_categoria", nuevaCategoria.nombre_categoria);
+
+    try {
+        const response = await axios.post(
+            "http://190.114.252.218:8000/api/categorias/",
+            formData,
+            { headers: { "Content-Type": "multipart/form-data" } }
+        );
+
+        setCategorias([...categorias, response.data]);
+        cerrarModalCategoria();
+    } catch (error) {
+        console.error("Código de estado:", error.response?.status);
+        console.error("Error completo:", error);
+        console.error("Error al guardar categoría:", error.response?.data || error.message);
+        if (error.response) {
+            console.error("Detalles del error:", error.response.data);
+        } else {
+            console.error("No se recibió respuesta del servidor. Verifica si el servidor está activo y la URL es correcta.");
+        }
+    }
+};
 
   const eliminarProducto = async (id) => {
     try {
