@@ -1,99 +1,227 @@
 'use client';
 
+import BarcodeScanner from 'react-qr-barcode-scanner';
 import React, { useState } from 'react';
 import SalesTable from '../components/SalesTable';
+import axios from '../../app/api/services/axiosConfig';
+import { getProductos, addProducto, updateProducto, deleteProducto } from '../api/services/apiServices';
+import { generateInvoicePDF, generateReceiptPDF } from '../ventas/pdfUtils';
 
 const SalesPage = () => {
-  const [sales, setSales] = useState([
-    { id: 1, producto: 'Monitor Samsung Curvo', cantidad: 2, total: 500, fecha: '08/10/2024' },
-    { id: 2, producto: 'Teclado Logitech Gamer', cantidad: 1, total: 100, fecha: '07/10/2024' },
-    { id: 3, producto: 'Mouse Razer DeathAdder', cantidad: 3, total: 150, fecha: '06/10/2024' },
-    { id: 4, producto: 'Silla Gamer DXRacer', cantidad: 1, total: 300, fecha: '05/10/2024' },
-    { id: 5, producto: 'Auriculares HyperX Cloud', cantidad: 2, total: 200, fecha: '04/10/2024' },
-    { id: 6, producto: 'Tarjeta Gráfica RTX 3070', cantidad: 1, total: 700, fecha: '03/10/2024' },
-    { id: 7, producto: 'Procesador AMD Ryzen 9', cantidad: 1, total: 400, fecha: '02/10/2024' },
-    { id: 8, producto: 'Placa Madre ASUS ROG', cantidad: 1, total: 250, fecha: '01/10/2024' }
-  ]);
-
+  const [sales, setSales] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [productos, setProductos] = useState([]);
   const [isInvoice, setIsInvoice] = useState(false);
   const [paymentMethodModal, setPaymentMethodModal] = useState(false);
   const [isNewSaleModalOpen, setIsNewSaleModalOpen] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [registeredSales, setRegisteredSales] = useState([]); // Estado para el registro de ventas
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editingSale, setEditingSale] = useState(null);
-
   const [newSaleData, setNewSaleData] = useState({
-    id: sales.length + 1,
     producto: '',
     cantidad: 1,
-    total: 0,
-    fecha: new Date().toLocaleDateString('es-ES'),
     precio: 0,
+    fecha: new Date().toLocaleDateString('es-ES'),
+    vendedorNombre: '',
+  });
+  const [formData, setFormData] = useState({
+    tipoDocumento: 'boleta',
+    rut: '',
+    razonSocial: '',
+    direccion: '',
+    telefono: '',
+    productos: [],
+    total: 0,
   });
 
-  const handleNewSale = () => {
-    setIsNewSaleModalOpen(true);
-  };
-
-  const handleNewSaleSubmit = (e) => {
-    e.preventDefault();
-    
-    const newSale = {
-      ...newSaleData,
-      total: newSaleData.cantidad * newSaleData.precio,
+  React.useEffect(() => {
+    const fetchSales = async () => {
+      try {
+        const response = await axios.get('http://190.114.252.218:8000/api/ventas/');
+        setSales(response.data);
+      } catch (error) {
+        console.error("Error al cargar las ventas:", error);
+      }
     };
 
-    setSales([...sales, newSale]);
-    setNewSaleData({
-      id: sales.length + 2,
-      producto: '',
-      cantidad: 1,
-      total: 0,
-      fecha: new Date().toLocaleDateString('es-ES'),
-      precio: 0,
-    });
-    setIsNewSaleModalOpen(false);
-  };
+    const fetchProductos = async () => {
+      try {
+        const response = await axios.get('http://190.114.252.218:8000/api/inventarios/');
+        setProductos(response.data);
+      } catch (error) {
+        console.error('Error al obtener productos:', error);
+      }
+    };
+
+    fetchSales();
+    fetchProductos(); // Llamar a la función para obtener productos
+  }, []);
 
   const handleEditSale = (id) => {
-    const saleToEdit = sales.find(sale => sale.id === id);
-    setEditingSale(saleToEdit);
-    setIsEditModalOpen(true);
+    const saleToEdit = sales.find((sale) => sale.id === id);
+    if (saleToEdit) {
+      setNewSaleData({
+        producto: saleToEdit.producto,
+        cantidad: saleToEdit.cantidad,
+        precio: saleToEdit.precio,
+        fecha: new Date(saleToEdit.fecha).toLocaleDateString('es-ES'),
+      });
+      setIsNewSaleModalOpen(true);
+    }
   };
 
-  const handleEditSubmit = (e) => {
+  const handleNewSaleSubmit = async (e) => {
     e.preventDefault();
-    const updatedSales = sales.map(sale => 
-      sale.id === editingSale.id ? editingSale : sale
-    );
-    setSales(updatedSales);
-    setIsEditModalOpen(false);
-    setEditingSale(null);
+    if (!newSaleData.producto || newSaleData.cantidad <= 0 || newSaleData.precio <= 0) {
+      alert("Por favor, completa todos los campos de producto, cantidad y precio correctamente.");
+      return;
+    }
+
+    try {
+      const response = await addProducto(newSaleData); // Usando addProducto para agregar una nueva venta
+      setSales([...sales, response]);
+      setIsNewSaleModalOpen(false);
+      setNewSaleData({ producto: '', cantidad: 1, precio: 0, fecha: new Date().toLocaleDateString('es-ES'), vendedorNombre: '' });
+      alert("Producto agregado con éxito.");
+    } catch (error) {
+      console.error("Error al agregar el producto:", error);
+      alert("No se pudo agregar el producto. Por favor, verifica los datos.");
+    }
   };
 
-  const handleDeleteSale = (id) => {
-    const updatedSales = sales.filter((sale) => sale.id !== id);
-    setSales(updatedSales);
+  const handleScan = async (data) => {
+    if (data) {
+      const scannedBarcode = data;
+      try {
+        const response = await axios.get('http://190.114.252.218:8000/api/inventarios/'); // Obteniendo el inventario completo
+        const producto = response.data.find(item => item.codigoBarras === scannedBarcode);
+  
+        if (producto) {
+          if (producto.stock > 0) {
+            const newSale = {
+              producto: producto.nombre,
+              cantidad: 1,
+              precio: producto.precio,
+              total: producto.precio,
+              fecha: new Date().toLocaleDateString('es-ES'),
+              vendedorNombre: newSaleData.vendedorNombre, // Agregar el nombre del vendedor
+            };
+  
+            // Descontar stock del producto en el inventario
+            await updateProducto(producto.id, { stock: producto.stock - 1 });
+  
+            setSales([...sales, newSale]);
+            setIsScannerOpen(false);
+          } else {
+            alert('Producto sin stock');
+          }
+        } else {
+          alert('Producto no encontrado en la base de datos');
+        }
+      } catch (error) {
+        console.error('Error al conectar con la base de datos:', error);
+        alert('Error al conectar con la base de datos');
+      }
+    }
+  };
+  
+  const handleIncreaseQuantity = async (id) => {
+    const sale = sales.find((sale) => sale.id === id);
+    if (!sale) return;
+  
+    const response = await getInventario();
+    const producto = response.data.find(item => item.nombre === sale.producto);
+  
+    if (producto && producto.stock > 0) {
+      try {
+        await updateProducto(producto.id, { stock: producto.stock - 1 });
+        const updatedSales = sales.map((sale) =>
+          sale.id === id ? { ...sale, cantidad: sale.cantidad + 1, total: (sale.cantidad + 1) * sale.precio } : sale
+        );
+        setSales(updatedSales);
+      } catch (error) {
+        alert('Error al aumentar la cantidad');
+      }
+    } else {
+      alert('No hay suficiente stock');
+    }
+  };
+  
+  const handleDecreaseQuantity = async (id) => {
+    const sale = sales.find((sale) => sale.id === id);
+    if (!sale || sale.cantidad <= 1) return;
+  
+    try {
+      const response = await axios.get('http://190.114.252.218:8000/api/inventarios/');
+      const producto = response.data.find(item => item.nombre === sale.producto);
+  
+      if (producto) {
+        // Incrementar el stock en el inventario al disminuir la cantidad en la venta
+        await updateProducto(producto.id, { stock: producto.stock + 1 });
+  
+        const updatedSales = sales.map((sale) =>
+          sale.id === id ? { ...sale, cantidad: sale.cantidad - 1, total: (sale.cantidad - 1) * sale.precio } : sale
+        );
+        setSales(updatedSales);
+      } else {
+        alert('Producto no encontrado en el inventario');
+      }
+    } catch (error) {
+      console.error('Error al disminuir la cantidad:', error);
+      alert('Error al disminuir la cantidad');
+    }
+  };
+  
+
+  const handleDeleteSale = async (id) => {
+    const sale = sales.find((sale) => sale.id === id);
+    if (!sale) return;
+
+    try {
+      await deleteProducto(sale.productoId); // Llama a deleteProducto para eliminar el producto
+      const updatedSales = sales.filter((sale) => sale.id !== id);
+      setSales(updatedSales);
+      alert('Venta eliminada con éxito.');
+    } catch (error) {
+      console.error('Error al eliminar la venta:', error);
+      alert('No se pudo eliminar la venta. Por favor, intenta de nuevo.');
+    }
   };
 
-  const handleIncreaseQuantity = (id) => {
-    const updatedSales = sales.map((sale) => 
-      sale.id === id ? { ...sale, cantidad: sale.cantidad + 1, total: (sale.cantidad + 1) * (sale.total / sale.cantidad) } : sale
-    );
-    setSales(updatedSales);
+  const handleGenerateDocument = async () => {
+    // Define la variable venta con la información necesaria
+    const venta = {
+      rut: formData.rut,
+      razonSocial: formData.razonSocial,
+      direccion: formData.direccion,
+      telefono: formData.telefono,
+      productos: formData.productos,
+      total: formData.total,
+    };
+
+    if (isInvoice) {
+      const pdfBytes = await generateInvoicePDF(venta);
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `factura.pdf`;
+      link.click();
+    } else {
+      const pdfBytes = await generateReceiptPDF(venta, 'boleta');
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `boleta.pdf`;
+      link.click();
+    }
   };
 
-  const handleDecreaseQuantity = (id) => {
-    const updatedSales = sales.map((sale) =>
-      sale.id === id && sale.cantidad > 1 
-        ? { ...sale, cantidad: sale.cantidad - 1, total: (sale.cantidad - 1) * (sale.total / sale.cantidad) } 
-        : sale
-    );
-    setSales(updatedSales);
-  };
-
-  const handleSelectDocumentType = () => {
-    setIsModalOpen(true);
+  // Definición de la función para alternar entre factura y boleta
+  const toggleDocumentType = () => {
+    setIsInvoice(!isInvoice); // Cambia entre factura y boleta
+    setFormData({ ...formData, tipoDocumento: isInvoice ? 'boleta' : 'factura' }); // Actualiza el tipo de documento en el estado
   };
 
   const handleInvoiceSubmit = (e) => {
@@ -106,179 +234,225 @@ const SalesPage = () => {
     setPaymentMethodModal(true);
   };
 
-  return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Gestión de Ventas</h1>
+return (
+  <div className="container mx-auto p-6">
+    <h1 className="text-3xl font-bold mb-6">Gestión de Ventas</h1>
 
-      <div className="mb-6">
-        <button 
-          className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-          onClick={handleNewSale}
-        >
-          Registrar Nueva Venta
-        </button>
-      </div>
-
-      <SalesTable
-        sales={sales.map(sale => ({
-          ...sale,
-          fecha: new Date(sale.fecha).toLocaleDateString('es-ES'),
-        }))}
-        handleEditSale={handleEditSale}
-        handleDeleteSale={handleDeleteSale}
-        handleIncreaseQuantity={handleIncreaseQuantity}
-        handleDecreaseQuantity={handleDecreaseQuantity}
-      />
-
-      {isNewSaleModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setIsNewSaleModalOpen(false)}>
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-2xl font-bold mb-4">Registrar Nueva Venta</h2>
-            <form onSubmit={handleNewSaleSubmit}>
-              <label className="block mb-2">Producto:</label>
-              <input 
-                type="text" 
-                value={newSaleData.producto}
-                onChange={(e) => setNewSaleData({ ...newSaleData, producto: e.target.value })}
-                className="border rounded w-full py-2 px-3 mb-4"
-                required
-              />
-              <label className="block mb-2">Cantidad:</label>
-              <input 
-                type="number" 
-                value={newSaleData.cantidad}
-                onChange={(e) => setNewSaleData({ ...newSaleData, cantidad: Math.max(1, parseInt(e.target.value)) })}
-                className="border rounded w-full py-2 px-3 mb-4"
-                min="1"
-                required
-              />
-              <label className="block mb-2">Precio Unitario:</label>
-              <input 
-                type="number" 
-                value={newSaleData.precio}
-                onChange={(e) => setNewSaleData({ ...newSaleData, precio: parseFloat(e.target.value) })}
-                className="border rounded w-full py-2 px-3 mb-4"
-                min="0"
-                required
-              />
-              <label className="block mb-2">Fecha:</label>
-              <input 
-                type="date" 
-                value={newSaleData.fecha}
-                onChange={(e) => setNewSaleData({ ...newSaleData, fecha: e.target.value })}
-                className="border rounded w-full py-2 px-3 mb-4"
-                required
-              />
-              <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Agregar Venta</button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {isEditModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setIsEditModalOpen(false)}>
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-2xl font-bold mb-4">Editar Venta</h2>
-            <form onSubmit={handleEditSubmit}>
-              <label className="block mb-2">Producto:</label>
-              <input 
-                type="text" 
-                value={editingSale.producto}
-                onChange={(e) => setEditingSale({ ...editingSale, producto: e.target.value })}
-                className="border rounded w-full py-2 px-3 mb-4"
-                required
-              />
-              <label className="block mb-2">Cantidad:</label>
-              <input 
-                type="number" 
-                value={editingSale.cantidad}
-                onChange={(e) => setEditingSale({ ...editingSale, cantidad: Math.max(1, parseInt(e.target.value)) })}
-                className="border rounded w-full py-2 px-3 mb-4"
-                min="1"
-                required
-              />
-              <label className="block mb-2">Precio:</label>
-              <input 
-                type="number" 
-                value={editingSale.total / editingSale.cantidad}
-                onChange={(e) => setEditingSale({ ...editingSale, total: e.target.value * editingSale.cantidad })}
-                className="border rounded w-full py-2 px-3 mb-4"
-                min="0"
-                required
-              />
-              <label className="block mb-2">Fecha:</label>
-              <input 
-                type="date" 
-                value={editingSale.fecha}
-                onChange={(e) => setEditingSale({ ...editingSale, fecha: e.target.value })}
-                className="border rounded w-full py-2 px-3 mb-4"
-                required
-              />
-              <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Guardar Cambios</button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      <div className="mt-6 flex justify-start space-x-4">
-        <button 
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          onClick={handleSelectDocumentType}
-        >
-          Generar Factura/Boleta
-        </button>
-        <button 
-          className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
-          onClick={handleSelectPaymentMethod}
-        >
-          Seleccionar Medio de Pago
-        </button>
-      </div>
-
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setIsModalOpen(false)}>
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-2xl font-bold mb-4">Datos de Factura</h2>
-            <form onSubmit={handleInvoiceSubmit}>
-              <label className="block mb-2">RUT:</label>
-              <input 
-                type="text" 
-                name="rut"
-                className="border rounded w-full py-2 px-3 mb-4"
-                required
-              />
-              <label className="block mb-2">Razón Social:</label>
-              <input 
-                type="text" 
-                name="razonSocial"
-                className="border rounded w-full py-2 px-3 mb-4"
-                required
-              />
-              <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Generar Factura</button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {paymentMethodModal && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setPaymentMethodModal(false)}>
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-2xl font-bold mb-4">Seleccionar Medio de Pago</h2>
-            <form>
-              <label className="block mb-2">Medio de Pago:</label>
-              <select className="border rounded w-full py-2 px-3 mb-4">
-                <option value="efectivo">Efectivo</option>
-                <option value="tarjeta">Tarjeta</option>
-                <option value="transferencia">Transferencia</option>
-              </select>
-              <button type="button" className="bg-blue-500 text-white py-2 px-4 rounded" onClick={() => alert('Medio de pago seleccionado')}>Seleccionar</button>
-            </form>
-          </div>
-        </div>
-      )}
-
+    <div className="mb- 6 space-x-4">
+      <button 
+        className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+        onClick={() => setIsNewSaleModalOpen(true)}
+      >
+        Registrar Nueva Venta
+      </button>
+      <button 
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        onClick={() => setIsScannerOpen(true)}
+      >
+        Escanear Código de Barras
+      </button>
     </div>
-  );
+
+    <SalesTable
+      sales={sales.map(sale => ({
+        ...sale,
+        fecha: new Date(sale.fecha).toLocaleDateString('es-ES'),
+      }))}
+      registeredSales={registeredSales} // Pasa el registro de ventas a la tabla
+      handleEditSale={handleEditSale}
+      handleDeleteSale={handleDeleteSale}
+      handleIncreaseQuantity={handleIncreaseQuantity}
+      handleDecreaseQuantity={handleDecreaseQuantity}
+    /> 
+    {isNewSaleModalOpen && (
+      <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setIsNewSaleModalOpen(false)}>
+        <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
+          <h2 className="text-2xl font-bold mb-4">Registrar Nueva Venta</h2>
+          <form onSubmit={handleNewSaleSubmit}>
+            <label className="block mb-2">Producto:</label>
+            <input 
+              type="text" 
+              value={newSaleData.producto}
+              onChange={(e) => setNewSaleData({ ...newSaleData, producto: e.target.value })}
+              className="border rounded w-full py-2 px-3 mb-4"
+              required
+            />
+            <label className="block mb-2">Cantidad:</label>
+            <input 
+              type="number" 
+              value={newSaleData.cantidad}
+              onChange={(e) => setNewSaleData({ ...newSaleData, cantidad: Math.max(1, parseInt(e.target.value)) })}
+              className="border rounded w-full py-2 px-3 mb-4"
+              min="1"
+              required
+            />
+            <label className="block mb-2">Precio Unitario:</label>
+            <input 
+              type="number" 
+              value={newSaleData.precio}
+              onChange={(e) => setNewSaleData({ ...newSaleData, precio: parseFloat(e.target.value) })}
+              className="border rounded w-full py-2 px-3 mb-4"
+              min=" 0"
+              required
+            />
+            <label className="block mb-2">Fecha:</label>
+            <input 
+              type="date" 
+              value={newSaleData.fecha}
+              onChange={(e) => setNewSaleData({ ...newSaleData, fecha: e.target.value })}
+              className="border rounded w-full py-2 px-3 mb-4"
+              required
+            />
+            <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Agregar Venta</button>
+            <button 
+              type="button" 
+              className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
+              onClick={() => setIsNewSaleModalOpen(false)}
+            >
+              Volver
+            </button>
+          </form>
+        </div>
+      </div>
+    )}
+
+    {isScannerOpen && (
+      <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setIsScannerOpen(false)}>
+        <div className="bg-white p-6 rounded-lg shadow-lg" onClick={(e) => e.stopPropagation()}>
+          <h2 className="text-2xl font-bold mb-4">Escanear Código de Barras</h2>
+          <BarcodeScanner
+            onUpdate={(err, result) => {
+              if (result) handleScan(result);
+            }}
+          />
+          <button 
+            className="mt-4 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+            onClick={() => setIsScannerOpen(false)}
+          >
+            Cerrar Escáner
+          </button>
+          <button 
+            type="button" 
+            className="mt-4 bg-gray-500 text-white py-2 px-4 rounded ml-2"
+            onClick={() => setIsScannerOpen(false)}
+          >
+            Volver
+          </button>
+        </div>
+      </div>
+    )}
+
+    <div className="mt-6 flex justify-start space-x-4">
+      <button 
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        onClick={() => {
+          setIsModalOpen(true);
+setIsInvoice(false); // Inicialmente selecciona boleta
+        }}
+      >
+        Generar Factura/Boleta
+      </button>
+      <button 
+        className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
+        onClick={handleSelectPaymentMethod}
+      >
+        Seleccionar Medio de Pago
+      </button>
+    </div>
+
+    {isModalOpen && (
+      <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+        <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+          <h2 className="text-2xl font-bold mb-4">Datos de {isInvoice ? 'Factura' : 'Boleta'}</h2>
+          <button 
+            className={`mb-4 py-2 px-4 rounded ${isInvoice ? 'bg-blue-500' : 'bg-gray-300'}`}
+            onClick={toggleDocumentType}
+          >
+            {isInvoice ? 'Cambiar a Boleta' : 'Cambiar a Factura'}
+          </button>
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            handleGenerateDocument();
+          }}>
+            {isInvoice && (
+            <>
+              <label className="block mb-2">RUT:</label>
+              <input type="text" name="rut" className="border rounded w-full py-2 px-3 mb-4" 
+                    value={formData.rut} onChange={(e) => setFormData({ ...formData, rut: e.target.value })} required />
+              <label className="block mb-2">Razón Social:</label>
+              <input type="text" name="razonSocial" className="border rounded w-full py-2 px-3 mb-4" 
+                    value={formData.razonSocial} onChange={(e) => setFormData({ ...formData, razonSocial: e.target.value })} required />
+            </>
+          )}
+          <label className="block mb-2">Dirección:</label>
+          <input type="text" name="direccion" className="border rounded w-full py-2 px-3 mb-4" 
+                value ={formData.direccion} onChange={(e) => setFormData({ ...formData, direccion: e.target.value })} required />
+          <label className="block mb-2">Teléfono:</label>
+          <input type="text" name="telefono" className="border rounded w-full py-2 px-3 mb-4" 
+                value={formData.telefono} onChange={(e) => setFormData({ ...formData, telefono: e.target.value })} required />
+          <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Generar {isInvoice ? 'Factura' : 'Boleta'}</button>
+          <button type="button" className="bg-gray-500 text-white py-2 px-4 rounded ml-2" onClick={() => setIsModalOpen(false)}>Volver</button>
+        </form>
+      </div>
+    </div>
+  )}
+
+  {isInvoice && (
+    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+        <h2 className="text-2xl font-bold mb-4">Datos de Factura</h2>
+        <form onSubmit={handleInvoiceSubmit}>
+          <label className="block mb-2">RUT:</label>
+          <input type="text" name="rut" className="border rounded w-full py-2 px-3 mb-4" required />
+          <label className="block mb-2">Razón Social:</label>
+          <input type="text" name="razonSocial" className="border rounded w-full py-2 px-3 mb-4" required />
+          <button
+            type="button"
+            onClick={() => {
+              generateInvoicePDF(false);
+              setIsModalOpen(false);
+            }}
+            className="bg-blue-500 text-white py-2 px-4 rounded"
+          >
+            Generar Factura
+          </button>
+          <button
+            type="button"
+            className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
+            onClick={() => setIsInvoice(false)}
+          >
+            Volver
+          </button>
+        </form>
+      </div>
+    </div>
+  )}
+
+  {paymentMethodModal && (
+    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50" onClick={() => setPaymentMethodModal(false)}>
+      <div className="bg-white p-6 rounded-lg shadow-lg w-1/3" onClick={(e) => e.stopPropagation()}>
+        <h2 className="text- 2xl font-bold mb-4">Seleccionar Medio de Pago</h2>
+        <form>
+          <label className="block mb-2">Medio de Pago:</label>
+          <select className="border rounded w-full py-2 px-3 mb-4">
+            <option value="efectivo">Efectivo</option>
+            <option value="tarjeta">Tarjeta</option>
+            <option value="transferencia">Transferencia</option>
+          </select>
+          <button type="button" className="bg-blue-500 text-white py-2 px-4 rounded" onClick={() => alert('Medio de pago seleccionado')}>Seleccionar</button>
+          <button
+            type="button"
+            className="bg-gray-500 text-white py-2 px-4 rounded ml-2"
+            onClick={() => setPaymentMethodModal(false)}
+          >
+            Volver
+          </button>
+        </form>
+      </div>
+    </div>
+  )}
+</div>
+);
 };
 
 export default SalesPage;

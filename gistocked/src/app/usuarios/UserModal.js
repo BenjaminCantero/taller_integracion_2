@@ -1,116 +1,208 @@
+
 import React, { useState, useEffect } from 'react';
 
-const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit }) => {
-  const [name, setName] = useState('');
+const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTemporal, usuarioActivoApi, usuariosAdminTemporales, setUsuariosAdminTemporales }) => {
+  const [nombreUsuario, setNombreUsuario] = useState('');
+  const [nombreEmpresa, setNombreEmpresa] = useState('');
+  const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState('user');
+  const [idRol, setIdRol] = useState(2); // Id de rol predeterminado
 
   useEffect(() => {
     if (onEditUser) {
-      setName(onEditUser.nombre);
+      setNombreUsuario(onEditUser.nombre_usuario);
       setEmail(onEditUser.email);
-      setRole(onEditUser.rol);
+      setNombreEmpresa(onEditUser.nombre_empresa);
+      setIdRol(onEditUser.id_rol);
     } else {
-      setName('');
+      setNombreUsuario('');
       setEmail('');
-      setRole('user');
+      setNombreEmpresa('');
+      setPassword('');
+      setIdRol(2);
     }
   }, [onEditUser]);
 
+  // Valido solo para los usuarios Temporales (API apagada)
+  const crearUsuario = () => {
+    const usuarioNuevo = {
+      codigo_vendedor: usuariosAdminTemporales.length +1,
+      nombre_usuario: nombreUsuario,
+      nombre_empresa: nombreEmpresa,
+      password: password,
+      email: email,
+      pin: 123,
+      id_rol: idRol,
+      id_admin: 1,
+    }
+    setUsuariosAdminTemporales(prevUsuarios => [
+        ...prevUsuarios,
+        usuarioNuevo
+    ]);
+    onClose();
+};
+
+  // Valido solo para los usuarios Temporales (API apagada)
+  const editarInformacion = () => {  
+    // Actualiza la bd ficticia
+    setUsuariosAdminTemporales(prevState => {
+        return prevState.map(usuario => 
+            usuario.codigo_vendedor === onEditUser.codigo_vendedor
+                ? {
+                    ...usuario,
+                    ...(nombreUsuario && { nombre_usuario: nombreUsuario }),
+                    ...(email ? { email: email } : {}),
+                    ...(password ? { password: password} : {}),
+                    ...(nombreEmpresa ? { nombre_empresa: nombreEmpresa} : {}),
+                    ...(idRol ? {id_rol: idRol} : {})
+                    }
+                : usuario // Retorna el usuario sin cambios si no coincide
+        );
+    });
+    onClose();
+};
+
+  // Selecciona la función correcta dependiendo de si la 'API esta encendida o apagada'
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (onEditUser) {
-      const updatedUser = {
-        id: onEditUser.id,
-        nombre: name,
-        email: email,
-        rol: role,
-      };
-      onSaveEdit(updatedUser);
-    } else {
-      const newUser = {
-        id: Date.now(),
-        nombre: name,
-        email: email,
-        rol: role,
-      };
-      onAddUser(newUser);
-    }
+    // Carga al usuario con la información requerida por la API
+    const userPayload = {
+      codigo_vendedor: onEditUser ? onEditUser.codigo_vendedor : undefined,
+      nombre_usuario: nombreUsuario,
+      nombre_empresa: nombreEmpresa,
+      password: password || onEditUser.password,
+      email: email,
+      pin: 123,
+      id_rol: idRol,
+      id_admin: 1,
+    };
 
+    // Controla que acción se ejecutará
+    if (onEditUser) { // Edición de un usuario
+      if (usuarioActivoApi) { // Función de la API encendida
+        onSaveEdit(userPayload);
+      } else if (usuarioActivoTemporal) { // Función de la API apagada
+        editarInformacion();
+      }
+    } else { // Creación de usuario
+      if (usuarioActivoApi) { // Función de la API encendida
+        onAddUser(userPayload);
+      } else if (usuarioActivoTemporal) { // Función de la API apagada
+        crearUsuario();
+      }
+    }
+    
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="modal-content w-full max-w-3xl bg-white rounded-lg shadow-lg p-8 relative">
+    <div className='fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50'>
+      <ul className='p-8 w-full max-w-3xl relative bg-white rounded-lg modal-content'>
+        {/* Boton que cierra el formulario */}
         <span
-          className="close-btn absolute top-4 right-4 text-gray-500 text-2xl cursor-pointer hover:text-gray-700 transition duration-300"
+          className='close-btn absolute top-4 right-4 text-gray-500 text-2xl cursor-pointer hover:text-gray-700 transition duration-300'
           onClick={onClose}
         >
-          &times;
+          <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' className='bi bi-x-lg' viewBox='0 0 16 16'>
+            <path d='M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z' stroke='currentColor' strokeWidth='1' fill='none'/>
+          </svg>
         </span>
-        <h2 className="text-2xl font-semibold mb-6 text-gray-800">
+
+        {/* Seleciona mensaje en función de la acción a realizar */}
+        <h2 className='text-2xl font-semibold mb-6 text-gray-800'>
           {onEditUser ? 'Editar Usuario' : 'Agregar Nuevo Usuario'}
         </h2>
+
+        {/* Formulario */}
         <form onSubmit={handleSubmit}>
-          <div className="mb-6">
-            <label htmlFor="name" className="block text-lg text-gray-700 font-medium mb-2">Nombre</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200"
-            />
-          </div>
+          <ul>
+            <li className='mb-6'>
+              <label htmlFor='nombreUsuario' className='block text-lg text-gray-700 font-medium mb-2'>Nombre</label>
+              <input
+                type='text'
+                id='nombreUsuario'
+                required
+                value={nombreUsuario}
+                onChange={(e) => setNombreUsuario(e.target.value)}
+                placeholder={onEditUser ? onEditUser.nombreUsuario : 'Nombre de Usuario'}
+                className='inputsUsuarios px-4 py-2 w-full text-black text-lg border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
+              />
+            </li>
 
-          <div className="mb-6">
-            <label htmlFor="email" className="block text-lg text-gray-700 font-medium mb-2">Email</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200"
-            />
-          </div>
+            <li className='mb-6'>
+              <label htmlFor='email' className='block text-lg text-gray-700 font-medium mb-2'>Email</label>
+              <input
+                type='email'
+                id='email'
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={onEditUser ? onEditUser.nombreUsuario : 'Nuevo Email'}
+                className='inputsUsuarios px-4 py-2 w-full text-black text-lg border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
+              />
+            </li>
 
-          <div className="mb-6">
-            <label htmlFor="role" className="block text-lg text-gray-700 font-medium mb-2">Rol</label>
-            <select
-              id="role"
-              name="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200"
-            >
-              <option value="admin">Administrador</option>
-              <option value="user">Usuario</option>
-            </select>
-          </div>
+            <li className='mb-6'>
+              <label htmlFor='password' className='block text-lg text-gray-700 font-medium mb-2'>Contraseña</label>
+              <input
+                type='password'
+                id='password'
+                required={!onEditUser} // Es obligatorio cuando se crea un usuario nuevo
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder={onEditUser ? ('X'.repeat(onEditUser.password.length)) : 'Nueva Contraseña'}
+                className='inputsUsuarios px-4 py-2 w-full text-black text-lg border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
+              />
+            </li>
 
-          <div className="flex justify-end space-x-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition duration-200"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
-            >
-              {onEditUser ? 'Guardar Cambios' : 'Guardar'}
-            </button>
-          </div>
+            <li className='mb-6'>
+              <label htmlFor='nombreEmpresa' className='block text-lg text-gray-700 font-medium mb-2'>Nombre de Empresa</label>
+              <input
+                type='text'
+                id='nombreEmpresa'
+                required
+                value={nombreEmpresa}
+                onChange={(e) => setNombreEmpresa(e.target.value)}
+                placeholder={onEditUser ? onEditUser.nombreUsuario : 'Nombre de la Empresa'}
+                className='inputsUsuarios px-4 py-2 w-full text-black text-lg border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
+              />
+            </li>
+
+            <li className='mb-6'>
+              <label htmlFor='idRol' className='block text-lg text-gray-700 font-medium mb-2'>Rol</label>
+              <select
+                id='idRol'
+                value={idRol}
+                onChange={(e) => setIdRol(Number(e.target.value))}
+                className='w-full px-4 py-2 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200'
+              >
+                <option value={2}>Vendedor</option>
+                <option value={1}>Administrador</option>
+              </select>
+            </li>
+
+            <li>
+              <div className='flex flex-row justify-end'>
+              <button
+                  type='submit'
+                  className='px-4 py-2 mr-2 text-white bg-blue-600 hover:bg-blue-800 transition duration-500 rounded-lg'
+                >
+                  {onEditUser ? 'Guardar Cambios' : 'Agregar'}
+                </button>
+
+                <button
+                  type='button'
+                  onClick={onClose}
+                  className='px-4 py-2 text-white bg-red-500 hover:bg-red-600 transition duration-500 rounded-lg'
+                >
+                  Cancelar
+                </button>
+              </div>
+            </li>
+          </ul>         
         </form>
-      </div>
+      </ul>
     </div>
   );
 };

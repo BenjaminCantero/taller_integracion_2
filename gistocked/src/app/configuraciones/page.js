@@ -1,39 +1,76 @@
-'use client'
-import { useState } from "react";
 
-const Configuraciones = ({ usuarioInfo, setUsuarioInfo }) => {
+'use client'
+import { useState, useEffect } from 'react';
+
+const Configuraciones = ({ usuarioInfo, setUsuarioInfo, usuariosAdminTemporales, setUsuariosAdminTemporales }) => {
+    // Guardarán los cambios que quiera realizar el usuario
     const [nuevoNombre, setNuevoNombre] = useState('');
     const [nuevoCorreo, setNuevoCorreo] = useState('');
+
+    // Variables gobales para todos los usuarios
+    const [nombre, setNombre] = useState('');
+    const [correo, setCorreo] = useState('');
+    const [contrasena, setContrasena] = useState('');
+
+    const [aux, setAux] = useState(0);
+
+    useEffect(() => {
+    if (usuarioInfo) {
+        if (usuarioInfo.id_rol === 1) {
+            setNombre(usuarioInfo.nombre_usuario);
+            setCorreo(usuarioInfo.email);
+            setContrasena(usuarioInfo.password);
+            setAux(usuarioInfo.codigo_vendedor);
+
+        } else {
+            console.log('No hay un usuario activo');
+        }
+    }
+}, [usuarioInfo]);
 
     const validarCorreo = (correo) => {
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Expresión regular básica para validar correos
         return regex.test(correo);
     };
 
-    const aceptar = () => {
+    const editarInformacion = () => {
         // Validar el nuevo correo
         const correoValido = validarCorreo(nuevoCorreo);
+        
+        // Actualiza la bd ficticia
+        setUsuariosAdminTemporales(prevState => {
+            return prevState.map(usuario => 
+                usuario.codigo_vendedor === aux
+                    ? {
+                        ...usuario,
+                        ...(nuevoNombre && { nombre_usuario: nuevoNombre }),
+                        ...(correoValido ? { email: nuevoCorreo } : {})
+                        }
+                    : usuario // Retorna el usuario sin cambios si no coincide
+            );
+        });
 
         // Actualiza el estado de usuarioInfo solo si el correo es válido
         setUsuarioInfo(prevState => ({
             ...prevState,
-            ...(nuevoNombre && { nombre: nuevoNombre }),
-            ...(correoValido ? { correo: nuevoCorreo } : {}) // Cambia correo solo si es válido
+            ...(nuevoNombre && { nombre_usuario: nuevoNombre }),
+            ...(correoValido ? { email: nuevoCorreo } : {}) // Cambia correo solo si es válido
         }));
-
+        
         // Limpiar los campos
         setNuevoNombre('');
         setNuevoCorreo('');
     };
 
-    const cancelar = () => {
+    // Elimina la información de los campos
+    const cancelarEdicion = () => {
         setNuevoNombre('');
         setNuevoCorreo('');
         return;
     };
 
     return (
-        <div className='min-h-screen min-w-[800px] flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-300'>
+        <div className='min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-300'>
             <div className='flex mb-8'>
                 <div className='w-full grid grid-cols-4'>
                     <div className='col-start-1 col-span-4'>
@@ -44,16 +81,16 @@ const Configuraciones = ({ usuarioInfo, setUsuarioInfo }) => {
                 </div>
             </div>
 
-            <main className='flex flex-col md:flex-row rounded-lg shadow-xl bg-white overflow-hidden w-full max-w-5xl'>
-                <section className='p-10 bg-gradient-to-br from-gray-100 to-indigo-50'>
+            <main className='flex flex-col justify-between rounded-lg shadow-xl bg-white md:flex-row overflow-hidden'>
+                <section className='p-10 border border-r-gray-300 bg-gradient-to-br from-gray-100 to-indigo-50'>
                     <ul className='space-y-5'>
                         <li>
                             <label className='block font-bold text-indigo-700 text-lg'>Nombre actual</label>
                             <input
                                 readOnly
                                 type='text'
-                                value={usuarioInfo.nombre}
-                                className='my-2 px-4 py-2 block w-full text-lg rounded-lg bg-gray-200 border border-indigo-400 focus:outline-none'
+                                value={nombre}
+                                className='my-2 px-4 py-2 block w-full text-lg rounded-lg bg-gray-100 border border-indigo-400 focus:outline-none'
                             />
                         </li>
 
@@ -62,21 +99,21 @@ const Configuraciones = ({ usuarioInfo, setUsuarioInfo }) => {
                             <input
                                 readOnly
                                 type='text'
-                                value={usuarioInfo.correo}
-                                className='my-2 px-4 py-2 block w-full text-lg rounded-lg bg-gray-200 border border-indigo-400 focus:outline-none'
+                                value={correo}
+                                className='my-2 px-4 py-2 block w-full text-lg rounded-lg bg-gray-100 border border-indigo-400 focus:outline-none'
                             />
                         </li>
                     </ul>
                 </section>
 
-                <section className='p-10 bg-gradient-to-br from-gray-100 to-indigo-50'>
+                <section className='p-10 border border-l-gray-300 bg-gradient-to-br from-gray-100 to-indigo-50'>
                     <form>
                         <ul className='space-y-5'>
                             <li>
                                 <label className='block font-bold text-indigo-700 text-lg'>Cambiar Nombre</label>
                                 <input
                                     type='text'
-                                    placeholder={usuarioInfo.nombre}
+                                    placeholder={nombre}
                                     value={nuevoNombre}
                                     onChange={(e) => setNuevoNombre(e.target.value)}
                                     className='my-2 px-4 py-2 block w-full text-lg rounded-lg bg-gray-100 border border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500'
@@ -87,7 +124,7 @@ const Configuraciones = ({ usuarioInfo, setUsuarioInfo }) => {
                                 <label className='block font-bold text-indigo-700 text-lg'>Cambiar Correo</label>
                                 <input
                                     type='email'
-                                    placeholder={usuarioInfo.correo}
+                                    placeholder={correo}
                                     value={nuevoCorreo}
                                     onChange={(e) => setNuevoCorreo(e.target.value)}
                                     className='my-2 px-4 py-2 block w-full text-lg rounded-lg bg-gray-100 border border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500'
@@ -98,18 +135,18 @@ const Configuraciones = ({ usuarioInfo, setUsuarioInfo }) => {
                                 <div className='flex justify-between items-center'>
                                     <button
                                         type='button'
-                                        onClick={cancelar}
-                                        className='px-6 py-2 text-lg text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors'
+                                        onClick={editarInformacion}
+                                        className='px-6 py-2 text-lg text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors'
                                     >
-                                        Cancelar
+                                        Aceptar
                                     </button>
 
                                     <button
                                         type='button'
-                                        onClick={aceptar}
-                                        className='px-6 py-2 text-lg text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors'
+                                        onClick={cancelarEdicion}
+                                        className='px-6 py-2 text-lg text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors'
                                     >
-                                        Aceptar
+                                        Cancelar
                                     </button>
                                 </div>
                             </li>

@@ -1,20 +1,23 @@
+
 'use client';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome, faTachometerAlt, faUsers, faBoxes, faShoppingCart, faCog, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 
-const Sidebar = ({ children, setUsuarioActivo, setUsuarioInfo, usuarioInfo, setPagina }) => {
+const Sidebar = ( {children, setUsuarioActivo, setUsuarioInfo, usuarioInfo, setPagina, setUsuarioActivoTemporal, setUsuarioActivoApi} ) => {
   const cambiarPagina = (pagina) => {
-    console.log(pagina);
+    console.log(pagina)
     setPagina(pagina);
-  };
+  }
 
   const cerrarSesion = () => {
+    setPagina('Home');
     setUsuarioInfo({});
     setUsuarioActivo(false);
-    return;
-  };
-
+    setUsuarioActivoTemporal(false);
+    setUsuarioActivoApi(false);
+    return
+  }
   return (
     <div className='flex flex-row'>
       {/* SideBar */}
@@ -27,33 +30,33 @@ const Sidebar = ({ children, setUsuarioActivo, setUsuarioInfo, usuarioInfo, setP
 
         <nav className='flex-grow'>
           <ul className='space-y-6'>
-            {/* Redirección hacia Home */}
-            <li className='w-full'>
-              <button 
-                onClick={() => cambiarPagina('Home')}
-                className='w-full'
-              >
-                <span className='px-2 py-4 flex items-center hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-700'>
-                  <FontAwesomeIcon icon={faHome} className='mx-5 text-lg' /> Inicio
-                </span>
-              </button>
-            </li>
-
-            {/* Redirección hacia Dashboard */}
-            <li className='w-full'>
-              <button 
-                onClick={() => cambiarPagina('Dashboard')}
-                className='w-full'
-              >
-                <span className='px-2 py-4 flex items-center hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-700'>
-                  <FontAwesomeIcon icon={faTachometerAlt} className='mx-5 text-lg' /> Dashboard
-                </span>
-              </button>
-            </li>
-
             {/* Redirección hacia Usuarios */}
-            {usuarioInfo.rol === '1' && (
+            {usuarioInfo.id_rol === 1 && (
               <>
+                {/* Redirección hacia Home */}
+                <li className='w-full'>
+                  <button 
+                    onClick={() => cambiarPagina('Home')}
+                    className='w-full'
+                  >
+                    <span className='px-2 py-4 flex items-center hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-700'>
+                      <FontAwesomeIcon icon={faHome} className='mx-5 text-lg' /> Inicio
+                    </span>
+                  </button>
+                </li>
+
+                {/* Redirección hacia Dashboard */}
+                <li className='w-full'>
+                  <button 
+                    onClick={() => cambiarPagina('Dashboard')}
+                    className='w-full'
+                  >
+                    <span className='px-2 py-4 flex items-center hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-700'>
+                      <FontAwesomeIcon icon={faTachometerAlt} className='mx-5 text-lg' /> Dashboard
+                    </span>
+                  </button>
+                </li>
+
                 {/* Redirección hacia Usuarios */}
                 <li className='w-full'>
                   <button 
@@ -77,11 +80,7 @@ const Sidebar = ({ children, setUsuarioActivo, setUsuarioInfo, usuarioInfo, setP
                     </span>
                   </button>
                 </li>
-              </>
-            )}
 
-            {(usuarioInfo.rol === '1' || usuarioInfo.rol === '2') && (
-              <>
                 {/* Redirección hacia Ventas */}
                 <li className='w-full'>
                   <button 
@@ -120,12 +119,65 @@ const Sidebar = ({ children, setUsuarioActivo, setUsuarioInfo, usuarioInfo, setP
                 </li>
               </>
             )}
+
+            {(usuarioInfo.rut) && (
+              <>
+                {/* Redirección hacia Home */}
+                <li className='w-full'>
+                  <button 
+                    onClick={() => cambiarPagina('Home')}
+                    className='w-full'
+                  >
+                    <span className='px-2 py-4 flex items-center hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-700'>
+                      <FontAwesomeIcon icon={faHome} className='mx-5 text-lg' /> Inicio
+                    </span>
+                  </button>
+                </li>
+
+                {/* Redirección hacia Dashboard */}
+                <li className='w-full'>
+                  <button 
+                    onClick={() => cambiarPagina('Dashboard')}
+                    className='w-full'
+                  >
+                    <span className='px-2 py-4 flex items-center hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-700'>
+                      <FontAwesomeIcon icon={faTachometerAlt} className='mx-5 text-lg' /> Dashboard
+                    </span>
+                  </button>
+                </li>
+
+                {/* Redirección hacia Ventas */}
+                <li className='w-full'>
+                  <button 
+                    onClick={() => cambiarPagina('Ventas')}
+                    className='w-full'
+                  >
+                    <span className='px-2 py-4 flex items-center hover:bg-gray-700 hover:text-yellow-400 transition-colors duration-700'>
+                      <FontAwesomeIcon icon={faShoppingCart} className='mx-5 text-lg' /> Ventas
+                    </span>
+                  </button>
+                </li>
+
+                {/* Cerrar Sesión */}
+                <li className='w-full'>
+                  <div className='px-2 py-4 flex items-center hover:bg-gray-700 hover:text-red-500 transition-colors duration-700'>
+                    <button
+                      type='button'
+                      onClick={cerrarSesion}
+                    >
+                      <FontAwesomeIcon icon={faSignOutAlt} className='mx-5 text-lg' />
+                      Cerrar sesión
+                    </button>
+                  </div>
+                </li>
+              </>
+            )}
           </ul>
         </nav>
       </section>
 
       {/* Children */}
-      <section className='grow ml-60 bg-gray-100 overflow-y-auto'>
+      <section className='h-screen grow ml-60 bg-gray-100 overflow-y-auto'>
         {children}
       </section>
     </div>
