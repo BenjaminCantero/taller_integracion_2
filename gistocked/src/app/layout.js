@@ -40,7 +40,7 @@ const Layout = () => {
    const cargaUsuariosVendedoresTemporales = () => {
        setUsuariosVendedoresTemporales(
            [
-               { id_vendedores:2, nombres:'vendedor1', apellidos:'v1', rut:'111111111', contraseña:'123', id_admin:1, id_rol:2, nombre_empresa:'Empresa 0'}
+               { id_vendedores:1, nombres:'vendedor1', apellidos:'v1', rut:'111111111', contraseña:'123', id_admin:1, id_rol:2, nombre_empresa:'Empresa 0'}
            ]
        )
    }
@@ -56,7 +56,7 @@ const Layout = () => {
     } else if (pagina === 'Dashboard') {
       return <Dasboard />;
     } else if (pagina === 'Usuarios') {
-      return <Usuarios usuarioInfo={usuarioInfo} usuariosAdminTemporales={usuariosAdminTemporales} usuariosVendedoresTemporales={usuariosVendedoresTemporales} setUsuariosAdminTemporales={setUsuariosAdminTemporales} usuarioActivoTemporal={usuarioActivoTemporal} usuarioActivoApi={usuarioActivoApi}/>
+      return <Usuarios usuarioInfo={usuarioInfo} usuariosAdminTemporales={usuariosAdminTemporales} usuariosVendedoresTemporales={usuariosVendedoresTemporales} setUsuariosAdminTemporales={setUsuariosAdminTemporales} setUsuariosVendedoresTemporales={setUsuariosVendedoresTemporales} usuarioActivoTemporal={usuarioActivoTemporal} usuarioActivoApi={usuarioActivoApi}/>
     } else if (pagina === 'Productos') {
       return <Productos />
     } else if (pagina === 'Ventas') {

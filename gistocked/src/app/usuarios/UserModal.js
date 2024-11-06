@@ -1,18 +1,18 @@
 
 import React, { useState, useEffect } from 'react';
 
-const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTemporal, usuarioActivoApi, usuariosAdminTemporales, setUsuariosAdminTemporales }) => {
+const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTemporal, usuarioActivoApi, usuariosAdminTemporales, usuariosVendedoresTemporales, setUsuariosAdminTemporales, setUsuariosVendedoresTemporales }) => {
   // Variables de control
+  const [idRol, setIdRol] = useState(1);
   const [control, setControl] = useState(true);
   const [adminType, setAdminType] = useState(false);
   const [vendedorType, setVededorType] = useState(false);
   
   // Atributos de los administradores
   const [nombreUsuario, setNombreUsuario] = useState('');
-  const [nombreEmpresa, setNombreEmpresa] = useState('');
-  const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
-  const [idRol, setIdRol] = useState(1);
+  const [password, setPassword] = useState('');
+  const [nombreEmpresa, setNombreEmpresa] = useState('');
 
   // Atributos de los Vendedores
   const [rut, setRut] = useState('');
@@ -49,40 +49,79 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
 
   // Valido solo para los usuarios Temporales (API apagada)
   const crearUsuario = () => {
-    const usuarioNuevo = {
-      codigo_vendedor: usuariosAdminTemporales.length +1,
-      nombre_usuario: nombreUsuario,
-      nombre_empresa: nombreEmpresa,
-      password: password,
-      email: email,
-      pin: 123,
-      id_rol: idRol,
-      id_admin: 1,
+    if (idRol === 1) {
+      const adminNuevo = {
+        codigo_vendedor: usuariosAdminTemporales.length +1,
+        nombre_usuario: nombreUsuario,
+        nombre_empresa: nombreEmpresa,
+        password: password,
+        email: email,
+        pin: 123,
+        id_rol: idRol,
+        id_admin: 1,
+      }
+      setUsuariosAdminTemporales(prevUsuarios => [
+          ...prevUsuarios,
+          adminNuevo
+      ]);
+    } else if (idRol === 2) {
+      const vendedorNuevo = {
+        id_vendedores: usuariosVendedoresTemporales.length +1,
+        nombres: nombres,
+        apellidos: apellidos,
+        rut: rut,
+        contraseña: passwordVendedor,
+        nombre_empresa: nombreEmpresaVendedor,
+        id_rol: idRol,
+        id_admin: 1,
+      }
+      setUsuariosVendedoresTemporales(prevUsuarios => [
+          ...prevUsuarios,
+          vendedorNuevo
+      ]);
     }
-    setUsuariosAdminTemporales(prevUsuarios => [
-        ...prevUsuarios,
-        usuarioNuevo
-    ]);
+    
     onClose();
 };
 
   // Valido solo para los usuarios Temporales (API apagada)
-  const editarInformacion = () => {  
-    // Actualiza la bd ficticia
-    setUsuariosAdminTemporales(prevState => {
+  const editarInformacion = (roleType) => {
+    if (roleType === 1) {
+      // Actualiza la bd ficticia
+      setUsuariosAdminTemporales(prevState => {
         return prevState.map(usuario => 
             usuario.codigo_vendedor === onEditUser.codigo_vendedor
                 ? {
                     ...usuario,
-                    ...(nombreUsuario && { nombre_usuario: nombreUsuario }),
-                    ...(email ? { email: email } : {}),
-                    ...(password ? { password: password} : {}),
-                    ...(nombreEmpresa ? { nombre_empresa: nombreEmpresa} : {}),
-                    ...(idRol ? {id_rol: idRol} : {})
+                    ...(nombreUsuario ? {nombre_usuario: nombreUsuario} : onEditUser.nombreUsuario),
+                    ...(email ? {email: email}  : onEditUser.email),
+                    ...(password ? {password: password} : onEditUser.password),
+                    ...(nombreEmpresa ? {nombre_empresa: nombreEmpresa} : onEditUser.nombre_empresa),
+                    ...(idRol ? {id_rol: idRol} : onEditUser.id_rol)
                     }
                 : usuario // Retorna el usuario sin cambios si no coincide
         );
     });
+    } else if (roleType === 2) {
+      console.log(usuariosVendedoresTemporales);
+      // Actualiza la bd ficticia
+      setUsuariosVendedoresTemporales(prevState => {
+        return prevState.map(usuario => 
+            usuario.id_vendedores === onEditUser.id_vendedores
+                ? {
+                    ...usuario,
+                    ...(nombres ? {nombres: nombres} : onEditUser.nombres),
+                    ...(apellidos ? {apellidos: apellidos} : onEditUser.apellidos),
+                    ...(passwordVendedor ? {contraseña: passwordVendedor}  : onEditUser.contraseña),
+                    ...(nombreEmpresaVendedor ? {nombre_empresa: nombreEmpresaVendedor} : onEditUser.nombre_empresa),
+                    ...(idRolVendedor ? {id_rol: idRolVendedor} : onEditUser.id_rol)
+                    }
+                : usuario // Retorna el usuario sin cambios si no coincide
+        );
+    });
+    console.log(usuariosVendedoresTemporales);
+    }
+    
     onClose();
 };
 
@@ -90,24 +129,23 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Carga al usuario con la información requerida por la API
-    const userPayload = {
-      codigo_vendedor: onEditUser ? onEditUser.codigo_vendedor : undefined,
-      nombre_usuario: nombreUsuario,
-      nombre_empresa: nombreEmpresa,
-      password: password || onEditUser.password,
-      email: email,
-      pin: 123,
-      id_rol: idRol,
-      id_admin: 1,
-    };
-
     // Controla que acción se ejecutará
     if (onEditUser) { // Edición de un usuario
       if (usuarioActivoApi) { // Función de la API encendida
-        onSaveEdit(userPayload);
+        // Actualiza la información del usuario que pertenece a la API
+        const userEditedApi = {
+          codigo_vendedor: onEditUser ? onEditUser.codigo_vendedor : undefined,
+          nombre_usuario: nombreUsuario,
+          nombre_empresa: nombreEmpresa,
+          password: password || onEditUser.password,
+          email: email,
+          pin: 123,
+          id_rol: idRol,
+          id_admin: 1,
+        };
+        onSaveEdit(userEditedApi);
       } else if (usuarioActivoTemporal) { // Función de la API apagada
-        editarInformacion();
+        editarInformacion(Number(onEditUser.id_rol));
       }
     } else { // Creación de usuario
       if (usuarioActivoApi) { // Función de la API encendida
@@ -160,17 +198,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
       ) : null}
 
       {adminType ? (
-      <div className='p-8 w-full max-w-3xl relative bg-white rounded-lg modal-content'>
-        {/* Boton que cierra el formulario */}
-        <span
-          className='close-btn absolute top-4 right-4 text-gray-500 text-2xl cursor-pointer hover:text-gray-700 transition duration-300'
-          onClick={onClose}
-        >
-          <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' className='bi bi-x-lg' viewBox='0 0 16 16'>
-            <path d='M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z' stroke='currentColor' strokeWidth='1' fill='none'/>
-          </svg>
-        </span>
-
+      <div className='relative px-10 py-6 w-full max-w-xl h-5/6 flex flex-col bg-white rounded-lg modal-content overflow-y-scroll'>
         {/* Selecciona mensaje en función de la acción a realizar */}
         <h2 className='text-2xl font-semibold mb-6 text-gray-800'>
           {onEditUser ? 'Editar Usuario' : 'Agregar Nuevo Usuario'}
@@ -203,7 +231,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={onEditUser ? onEditUser.nombreUsuario : 'Nuevo Email'}
-                className='inputsUsuarios px-4 py-2 w-full text-black text-lg border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:border-2 focus:border-blue-400 transition duration-200'
+                className='inputsUsuarios p-2 w-full text-black bg-white border-2 border-gray-300 rounded-lg focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
               />
             </li>
 
@@ -216,7 +244,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder={onEditUser ? ('X'.repeat(onEditUser.password.length)) : 'Nueva Contraseña'}
-                className='inputsUsuarios px-4 py-2 w-full text-black text-lg border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:border-2 focus:border-blue-400 transition duration-200'
+                className='inputsUsuarios p-2 w-full text-black bg-white border-2 border-gray-300 rounded-lg focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
               />
             </li>
 
@@ -229,18 +257,21 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
                 value={nombreEmpresa}
                 onChange={(e) => setNombreEmpresa(e.target.value)}
                 placeholder={onEditUser ? onEditUser.nombreUsuario : 'Nombre de la Empresa'}
-                className='inputsUsuarios px-4 py-2 w-full text-black text-lg border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:border-2 focus:border-blue-400 transition duration-200'
+                className='inputsUsuarios p-2 w-full text-black bg-white border-2 border-gray-300 rounded-lg focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
               />
             </li>
 
             <li className='mb-6'>
               <label htmlFor='idRol' className='block text-lg text-gray-700 font-medium mb-2'>Rol</label>
-              <input
+              <select
                 id='idRol'
-                value={'Administrador'}
+                value={idRol}
+                onChange={(e) => setIdRol(Number(e.target.value))}
                 className='w-full px-4 py-2 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200'
               >
-              </input>
+                <option                      value={1}>Administrador</option>
+                <option hidden={!onEditUser} value={2}>Vendedor</option>
+              </select>
             </li>
 
             <li>
@@ -267,17 +298,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
     ) : null}
 
       {vendedorType ? (
-      <div className='p-6 w-full max-w-3xl relative bg-white rounded-lg modal-content'>
-        {/* Boton que cierra el formulario */}
-        <span
-          className='close-btn absolute top-4 right-4 text-gray-500 text-2xl cursor-pointer hover:text-gray-700 transition duration-300'
-          onClick={onClose}
-        >
-          <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' className='bi bi-x-lg' viewBox='0 0 16 16'>
-            <path d='M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z' stroke='currentColor' strokeWidth='1' fill='none'/>
-          </svg>
-        </span>
-
+      <div className='relative px-10 py-8 w-full h-5/6 max-w-2xl flex flex-col bg-white rounded-lg modal-content overflow-y-auto'>
         {/* Selecciona mensaje en función de la acción a realizar */}
         <h2 className='text-2xl font-semibold mb-6 text-gray-800'>
           {onEditUser ? 'Editar Usuario' : 'Agregar Nuevo Usuario'}
@@ -290,43 +311,43 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
           <ul>
             {/* Nombres */}
             <li className='mb-4'>
-              <label htmlFor='nombreUsuario' className='block text-lg text-gray-700 font-medium mb-1'>Nombre</label>
+              <label htmlFor='nombreUsuarioVendedor' className='block text-lg text-gray-700 font-medium mb-1'>Nombre</label>
               <input
                 type='text'
                 id='nombreUsuarioVendedor'
-                required
+                required={!onEditUser}
                 value={nombres}
                 onChange={(e) => setNombres(e.target.value)}
                 placeholder={onEditUser ? onEditUser.nombres : 'Nombre de Usuario'}
-                className='inputsUsuarios px-4 py-2 w-full text-black text-lg border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
+                className='inputsUsuarios p-2 w-full text-black bg-white border-2 border-gray-300 rounded-lg focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
               />
             </li>
 
             {/* Apellidos */}
             <li className='mb-4'>
-              <label htmlFor='nombreUsuario' className='block text-lg text-gray-700 font-medium mb-1'>Nombre</label>
+              <label htmlFor='apellidosUsuarioVendedor' className='block text-lg text-gray-700 font-medium mb-1'>Apellidos</label>
               <input
                 type='text'
                 id='apellidosUsuarioVendedor'
-                required
+                required={!onEditUser}
                 value={apellidos}
                 onChange={(e) => setApellidos(e.target.value)}
-                placeholder={onEditUser ? onEditUser.nombres : 'Nombre de Usuario'}
-                className='inputsUsuarios px-4 py-2 w-full text-black text-lg border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
+                placeholder={onEditUser ? onEditUser.apellidos : 'Apellidos del Usuario'}
+                className='inputsUsuarios p-2 w-full text-black bg-white border-2 border-gray-300 rounded-lg focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
               />
             </li>
 
             {/* RUT */}
-            <li className='mb-4'>
-              <label htmlFor='rut' className='block text-lg text-gray-700 font-medium mb-1'>Rut</label>
+            <li hidden={onEditUser} className='mb-4'>
+              <label htmlFor='rutVendedor' className='block text-lg text-gray-700 font-medium mb-1'>Rut</label>
               <input
                 type='text'
                 id='rutVendedor'
-                required
+                required={!onEditUser}
                 value={rut}
                 onChange={(e) => setRut(e.target.value)}
                 placeholder={onEditUser ? onEditUser.nombres : 'Rut de la persona'}
-                className='inputsUsuarios px-4 py-2 w-full text-black text-lg border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
+                className='inputsUsuarios p-2 w-full text-black bg-white border-2 border-gray-300 rounded-lg focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
               />
             </li>
 
@@ -339,35 +360,37 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
                 required={!onEditUser} // Es obligatorio cuando se crea un usuario nuevo
                 value={passwordVendedor}
                 onChange={(e) => setPasswordVendedor(e.target.value)}
-                placeholder={onEditUser ? ('X'.repeat(onEditUser.passwordVendedor.length)) : 'Nueva Contraseña'}
-                className='inputsUsuarios px-4 py-2 w-full text-black text-lg border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
+                placeholder={onEditUser ? ('X'.repeat(onEditUser.contraseña.length)) : 'Nueva Contraseña'}
+                className='inputsUsuarios p-2 w-full text-black bg-white border-2 border-gray-300 rounded-lg focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
               />
             </li>
 
             {/* Nombre de Empresa */}
             <li className='mb-4'>
-              <label htmlFor='nombreEmpresa' className='block text-lg text-gray-700 font-medium mb-1'>Nombre de Empresa</label>
+              <label htmlFor='nombreEmpresaVendedor' className='block text-lg text-gray-700 font-medium mb-1'>Nombre de Empresa</label>
               <input
                 type='text'
                 id='nombreEmpresaVendedor'
-                required
+                required={!onEditUser}
                 value={nombreEmpresaVendedor}
                 onChange={(e) => setNombreEmpresaVendedor(e.target.value)}
                 placeholder={onEditUser ? onEditUser.nombre_empresa : 'Nombre de la Empresa'}
-                className='inputsUsuarios px-4 py-2 w-full text-black text-lg border-2 border-gray-300 rounded-lg bg-white focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
+                className='inputsUsuarios p-2 w-full text-black bg-white border-2 border-gray-300 rounded-lg focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
               />
             </li>
 
             {/* ROL */}
             <li className='mb-4'>
-              <label htmlFor='idRol' className='block text-lg text-gray-700 font-medium mb-1'>Rol</label>
-              <input
+              <label htmlFor='idRolVendedor' className='block text-lg text-gray-700 font-medium mb-1'>Rol</label>
+              <select
                 id='idRolVendedor'
-                readOnly
-                value={'Vendedor'}
-                className='w-full px-4 py-2 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200'
+                value={idRol}
+                onChange={(e) => setIdRol(e.target.value)}
+                className='inputsUsuarios p-2 w-full text-black bg-white border-2 border-gray-300 rounded-lg focus:outline-none focus:border-2 focus:border-blue-400  transition duration-200'
               >
-              </input>
+                <option hidden={!onEditUser} value={1}>Administrador</option>
+                <option value={2}>Vendedor</option>
+              </select>
             </li>
 
             {/* Botones */}

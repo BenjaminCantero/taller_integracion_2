@@ -5,6 +5,7 @@ const UserTable = ({
                       usuariosAdminTemporales, 
                       usuariosVendedoresTemporales,
                       setUsuariosAdminTemporales,
+                      setUsuariosVendedoresTemporales,
                       usuarioInfo, 
                       users, 
                       onEdit, 
@@ -24,10 +25,17 @@ const UserTable = ({
   const tablaEstaVaciaTemporales = usuariosTablaTemporales.length < 1;
 
   // Valido solo para los usuarios Temporales (API apagada)
-  const eliminarUsuario = (codigo) => {
+  const eliminarUsuario = (userType, codigo) => {
+    if (userType === 1) {
       setUsuariosAdminTemporales(prevState => {
-        return prevState.filter(usuario => usuario.codigo_vendedor !== codigo);
+        return prevState.filter(admin => admin.codigo_vendedor !== codigo);
       });
+    } else if (userType === 2) {
+      setUsuariosVendedoresTemporales(prevState => {
+        return prevState.filter(vendedor => vendedor.id_vendedores !== codigo);
+      });
+    }
+      
   }
 
   return (
@@ -120,7 +128,7 @@ const UserTable = ({
                     <button
                       disabled={usuarioInfo.id_rol !== 1}
                       className='px-4 py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600 focus:ring-2 focus:ring-red-400 focus:ring-opacity-75 transition duration-500'
-                      onClick={() => eliminarUsuario(user.codigo_vendedor)}
+                      onClick={() => eliminarUsuario(user.id_rol, (user.codigo_vendedor || user.id_vendedores))}
                     >
                       Eliminar
                     </button>

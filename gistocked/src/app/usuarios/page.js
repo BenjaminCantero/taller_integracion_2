@@ -12,6 +12,7 @@ const Usuarios = ({
                     usuariosAdminTemporales, 
                     usuariosVendedoresTemporales, 
                     setUsuariosAdminTemporales, 
+                    setUsuariosVendedoresTemporales,
                     usuarioActivoTemporal, 
                     usuarioActivoApi
                 }) => {
@@ -116,6 +117,7 @@ const Usuarios = ({
         usuariosAdminTemporales={usuariosAdminTemporales}
         usuariosVendedoresTemporales={usuariosVendedoresTemporales}
         setUsuariosAdminTemporales={setUsuariosAdminTemporales}
+        setUsuariosVendedoresTemporales={setUsuariosVendedoresTemporales}
         usuarioInfo={usuarioInfo} // Info del usuario activo
         users={users} // Info de los usuarios que se mostrarán en la tabla
         onEdit={handleEdit} 
@@ -134,7 +136,9 @@ const Usuarios = ({
           usuarioActivoTemporal={usuarioActivoTemporal}
           usuarioActivoApi={usuarioActivoApi}
           usuariosAdminTemporales={usuariosAdminTemporales}
+          usuariosVendedoresTemporales={usuariosVendedoresTemporales}
           setUsuariosAdminTemporales={setUsuariosAdminTemporales}
+          setUsuariosVendedoresTemporales={setUsuariosVendedoresTemporales}
         />
       )}
     </main>
