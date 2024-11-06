@@ -1,6 +1,13 @@
 import React from 'react';
 
-const SalesTable = ({ sales, registeredSales, handleEditSale, handleDeleteSale, handleIncreaseQuantity, handleDecreaseQuantity }) => {
+const SalesTable = ({
+  sales = [],
+  registeredSales = [],
+  handleEditSale,
+  handleDeleteSale,
+  handleIncreaseQuantity,
+  handleDecreaseQuantity
+}) => {
   return (
     <div className="space-y-8">
       {/* Cuadro de Ventas Actuales */}
@@ -39,10 +46,10 @@ const SalesTable = ({ sales, registeredSales, handleEditSale, handleDeleteSale, 
                     </button>
                   </div>
                 </td>
-                <td className="py-5 px-6 border-b border-gray-300 text-md text-center">${sale.total}</td>
+                <td className="py-5 px-6 border-b border-gray-300 text-md text-center">${sale.total.toFixed(2)}</td>
                 <td className="py-5 px-6 border-b border-gray-300 text-md text-center">{sale.fecha}</td>
                 <td className="py-5 px-6 border-b border-gray-300 text-md text-center">
-                  <div className="flex flex-col">
+                  <div className="flex flex-col space-y-2">
                     <button
                       className="px-4 py-2 bg-yellow-500 text-white font-semibold rounded-md hover:bg-yellow-600 focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-75 transition duration-500"
                       onClick={() => handleEditSale(sale.id)}
@@ -64,31 +71,33 @@ const SalesTable = ({ sales, registeredSales, handleEditSale, handleDeleteSale, 
       </div>
 
       {/* Cuadro de Registro de Ventas */}
-      <div className="p-6 bg-white border border-gray-300 rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-4">Registro de Ventas</h2>
-        <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow">
-          <thead className="bg-gray-800 text-white">
-            <tr>
-              <th className="px-3 py-5 text-center text-md font-semibold">ID Venta</th>
-              <th className="px-3 py-5 text-center text-md font-semibold">Producto</th>
-              <th className="px-3 py-5 text-center text-md font-semibold">Cantidad</th>
-              <th className="px-3 py-5 text-center text-md font-semibold">Total</th>
-              <th className="px-3 py-5 text-center text-md font-semibold">Fecha</th>
-            </tr>
-          </thead>
-          <tbody>
-            {registeredSales.map((sale) => (
-              <tr key={sale.id} className="text-black hover:bg-[#ccdfe0] transition duration-500 ease-linear">
-                <td className="py-5 px-6 border-b border-gray-300 text-md text-center">{sale.id}</td>
-                <td className="py-5 px-6 border-b border-gray-300 text-md text-center">{sale.producto}</td>
-                <td className="py-5 px-6 border-b border-gray-300 text-md text-center">{sale.cantidad}</td>
-                <td className="py-5 px-6 border-b border-gray-300 text-md text-center">${sale.total}</td>
-                <td className="py-5 px-6 border-b border-gray-300 text-md text-center">{sale.fecha}</td>
+      {registeredSales.length > 0 && (
+        <div className="p-6 bg-white border border-gray-300 rounded-lg shadow-md">
+          <h2 className="text-2xl font-bold mb-4">Registro de Ventas</h2>
+          <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow">
+            <thead className="bg-gray-800 text-white">
+              <tr>
+                <th className="px-3 py-5 text-center text-md font-semibold">ID Venta</th>
+                <th className="px-3 py-5 text-center text-md font-semibold">Producto</th>
+                <th className="px-3 py-5 text-center text-md font-semibold">Cantidad</th>
+                <th className="px-3 py-5 text-center text-md font-semibold">Total</th>
+                <th className="px-3 py-5 text-center text-md font-semibold">Fecha</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {registeredSales.map((sale) => (
+                <tr key={sale.id} className="text-black hover:bg-[#ccdfe0] transition duration-500 ease-linear">
+                  <td className="py-5 px-6 border-b border-gray-300 text-md text-center">{sale.id}</td>
+                  <td className="py-5 px-6 border-b border-gray-300 text-md text-center">{sale.producto}</td>
+                  <td className="py-5 px-6 border-b border-gray-300 text-md text-center">{sale.cantidad}</td>
+                  <td className="py-5 px-6 border-b border-gray-300 text-md text-center">${sale.total.toFixed(2)}</td>
+                  <td className="py-5 px-6 border-b border-gray-300 text-md text-center">{sale.fecha}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };
