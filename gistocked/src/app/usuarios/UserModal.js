@@ -29,7 +29,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
       setEmail('');
       setNombreEmpresa('');
       setPassword('');
-      setIdRol(2);
+      setIdRol(1);
     }
   }, [onEditUser]);
 
@@ -111,6 +111,18 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
     onClose();
 };
 
+  const setupAdminForm = () => {
+    setIdRol(1);
+    adminAddFrom()
+
+  }
+
+  const setupVendedoresForm = () => {
+    setIdRol(2);
+    vendedorAddForm();
+  }
+
+  // Valido para la API
   const crearAdminNuevo = () => {
     const userAddApi = {
       codigo_vendedor: undefined,
@@ -125,6 +137,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
     return userAddApi
   }
 
+  // Valido para la API
   const crearVendedorNuevo = () => {
     const userAddVendedor = {
       id_vendedores: undefined,
@@ -137,6 +150,33 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
     }
     return userAddVendedor
   }
+
+  const editarAdmin = () => {
+    const userEditedApi = {
+      codigo_vendedor: onEditUser.codigo_vendedor,
+      nombre_usuario: nombreUsuario || onEditUser.nombre_usuario,
+      nombre_empresa: nombreEmpresa || onEditUser.nombre_empresa,
+      password: password || onEditUser.password,
+      email: email || onEditUser.email,
+      pin: onEditUser.pin || 123,
+      id_rol: idRol || onEditUser,
+      id_admin: 1,
+    };
+    return userEditedApi
+  }
+
+  const editarVendedor = () => {
+    const userEditedApi = {
+      id_vendedores: onEditUser.id_vendedores,
+      nombres: nombres || onEditUser.nombres,
+      apellidos: apellidos || onEditUser.apellidos,
+      rut: rut || onEditUser.rut,
+      contraseña: passwordVendedor || onEditUser.contraseña,
+      id_admin: 1,
+      nombre_empresa: nombreEmpresaVendedor || onEditUser.nombre_empresa
+    }
+    return userEditedApi
+  }
   // Selecciona la función correcta dependiendo de si la 'API esta encendida o apagada'
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -145,17 +185,16 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
     if (onEditUser) { // Edición de un usuario
       if (usuarioActivoApi) { // Función de la API encendida
         // Actualiza la información del usuario que pertenece a la API
-        const userEditedApi = {
-          codigo_vendedor: onEditUser ? onEditUser.codigo_vendedor : undefined,
-          nombre_usuario: nombreUsuario,
-          nombre_empresa: nombreEmpresa,
-          password: password || onEditUser.password,
-          email: email,
-          pin: 123,
-          id_rol: idRol,
-          id_admin: 1,
-        };
-        onSaveEdit(userEditedApi);
+        if (onEditUser.codigo_vendedor) {
+          const userEditedApi = editarAdmin();
+          setIdRol(1);
+          onSaveEdit(userEditedApi);
+        } else if (onEditUser.id_vendedores) {
+          const userEditedApi = editarVendedor();
+          setIdRol(2);
+          onSaveEdit(userEditedApi)
+        }
+        
       } else if (usuarioActivoTemporal) { // Función de la API apagada
         editarInformacion(Number(onEditUser.id_rol));
       }
@@ -193,7 +232,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
             <li className='font-racing_sans_one text-center text-lg'>
                 <div className='py-1 border border-black rounded-xl'>
                     <button
-                    onClick={adminAddFrom}
+                    onClick={setupAdminForm}
                     className='w-full'
                     >
                         Administrador
@@ -205,7 +244,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
             <li className='font-racing_sans_one text-center text-lg'>
                 <div className='py-1 border border-black rounded-xl'>
                     <button
-                    onClick={vendedorAddForm}
+                    onClick={setupVendedoresForm}
                     className='w-full'
                     >
                         Vendedor
@@ -283,6 +322,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
             <li className='mb-6'>
               <label htmlFor='idRol' className='block text-lg text-gray-700 font-medium mb-2'>Rol</label>
               <select
+                disabled={onEditUser}
                 id='idRol'
                 value={idRol}
                 onChange={(e) => setIdRol(Number(e.target.value))}
@@ -402,6 +442,7 @@ const UserModal = ({ onClose, onAddUser, onEditUser, onSaveEdit, usuarioActivoTe
             <li className='mb-4'>
               <label htmlFor='idRolVendedor' className='block text-lg text-gray-700 font-medium mb-1'>Rol</label>
               <select
+                disabled={onEditUser}
                 id='idRolVendedor'
                 value={idRol}
                 onChange={(e) => setIdRol(e.target.value)}

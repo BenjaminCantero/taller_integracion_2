@@ -97,7 +97,6 @@ const Usuarios = ({
 
   {/* Agrega un nuevo usuario a la base de datos */}
   const handleAddUser = (userType, newUser) => {
-    console.log(newUser)
     if (userType === 1) {
       fetch('http://190.114.252.218:8000/api/usuarios/', {
         method: 'POST',
@@ -149,10 +148,10 @@ const Usuarios = ({
 
   {/* obtiene la información del usuario que se va a editar */}
   const handleEdit = (user) => {
-    if (user.id_rol === 1) {
+    if (user.codigo_vendedor) {
       setAdminType(true);
       setVededorType(false);
-    } else if (user.id_rol === 2) {
+    } else if (user.id_vendedores) {
       setAdminType(false);
       setVededorType(true);
     }
@@ -162,17 +161,32 @@ const Usuarios = ({
 
   {/* Edita la información de un usuario de la base de datos */}
   const handleSaveEdit = (updatedUser) => {
-    fetch(`http://190.114.252.218:8000/api/usuarios/${updatedUser.codigo_vendedor}/`, {
-      method: 'PUT',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(updatedUser)
-    })
-      .then(response => response.json())
-      .then(data => {
-        setUsers(prevUsers => prevUsers.map(user => user.codigo_vendedor === data.codigo_vendedor ? data : user));
-        handleCloseModal();
+    if (updatedUser.codigo_vendedor) {
+      fetch(`http://190.114.252.218:8000/api/usuarios/${updatedUser.codigo_vendedor}/`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(updatedUser)
       })
-      .catch(error => console.error('Error al editar usuario:', error));
+        .then(response => response.json())
+        .then(data => {
+          setUsers(prevUsers => prevUsers.map(user => user.codigo_vendedor === data.codigo_vendedor ? data : user));
+          handleCloseModal();
+        })
+        .catch(error => console.error('Error al editar usuario:', error)); 
+    } else if (updatedUser.id_vendedores) {
+      fetch(`http://190.114.252.218:8000/api/vendedores/${updatedUser.id_vendedores}/`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(updatedUser)
+      })
+        .then(response => response.json())
+        .then(data => {
+          setUsers(prevUsers => prevUsers.map(user => user.id_vendedores === data.id_vendedores ? data : user));
+          handleCloseModal();
+        })
+        .catch(error => console.error('Error al editar usuario:', error)); 
+    }
+    
   };
 
   return (
