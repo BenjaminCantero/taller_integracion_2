@@ -36,41 +36,35 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const salesData = await axios.get('http://190.114.252.218:8000/api/ventas');
-        setSalesCount(salesData.data.length);
-        setSalesRevenue(salesData.data.reduce((acc, sale) => acc + sale.amount, 0));
-
-        const userData = await axios.get('http://190.114.252.218:8000/api/usuarios');
-        setUserCount(userData.data.length); // Corregido
-
-        const productData = await axios.get('http://190.114.252.218:8000/api/inventarios');
-        setProductCount(productData.data.length);
-
-        const monthlySalesData = await axios.get('http://190.114.252.218:8000/api/ventas-mensuales');
-        setMonthlySales(monthlySalesData.data);
-
-        const productRevenueData = await axios.get('http://190.114.252.218:8000/api/ingresos-productos');
-        setProductRevenue(productRevenueData.data);
-
-        const annualComparisonData = await axios.get('http://190.114.252.218:8000/api/comparativa-anual');
-        setAnnualComparison(annualComparisonData.data);
-
-        const recentSalesData = await axios.get('http://190.114.252.218:8000/api/ventas-recientes');
-        setRecentSales(recentSalesData.data);
-
-        const summaryData = await axios.get('http://190.114.252.218:8000/api/resumen');
-        setSummary(summaryData.data);
-
-        const productAnalysisData = await axios.get('http://190.114.252.218:8000/api/analisis-productos');
-        setProductAnalysis(productAnalysisData.data);
-
+        // Datos aleatorios generados localmente
+        const generateRandomData = (keys, length) => {
+          return Array.from({ length }, (_, i) => {
+            const obj = {};
+            keys.forEach(key => obj[key] = Math.floor(Math.random() * 100) + 1);
+            obj.month = `Mes ${i + 1}`; // Clave para el eje X en el gráfico
+            return obj;
+          });
+        };
+  
+        setSalesCount(Math.floor(Math.random() * 1000));
+        setSalesRevenue(Math.floor(Math.random() * 50000));
+        setUserCount(Math.floor(Math.random() * 500));
+        setProductCount(Math.floor(Math.random() * 200));
+  
+        setMonthlySales(generateRandomData(['sales'], 12)); // 12 meses
+        setProductRevenue(generateRandomData(['product', 'revenue'], 10)); // 10 productos
+        setAnnualComparison(generateRandomData(['year', 'sales', 'revenue'], 5)); // 5 años
+        setRecentSales(generateRandomData(['product', 'quantity', 'total'], 5)); // 5 ventas recientes
+        setSummary({ description: "Este es un resumen generado aleatoriamente." });
+        setProductAnalysis([{ analysis: "Análisis generado aleatoriamente" }]);
+  
       } catch (error) {
         console.error("Error fetching data", error);
       }
     };
     fetchData();
   }, []);
-
+    
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
@@ -190,7 +184,7 @@ const RevenueChart = ({ data }) => (
     <YAxis/>
     <Tooltip/>
     <Legend/>
-    <Bar dataKey="revenue" fill="#3B82F6" />
+    <Bar dataKey="revenue" fill="#34D399"/>
   </BarChart>
 );
 
@@ -202,30 +196,27 @@ const ComparisonChart = ({ data }) => (
     <Tooltip/>
     <Legend/>
     <Bar dataKey="sales" fill="#3B82F6" />
-    <Bar dataKey="revenue" fill="#10B981" />
+    <Bar dataKey="revenue" fill="#34D399" />
   </BarChart>
 );
 
 // LatestSalesTable Component
 const LatestSalesTable = ({ data }) => (
-  <div className="overflow-hidden border border-black rounded-lg">
-    <div className="p-6 border-b border-gray-100">
-      <h2 className="text-lg font-semibold text-gray-900">Ventas Recientes</h2>
-    </div>
+  <div className="overflow-x-auto border border-black rounded-lg">
     <table className="min-w-full">
-      <thead className="bg-gray-200">
+      <thead className="bg-gray-50">
         <tr>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Producto</th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cantidad</th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+          <th className="p-4 text-left text-sm font-medium text-gray-500">Producto</th>
+          <th className="p-4 text-left text-sm font-medium text-gray-500">Cantidad</th>
+          <th className="p-4 text-left text-sm font-medium text-gray-500">Total</th>
         </tr>
       </thead>
-      <tbody className="bg-white">
+      <tbody>
         {data.map((sale, index) => (
-          <tr key={index} className="hover:bg-gray-100">
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{sale.product}</td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{sale.quantity}</td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{`$${sale.total}`}</td>
+          <tr key={index} className="border-t">
+            <td className="p-4">{sale.product}</td>
+            <td className="p-4">{sale.quantity}</td>
+            <td className="p-4">{sale.total}</td>
           </tr>
         ))}
       </tbody>
@@ -236,17 +227,20 @@ const LatestSalesTable = ({ data }) => (
 // SummaryPanel Component
 const SummaryPanel = ({ summary }) => (
   <div className="border border-black rounded-lg p-6">
-    <h2 className="text-lg font-semibold text-gray-900">Resumen</h2>
-    <p className="mt-4 text-sm text-gray-600">{summary.description}</p>
+    <h3 className="text-lg font-semibold">Resumen</h3>
+    <p className="mt-4 text-sm text-gray-500">{summary.description}</p>
   </div>
 );
 
 // CustomerAnalysis Component
 const CustomerAnalysis = ({ analysis }) => (
   <div className="border border-black rounded-lg p-6">
-    <h2 className="text-lg font-semibold text-gray-900">Análisis de Clientes</h2>
-    {/* Renderiza el análisis de clientes aquí */}
-    <p className="mt-4 text-sm text-gray-600">Aquí va el análisis de clientes.</p>
+    <h3 className="text-lg font-semibold">Análisis de Clientes</h3>
+    <ul className="mt-4 space-y-2">
+      {analysis.map((item, index) => (
+        <li key={index} className="text-sm text-gray-500">{item.analysis}</li>
+      ))}
+    </ul>
   </div>
 );
 
