@@ -1,6 +1,9 @@
+
+'use client'
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Search, Plus, Package, FolderPlus, Edit2, Trash2 } from 'lucide-react';
+import Image from "next/image";
 
 const Page = () => {
   const [productos, setProductos] = useState([]);
@@ -242,7 +245,7 @@ const Page = () => {
                     <tr key={producto.id_producto} className="hover:bg-gray-50 transition-colors duration-200">
                       <td className="px-6 py-4">
                         {producto.img ? (
-                          <img 
+                          <Image 
                             src={producto.img} 
                             alt={producto.nombre_producto} 
                             className="w-16 h-16 object-cover rounded-lg shadow-sm"

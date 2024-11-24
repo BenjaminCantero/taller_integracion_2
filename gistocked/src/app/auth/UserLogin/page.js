@@ -4,16 +4,7 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios';
 
-export default function Login({
-                                    usuariosAdminTemporales, 
-                                    usuariosVendedoresTemporales, 
-                                    usuarioActivo, setUsuarioActivo, 
-                                    setUsuarioInfo, 
-                                    setActual, 
-                                    setUsuarioActivoTemporal, 
-                                    setUsuarioActivoApi
-                            }) {
-                                
+export default function Login({ usuariosAdminTemporales, usuariosVendedoresTemporales, usuarioActivo, setUsuarioActivo, setUsuarioInfo, setActual, setUsuarioActivoTemporal, setUsuarioActivoApi }) {                  
     const [baseForm, setBaseForm] = useState(true);
     const [tipoLogin, setTipoLogin] = useState(false);
     const [loginAdmin, setLoginAdmin] = useState(false);
@@ -196,28 +187,28 @@ export default function Login({
   return (
       
       <div
-      className='h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat'
-      style={{backgroundImage: 'url("/images/laptop.jpg")'}}
+      className="h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat"
+      style={{backgroundImage: "url('/images/laptop.jpg')"}}
       >
-          <main className='p-5 shadow-lg shadow-blue-950 rounded-md bg-gray-800'>
+          <main className="p-5 shadow-lg shadow-blue-950 rounded-md bg-gray-800">
               {/* ------------------------------------------------------------- */}
               {/* -------------------- Aciones del usuario -------------------- */}
               {/* ------------------------------------------------------------- */}
-              <div className={baseForm ? 'visible p-8' : 'invisible hidden'}>
-                  <ul className='space-y-6 text-white'>
+              <div className={baseForm ? "visible p-8" : "invisible hidden"}>
+                  <ul className="space-y-6 text-white">
                        {/* ------------------ Bienvenida al cliente ------------------- */}
-                      <li className='font-racing_sans_one text-center'>
+                      <li className="font-racing_sans_one text-center">
                           <div>
-                              <h2 className='text-4xl'>Bienvenido a Gistocked</h2>
+                              <h2 className="text-4xl">Bienvenido a Gistocked</h2>
                           </div>
                       </li>
 
                       {/* --------------------- Inicio de Sesion  --------------------- */}
-                      <li className='font-racing_sans_one text-center text-lg'>
-                          <div className='py-1 border border-white rounded-xl'>
+                      <li className="font-racing_sans_one text-center text-lg">
+                          <div className="py-1 border border-white rounded-xl">
                               <button
                               onClick={selecionarTipoLogin}
-                              className='w-full'
+                              className="w-full"
                               >
                                   Iniciar sesión
                               </button>
@@ -225,11 +216,11 @@ export default function Login({
                       </li>
 
                       {/* --------------------- Crear nueva Cuenta -------------------- */}
-                      <li className='font-racing_sans_one text-center text-lg'>
-                          <div className='py-1 border border-white rounded-xl'>
+                      <li className="font-racing_sans_one text-center text-lg">
+                          <div className="py-1 border border-white rounded-xl">
                               <button
                               onClick={crearCuentaNueva}
-                              className='w-full'
+                              className="w-full"
                               >
                                   Crear cuenta
                               </button>
@@ -241,21 +232,21 @@ export default function Login({
               {/* ------------------------------------------------------------- */}
               {/* --------------- Ingresar como Admin o Vendedor -------------- */}
               {/* ------------------------------------------------------------- */}
-              <div className={tipoLogin ? 'visible p-4' : 'invisible hidden'}>
-                  <ul className='my-2 space-y-6 text-white'>
+              <div className={tipoLogin ? "visible p-4" : "invisible hidden"}>
+                  <ul className="my-2 space-y-6 text-white">
                        {/* ------------------ Bienvenida al cliente ------------------- */}
-                      <li className='mx-6 font-racing_sans_one text-center'>
+                      <li className="mx-6 font-racing_sans_one text-center">
                           <div>
-                              <h2 className='text-4xl'>Bienvenido a Gistocked</h2>
+                              <h2 className="text-4xl">Bienvenido a Gistocked</h2>
                           </div>
                       </li>
 
                       {/* ------------ Inicio de Sesion como administrador ------------ */}
-                      <li className='mx-6 font-racing_sans_one text-center text-lg'>
-                          <div className='py-1 border border-white rounded-xl'>
+                      <li className="mx-6 font-racing_sans_one text-center text-lg">
+                          <div className="py-1 border border-white rounded-xl">
                               <button
                               onClick={formLoginAdmins}
-                              className='w-full'
+                              className="w-full"
                               >
                                   Iniciar sesión como administrador
                               </button>
@@ -263,11 +254,11 @@ export default function Login({
                       </li>
 
                       {/* -------------- Inicio de Sesion como vendedor --------------- */}
-                      <li className='mx-6 font-racing_sans_one text-center text-lg'>
-                          <div className='py-1 border border-white rounded-xl'>
+                      <li className="mx-6 font-racing_sans_one text-center text-lg">
+                          <div className="py-1 border border-white rounded-xl">
                               <button
                               onClick={formLoginVendedores}
-                              className='w-full'
+                              className="w-full"
                               >
                                   Iniciar sesión como vendedor
                               </button>
@@ -275,10 +266,10 @@ export default function Login({
                       </li>                      
                   </ul>
 
-                  <div className='w-full flex items-end justify-end'>
+                  <div className="w-full flex items-end justify-end">
                     <button 
                     onClick={cerrarFormularios}
-                    className='mr-10 font-racing_sans_one text-white'>
+                    className="mr-10 font-racing_sans_one text-white">
                         volver
                     </button>
                   </div>
@@ -287,77 +278,77 @@ export default function Login({
               {/* ------------------------------------------------------------- */}
               {/* ------------- Formulario Inicio de sesion Admims ------------ */}
               {/* ------------------------------------------------------------- */}
-              <div className={loginAdmin ? 'p-5 rounded-md' : 'invisible hidden'}>
-                  <div className='text-white text-right'>
-                      <button type='button' onClick={cerrarFormularios}>
-                          <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' className='bi bi-x-lg' viewBox='0 0 16 16'>
-                              <path d='M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z' stroke='currentColor' strokeWidth='1' fill='none'/>
+              <div className={loginAdmin ? "p-5 rounded-md" : "invisible hidden"}>
+                  <div className="text-white text-right">
+                      <button type="button" onClick={cerrarFormularios}>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-x-lg" viewBox="0 0 16 16">
+                              <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" stroke="currentColor" strokeWidth="1" fill="none"/>
                           </svg>
                       </button>
                   </div>
 
                   <form onSubmit={validarUsuarioAdmin}>
-                      <ul className='space-y-9 text-white'>
-                          <li className='mx-10 font-racing_sans_one text-center'>
-                              <h3 className='text-4xl'>Iniciando sesión en Gistocked</h3>
-                              <p className='text-gray-300 text-lg'>'Administradores'</p>
+                      <ul className="space-y-9 text-white">
+                          <li className="mx-10 font-racing_sans_one text-center">
+                              <h3 className="text-4xl">Iniciando sesión en Gistocked</h3>
+                              <p className="text-gray-300 text-lg">&quotAdministradores&quot</p>
                           </li>
 
                           {mensaje && 
-                            <li className='py-2 mx-10 font-racing_sans_one text-lg bg-red-600 text-center rounded-lg'>
+                            <li className="py-2 mx-10 font-racing_sans_one text-lg bg-red-600 text-center rounded-lg">
                                 <p>{mensaje}</p>
                             </li>
                           }
 
-                          <li className='mx-10 font-racing_sans_one text-lg relative'>
+                          <li className="mx-10 font-racing_sans_one text-lg relative">
                             <input
-                                className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
-                                type='email'
-                                placeholder=' '
+                                className="w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin"
+                                type="email"
+                                placeholder=" "
                                 value={inputCorreoFormAdmins}
                                 onChange={(e) => setInputCorreoFormAdmins(e.target.value)}
                             />
                             <label
                                 className={`absolute start-0 top-1/2 transform transition-all duration-500 
-                                ${inputCorreoFormAdmins ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
+                                ${inputCorreoFormAdmins ? "-translate-y-10" : "-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10"}`}
                             >
                                 Correo
                             </label>
                           </li>
 
-                          <li className='mx-10 font-racing_sans_one text-lg relative'>
+                          <li className="mx-10 font-racing_sans_one text-lg relative">
                               <input 
-                                  className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
-                                  type='password' 
-                                  placeholder=' '
+                                  className="w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin"
+                                  type="password" 
+                                  placeholder=" "
                                   onInput={(e) => setInputContrasenaFormAdmins(e.target.value)}
                               />
                               <label
                                   className={`absolute start-0 top-1/2 transform transition-all duration-500
-                                  ${inputContrasenaFormAdmins ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
+                                  ${inputContrasenaFormAdmins ? "-translate-y-10" : "-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10"}`}
                               >
                                   Contraseña
                               </label>
                           </li>
 
-                          <li className='mx-10 font-racing_sans_one text-lg relative'>
+                          <li className="mx-10 font-racing_sans_one text-lg relative">
                               <input 
-                                  className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
-                                  type='text' 
-                                  placeholder=' '
+                                  className="w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin"
+                                  type="text" 
+                                  placeholder=" "
                                   onInput={(e) => setInputEmpresaFormAdmins(e.target.value)}
                               />
                               <label
                                   className={`absolute start-0 top-1/2 transform transition-all duration-500
-                                  ${inputEmpresaFormAdmins ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
+                                  ${inputEmpresaFormAdmins ? "-translate-y-10" : "-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10"}`}
                               >
                                   Empresa
                               </label>
                           </li>
 
-                          <li className='mx-10 font-racing_sans_one text-lg text-center'>
+                          <li className="mx-10 font-racing_sans_one text-lg text-center">
                               <button 
-                              type='submit'
+                              type="submit"
                               >
                                   <p>Aceptar</p>
                               </button>
@@ -369,77 +360,77 @@ export default function Login({
               {/* ------------------------------------------------------------- */}
               {/* ------------ Formulario Inicio de sesion Vendedores---------- */}
               {/* ------------------------------------------------------------- */}
-              <div className={loginVendedor ? 'p-5 rounded-md' : 'invisible hidden'}>
-                  <div className='text-white text-right'>
-                      <button type='button' onClick={cerrarFormularios}>
-                          <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' className='bi bi-x-lg' viewBox='0 0 16 16'>
-                              <path d='M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z' stroke='currentColor' strokeWidth='1' fill='none'/>
+              <div className={loginVendedor ? "p-5 rounded-md" : "invisible hidden"}>
+                  <div className="text-white text-right">
+                      <button type="button" onClick={cerrarFormularios}>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-x-lg" viewBox="0 0 16 16">
+                              <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z" stroke="currentColor" strokeWidth="1" fill="none"/>
                           </svg>
                       </button>
                   </div>
 
                   <form onSubmit={validarUsuarioVendedor}>
-                      <ul className='space-y-9 text-white'>
-                          <li className='mx-10 font-racing_sans_one text-center'>
-                              <h3 className='text-4xl'>Iniciando sesión en Gistocked</h3>
-                              <p className='text-gray-300 text-lg'>'Vendedores'</p>
+                      <ul className="space-y-9 text-white">
+                          <li className="mx-10 font-racing_sans_one text-center">
+                              <h3 className="text-4xl">Iniciando sesión en Gistocked</h3>
+                              <p className="text-gray-300 text-lg">&quotVendedores&quot</p>
                           </li>
 
                           {mensaje && 
-                            <li className='py-2 mx-10 font-racing_sans_one text-lg bg-red-600 text-center rounded-lg'>
+                            <li className="py-2 mx-10 font-racing_sans_one text-lg bg-red-600 text-center rounded-lg">
                                 <p>{mensaje}</p>
                             </li>
                           }
 
-                          <li className='mx-10 font-racing_sans_one text-lg relative'>
+                          <li className="mx-10 font-racing_sans_one text-lg relative">
                             <input
-                                className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
-                                type='text'
-                                placeholder=' '
+                                className="w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin"
+                                type="text"
+                                placeholder=" "
                                 value={inputRutFormVendedores}
                                 onChange={(e) => setInputRutFormVendedores(e.target.value)}
                             />
                             <label
                                 className={`absolute start-0 top-1/2 transform transition-all duration-500 
-                                ${inputRutFormVendedores ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
+                                ${inputRutFormVendedores ? "-translate-y-10" : "-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10"}`}
                             >
                                 Rut
                             </label>
                           </li>
 
-                          <li className='mx-10 font-racing_sans_one text-lg relative'>
+                          <li className="mx-10 font-racing_sans_one text-lg relative">
                               <input 
-                                  className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
-                                  type='password' 
-                                  placeholder=' '
+                                  className="w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin"
+                                  type="password" 
+                                  placeholder=" "
                                   onInput={(e) => setInputContrasenaFormVendedores(e.target.value)}
                               />
                               <label
                                   className={`absolute start-0 top-1/2 transform transition-all duration-500
-                                  ${inputContrasenaFormVendedores ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
+                                  ${inputContrasenaFormVendedores ? "-translate-y-10" : "-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10"}`}
                               >
                                   Contraseña
                               </label>
                           </li>
 
-                          <li className='mx-10 font-racing_sans_one text-lg relative'>
+                          <li className="mx-10 font-racing_sans_one text-lg relative">
                               <input 
-                                  className='w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin'
-                                  type='text' 
-                                  placeholder=' '
+                                  className="w-full bg-[#1F2937] focus:outline-none placeholder-transparent border-b-2 peer inputsLogin"
+                                  type="text" 
+                                  placeholder=" "
                                   onInput={(e) => setInputEmpresaFormVendedores(e.target.value)}
                               />
                               <label
                                   className={`absolute start-0 top-1/2 transform transition-all duration-500
-                                  ${inputEmpresaFormVendedores ? '-translate-y-10' : '-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10'}`}
+                                  ${inputEmpresaFormVendedores ? "-translate-y-10" : "-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:-translate-y-10"}`}
                               >
                                   Empresa
                               </label>
                           </li>
 
-                          <li className='mx-10 font-racing_sans_one text-lg text-center'>
+                          <li className="mx-10 font-racing_sans_one text-lg text-center">
                               <button 
-                              type='submit'
+                              type="submit"
                               >
                                   <p>Aceptar</p>
                               </button>

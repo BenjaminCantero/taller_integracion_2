@@ -160,7 +160,7 @@ const Home = ({ usuarioInfo }) => {
             {/* Mensaje de apreciación */}
             <div className="text-center mt-8">
               <p className="text-gray-600 text-sm italic">
-                "Valoramos su confianza y compromiso con nosotros"
+                &quotValoramos su confianza y compromiso con nosotros&quot
               </p>
             </div>
           </div>
