@@ -5,6 +5,7 @@ const UserTable = ({
                       usuariosAdminTemporales, 
                       usuariosVendedoresTemporales,
                       setUsuariosAdminTemporales,
+                      setUsuariosVendedoresTemporales,
                       usuarioInfo, 
                       users, 
                       onEdit, 
@@ -14,18 +15,27 @@ const UserTable = ({
                   }) => {
 
   // Guardan la información de los usuarios cuando la API esta encendida
-  const usuariosTablaApi = users.filter(user => user.nombre_empresa === usuarioInfo.nombre_empresa && user.codigo_vendedor !== usuarioInfo.codigo_vendedor);
+  const usuariosTablaApi = users.filter(user => user.nombre_empresa === usuarioInfo.nombre_empresa && (user.codigo_vendedor !== usuarioInfo.codigo_vendedor || user.id_vendedor !== user.id_vendedor));
   const tablaEstaVaciaApi = usuariosTablaApi.length < 1;
 
   // Guardan la información de los usuarios cuando la API esta apagada
-  const usuariosTablaTemporales = usuariosAdminTemporales.filter(admin => admin.nombre_empresa === usuarioInfo.nombre_empresa && admin.codigo_vendedor !== usuarioInfo.codigo_vendedor);
+  const usuariosTablaTemporalesVendedores = usuariosVendedoresTemporales.filter(vendedor => vendedor.nombre_empresa === usuarioInfo.nombre_empresa)
+  const usuariosTablaTemporalesAdmins = usuariosAdminTemporales.filter(admin => admin.nombre_empresa === usuarioInfo.nombre_empresa && admin.codigo_vendedor !== usuarioInfo.codigo_vendedor);
+  const usuariosTablaTemporales =  usuariosTablaTemporalesVendedores.concat(usuariosTablaTemporalesAdmins);
   const tablaEstaVaciaTemporales = usuariosTablaTemporales.length < 1;
 
   // Valido solo para los usuarios Temporales (API apagada)
-  const eliminarUsuario = (codigo) => {
+  const eliminarUsuario = (userType, codigo) => {
+    if (userType === 1) {
       setUsuariosAdminTemporales(prevState => {
-        return prevState.filter(usuario => usuario.codigo_vendedor !== codigo);
+        return prevState.filter(admin => admin.codigo_vendedor !== codigo);
       });
+    } else if (userType === 2) {
+      setUsuariosVendedoresTemporales(prevState => {
+        return prevState.filter(vendedor => vendedor.id_vendedores !== codigo);
+      });
+    }
+      
   }
 
   return (
@@ -58,10 +68,10 @@ const UserTable = ({
               <tr 
                 key={user.codigo_vendedor} 
                 className='text-black rounded-b-lg hover:bg-[#ccdfe0] transition duration-500 ease-linear'>
-                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.codigo_vendedor}</td>
-                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.nombre_usuario}</td>
-                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.nombre_empresa}</td>
-                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.email}</td>
+                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? user.codigo_vendedor : user.id_vendedores}</td>
+                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? user.nombre_usuario  : user.nombres}</td>
+                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? user.nombre_empresa  : user.nombre_empresa}</td>
+                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? user.email      : 'N/A'}</td>
                 <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? 'Administrador' : 'Vendedor'}</td>
                 <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>
                   <div className='flex flex-col'>
@@ -75,7 +85,7 @@ const UserTable = ({
                     <button
                       disabled={usuarioInfo.id_rol !== 1}
                       className='px-4 py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600 focus:ring-2 focus:ring-red-400 focus:ring-opacity-75 transition duration-500'
-                      onClick={() => onDelete(user.codigo_vendedor)}
+                      onClick={() => onDelete(user)}
                     >
                       Eliminar
                     </button>
@@ -101,10 +111,10 @@ const UserTable = ({
               <tr 
                 key={user.codigo_vendedor} 
                 className='text-black rounded-b-lg hover:bg-[#ccdfe0] transition duration-500 ease-linear'>
-                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.codigo_vendedor}</td>
-                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.nombre_usuario}</td>
-                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.nombre_empresa}</td>
-                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.email}</td>
+                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? user.codigo_vendedor : user.id_vendedores}</td>
+                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? user.nombre_usuario  : user.nombres}</td>
+                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? user.nombre_empresa  : user.nombre_empresa}</td>
+                <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? user.email      : 'N/A'}</td>
                 <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>{user.id_rol === 1 ? 'Administrador' : 'Vendedor'}</td>
                 <td className='py-5 px-6 border-b border-gray-300 text-md text-center'>
                   <div className='flex flex-col'>
@@ -118,7 +128,7 @@ const UserTable = ({
                     <button
                       disabled={usuarioInfo.id_rol !== 1}
                       className='px-4 py-2 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600 focus:ring-2 focus:ring-red-400 focus:ring-opacity-75 transition duration-500'
-                      onClick={() => eliminarUsuario(user.codigo_vendedor)}
+                      onClick={() => eliminarUsuario(user.id_rol, (user.codigo_vendedor || user.id_vendedores))}
                     >
                       Eliminar
                     </button>

@@ -1,6 +1,5 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line
 } from 'recharts';
@@ -24,7 +23,7 @@ const exportToPDF = (title, data) => {
 const Dashboard = () => {
   const [salesCount, setSalesCount] = useState(null);
   const [salesRevenue, setSalesRevenue] = useState(null);
-  const [userCount, setUserCount] = useState(null); // Corregido
+  const [userCount, setUserCount] = useState(null);
   const [productCount, setProductCount] = useState(null);
   const [monthlySales, setMonthlySales] = useState([]);
   const [productRevenue, setProductRevenue] = useState([]);
@@ -34,35 +33,54 @@ const Dashboard = () => {
   const [productAnalysis, setProductAnalysis] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Datos aleatorios generados localmente
-        const generateRandomData = (keys, length) => {
-          return Array.from({ length }, (_, i) => {
-            const obj = {};
-            keys.forEach(key => obj[key] = Math.floor(Math.random() * 100) + 1);
-            obj.month = `Mes ${i + 1}`; // Clave para el eje X en el gráfico
-            return obj;
-          });
-        };
-  
-        setSalesCount(Math.floor(Math.random() * 1000));
-        setSalesRevenue(Math.floor(Math.random() * 50000));
-        setUserCount(Math.floor(Math.random() * 500));
-        setProductCount(Math.floor(Math.random() * 200));
-  
-        setMonthlySales(generateRandomData(['sales'], 12)); // 12 meses
-        setProductRevenue(generateRandomData(['product', 'revenue'], 10)); // 10 productos
-        setAnnualComparison(generateRandomData(['year', 'sales', 'revenue'], 5)); // 5 años
-        setRecentSales(generateRandomData(['product', 'quantity', 'total'], 5)); // 5 ventas recientes
-        setSummary({ description: "Este es un resumen generado aleatoriamente." });
-        setProductAnalysis([{ analysis: "Análisis generado aleatoriamente" }]);
-  
-      } catch (error) {
-        console.error("Error fetching data", error);
-      }
+    // Simulación de datos
+    const simulatedData = () => {
+      setSalesCount(150); // Total de ventas
+      setSalesRevenue(35000); // Ingresos totales
+      setUserCount(85); // Usuarios registrados
+      setProductCount(120); // Productos totales
+
+      // Ventas mensuales
+      setMonthlySales([
+        { month: 'Enero', sales: 30 },
+        { month: 'Febrero', sales: 25 },
+        { month: 'Marzo', sales: 40 },
+        { month: 'Abril', sales: 35 },
+        { month: 'Mayo', sales: 50 },
+      ]);
+
+      // Ingresos por productos
+      setProductRevenue([
+        { product: 'Producto A', revenue: 8000 },
+        { product: 'Producto B', revenue: 12000 },
+        { product: 'Producto C', revenue: 15000 },
+      ]);
+
+      // Comparativa anual
+      setAnnualComparison([
+        { year: 2023, sales: 150, revenue: 40000 },
+        { year: 2024, sales: 180, revenue: 50000 },
+      ]);
+
+      // Ventas recientes
+      setRecentSales([
+        { product: 'Producto A', quantity: 3, total: 300 },
+        { product: 'Producto B', quantity: 2, total: 200 },
+        { product: 'Producto C', quantity: 1, total: 150 },
+      ]);
+
+      // Resumen
+      setSummary({ description: 'En el último mes se incrementaron las ventas en un 20%.' });
+
+      // Análisis de productos
+      setProductAnalysis([
+        { product: 'Producto A', performance: 'Buena' },
+        { product: 'Producto B', performance: 'Regular' },
+        { product: 'Producto C', performance: 'Excelente' },
+      ]);
     };
-    fetchData();
+
+    simulatedData();
   }, []);
     
   return (
@@ -81,7 +99,7 @@ const Dashboard = () => {
         />
 
         <ChartsGrid 
-          monthlySales={monthlySales} // Corregido
+          monthlySales={monthlySales} 
           productRevenue={productRevenue} 
           annualComparison={annualComparison} 
         />
@@ -160,63 +178,62 @@ const ChartCard = ({ title, chart, exportTitle, exportData }) => (
 const ChartsGrid = ({ monthlySales, productRevenue, annualComparison }) => (
   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
     <ChartCard title="Ventas Mensuales" chart={<SalesChart data={monthlySales} />} exportTitle="Ventas Mensuales" exportData={monthlySales} />
-    <ChartCard title="Ingresos por Productos" chart={<RevenueChart data={productRevenue} />} exportTitle="Ingresos por Productos" exportData={productRevenue} />
+    <ChartCard title="Ingresos por Producto" chart={<RevenueChart data={productRevenue} />} exportTitle="Ingresos Producto" exportData={productRevenue} />
     <ChartCard title="Comparativa Anual" chart={<ComparisonChart data={annualComparison} />} exportTitle="Comparativa Anual" exportData={annualComparison} />
   </div>
 );
 
-// SalesChart, RevenueChart, and ComparisonChart Components
+// SalesChart Component
 const SalesChart = ({ data }) => (
   <LineChart data={data}>
-    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB"/>
-    <XAxis dataKey="month"/>
-    <YAxis/>
-    <Tooltip/>
-    <Legend/>
-    <Line type="monotone" dataKey="sales" stroke="#1D4ED8" activeDot={{ r: 8 }} />
+    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+    <XAxis dataKey="month" />
+    <YAxis />
+    <Tooltip />
+    <Line type="monotone" dataKey="sales" stroke="#4B8BBE" />
   </LineChart>
 );
 
+// RevenueChart Component
 const RevenueChart = ({ data }) => (
   <BarChart data={data}>
-    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB"/>
-    <XAxis dataKey="product"/>
-    <YAxis/>
-    <Tooltip/>
-    <Legend/>
-    <Bar dataKey="revenue" fill="#34D399"/>
+    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+    <XAxis dataKey="product" />
+    <YAxis />
+    <Tooltip />
+    <Bar dataKey="revenue" fill="#48BB78" />
   </BarChart>
 );
 
+// ComparisonChart Component
 const ComparisonChart = ({ data }) => (
   <BarChart data={data}>
-    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB"/>
-    <XAxis dataKey="year"/>
-    <YAxis/>
-    <Tooltip/>
-    <Legend/>
-    <Bar dataKey="sales" fill="#3B82F6" />
+    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+    <XAxis dataKey="year" />
+    <YAxis />
+    <Tooltip />
+    <Bar dataKey="sales" fill="#F59E0B" />
     <Bar dataKey="revenue" fill="#34D399" />
   </BarChart>
 );
 
 // LatestSalesTable Component
 const LatestSalesTable = ({ data }) => (
-  <div className="overflow-x-auto border border-black rounded-lg">
-    <table className="min-w-full">
-      <thead className="bg-gray-50">
-        <tr>
-          <th className="p-4 text-left text-sm font-medium text-gray-500">Producto</th>
-          <th className="p-4 text-left text-sm font-medium text-gray-500">Cantidad</th>
-          <th className="p-4 text-left text-sm font-medium text-gray-500">Total</th>
+  <div className="overflow-hidden bg-white shadow rounded-lg">
+    <table className="min-w-full divide-y divide-gray-200">
+      <thead>
+        <tr className="bg-gray-50">
+          <th className="px-6 py-3 text-xs font-medium text-gray-500">Producto</th>
+          <th className="px-6 py-3 text-xs font-medium text-gray-500">Cantidad</th>
+          <th className="px-6 py-3 text-xs font-medium text-gray-500">Total</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody className="divide-y divide-gray-100">
         {data.map((sale, index) => (
-          <tr key={index} className="border-t">
-            <td className="p-4">{sale.product}</td>
-            <td className="p-4">{sale.quantity}</td>
-            <td className="p-4">{sale.total}</td>
+          <tr key={index}>
+            <td className="px-6 py-4 text-sm text-gray-700">{sale.product}</td>
+            <td className="px-6 py-4 text-sm text-gray-700">{sale.quantity}</td>
+            <td className="px-6 py-4 text-sm text-gray-700">${sale.total}</td>
           </tr>
         ))}
       </tbody>
@@ -226,19 +243,21 @@ const LatestSalesTable = ({ data }) => (
 
 // SummaryPanel Component
 const SummaryPanel = ({ summary }) => (
-  <div className="border border-black rounded-lg p-6">
-    <h3 className="text-lg font-semibold">Resumen</h3>
-    <p className="mt-4 text-sm text-gray-500">{summary.description}</p>
+  <div className="bg-white shadow rounded-lg p-6">
+    <h2 className="text-lg font-semibold text-gray-900">Resumen</h2>
+    <p className="mt-4 text-gray-600">{summary.description}</p>
   </div>
 );
 
 // CustomerAnalysis Component
 const CustomerAnalysis = ({ analysis }) => (
-  <div className="border border-black rounded-lg p-6">
-    <h3 className="text-lg font-semibold">Análisis de Clientes</h3>
-    <ul className="mt-4 space-y-2">
+  <div className="bg-white shadow rounded-lg p-6">
+    <h2 className="text-lg font-semibold text-gray-900">Análisis de Productos</h2>
+    <ul className="mt-4">
       {analysis.map((item, index) => (
-        <li key={index} className="text-sm text-gray-500">{item.analysis}</li>
+        <li key={index} className="text-sm text-gray-700">
+          <span className="font-medium">{item.product}</span>: {item.performance}
+        </li>
       ))}
     </ul>
   </div>

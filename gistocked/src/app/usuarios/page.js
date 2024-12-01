@@ -7,84 +7,186 @@ import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserPlus } from '@fortawesome/free-solid-svg-icons';
 
+import axios from 'axios';
+
 const Usuarios = ({
                     usuarioInfo, 
                     usuariosAdminTemporales, 
                     usuariosVendedoresTemporales, 
                     setUsuariosAdminTemporales, 
+                    setUsuariosVendedoresTemporales,
                     usuarioActivoTemporal, 
                     usuarioActivoApi
                 }) => {
 
   const [users, setUsers] = useState([]);
+  const [admins, setAdmis] = useState([]);
+  const [vendedores, setVendedores] = useState([]);
+
   const [editUser, setEditUser] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
+  const [control, setControl] = useState(true);
+  const [adminType, setAdminType] = useState(false);
+  const [vendedorType, setVededorType] = useState(false);
+
   {/* Carga inicial de los usuarios de la empresa */}
   useEffect(() => {
-    fetch('http://190.114.252.218:8000/api/usuarios/')
-      .then(response => response.json())
-      .then(data => setUsers(data))
-      .catch(error => console.error('Error al cargar usuarios:', error));
+    const getAdmins = async () => {
+        try {
+          const admins = await axios.get('http://190.114.252.218:8000/api/usuarios/', {});
+          setAdmis(admins.data);
+          return admins.data
+      } catch (error) {
+          console.error('Error al conectar con la api:', error);
+          return []
+      }}
+
+    const getVendedores = async () => {
+      try {
+        const vendedores = await axios.get('http://190.114.252.218:8000/api/vendedores/', {});
+        setVendedores(vendedores.data);
+        return vendedores.data
+    } catch (error) {
+        console.error('Error al conectar con la api:', error);
+        return []
+    }}
+
+    // Usa Promise.all para esperar ambas promesas
+    const fetchData = async () => {
+      try {
+        const [admins, vendedores] = await Promise.all([getAdmins(), getVendedores()]);
+        const aux = [...admins, ...vendedores]; // Concatenamos los datos
+        setUsers(aux); // Establecer los usuarios
+      } catch (error) {
+        console.error('Error al obtener los datos:', error);
+      }
+    };
+
+  fetchData();
+      
   }, []);
 
   {/* Abre el formulario */}
   const handleOpenModal = () => {
     setModalOpen(true);
+    setControl(true);
+
   };
 
   {/* Cierra el formulario */}
   const handleCloseModal = () => {
     setModalOpen(false);
+    setControl(false);
+    setAdminType(false);
+    setVededorType(false)
     setEditUser(null);
   };
 
+  const adminAddFrom = () => {
+    setControl(false);
+    setAdminType(true);
+    setVededorType(false);
+  }
+
+  const vendedorAddForm = () => {
+    setControl(false);
+    setAdminType(false);
+    setVededorType(true);
+  }
+
   {/* Agrega un nuevo usuario a la base de datos */}
-  const handleAddUser = (newUser) => {
-    console.log(JSON.stringify(newUser));
-    fetch('http://190.114.252.218:8000/api/usuarios/', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(newUser)
-    })
-      .then(response => response.json())
-      .then(data => {
-        setUsers(prevUsers => [...prevUsers, data]);
-        handleCloseModal();
+  const handleAddUser = (userType, newUser) => {
+    if (userType === 1) {
+      fetch('http://190.114.252.218:8000/api/usuarios/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(newUser)
       })
-      .catch(error => console.error('Error al agregar usuario:', error));
+        .then(response => response.json())
+        .then(data => {
+          setUsers(prevUsers => [...prevUsers, data]);
+          handleCloseModal();
+        })
+        .catch(error => console.error('Error al agregar usuario:', error));
+    } else if (userType === 2) {
+      fetch('http://190.114.252.218:8000/api/vendedores/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(newUser)
+      })
+        .then(response => response.json())
+        .then(data => {
+          setUsers(prevUsers => [...prevUsers, data]);
+          handleCloseModal();
+        })
+        .catch(error => console.error('Error al agregar usuario:', error));
+    }
   };
 
   {/* Elimina a un usuario de la base de datos */}
-  const handleDelete = (codigoVendedor) => {
-    fetch(`http://190.114.252.218:8000/api/usuarios/${codigoVendedor}/`, {
-      method: 'DELETE'
-    })
+  const handleDelete = (user) => {
+    if (user.codigo_vendedor) {
+      fetch(`http://190.114.252.218:8000/api/usuarios/${user.codigo_vendedor}/`, {
+        method: 'DELETE'
+      })
       .then(() => {
-        setUsers(prevUsers => prevUsers.filter(user => user.codigo_vendedor !== codigoVendedor));
+        setUsers(prevUsers => prevUsers.filter(userB => userB.codigo_vendedor !== user.codigo_vendedor));
       })
       .catch(error => console.error('Error al eliminar usuario:', error));
+    } else if (user.id_vendedores) {
+      fetch(`http://190.114.252.218:8000/api/vendedores/${user.id_vendedores}/`, {
+        method: 'DELETE'
+      })
+      .then(() => {
+        setUsers(prevUsers => prevUsers.filter(userC => userC.id_vendedores !== user.id_vendedores));
+      })
+      .catch(error => console.error('Error al eliminar usuario:', error));
+    }
+    
   };
 
   {/* obtiene la información del usuario que se va a editar */}
   const handleEdit = (user) => {
+    if (user.codigo_vendedor) {
+      setAdminType(true);
+      setVededorType(false);
+    } else if (user.id_vendedores) {
+      setAdminType(false);
+      setVededorType(true);
+    }
     setEditUser(user);
     handleOpenModal();
   };
 
   {/* Edita la información de un usuario de la base de datos */}
   const handleSaveEdit = (updatedUser) => {
-    fetch(`http://190.114.252.218:8000/api/usuarios/${updatedUser.codigo_vendedor}/`, {
-      method: 'PUT',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(updatedUser)
-    })
-      .then(response => response.json())
-      .then(data => {
-        setUsers(prevUsers => prevUsers.map(user => user.codigo_vendedor === data.codigo_vendedor ? data : user));
-        handleCloseModal();
+    if (updatedUser.codigo_vendedor) {
+      fetch(`http://190.114.252.218:8000/api/usuarios/${updatedUser.codigo_vendedor}/`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(updatedUser)
       })
-      .catch(error => console.error('Error al editar usuario:', error));
+        .then(response => response.json())
+        .then(data => {
+          setUsers(prevUsers => prevUsers.map(user => user.codigo_vendedor === data.codigo_vendedor ? data : user));
+          handleCloseModal();
+        })
+        .catch(error => console.error('Error al editar usuario:', error)); 
+    } else if (updatedUser.id_vendedores) {
+      fetch(`http://190.114.252.218:8000/api/vendedores/${updatedUser.id_vendedores}/`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(updatedUser)
+      })
+        .then(response => response.json())
+        .then(data => {
+          setUsers(prevUsers => prevUsers.map(user => user.id_vendedores === data.id_vendedores ? data : user));
+          handleCloseModal();
+        })
+        .catch(error => console.error('Error al editar usuario:', error)); 
+    }
+    
   };
 
   return (
@@ -114,6 +216,7 @@ const Usuarios = ({
         usuariosAdminTemporales={usuariosAdminTemporales}
         usuariosVendedoresTemporales={usuariosVendedoresTemporales}
         setUsuariosAdminTemporales={setUsuariosAdminTemporales}
+        setUsuariosVendedoresTemporales={setUsuariosVendedoresTemporales}
         usuarioInfo={usuarioInfo} // Info del usuario activo
         users={users} // Info de los usuarios que se mostrarán en la tabla
         onEdit={handleEdit} 
@@ -132,7 +235,14 @@ const Usuarios = ({
           usuarioActivoTemporal={usuarioActivoTemporal}
           usuarioActivoApi={usuarioActivoApi}
           usuariosAdminTemporales={usuariosAdminTemporales}
+          usuariosVendedoresTemporales={usuariosVendedoresTemporales}
           setUsuariosAdminTemporales={setUsuariosAdminTemporales}
+          setUsuariosVendedoresTemporales={setUsuariosVendedoresTemporales}
+          control={control}
+          adminType={adminType}
+          vendedorType={vendedorType}
+          adminAddFrom={adminAddFrom}
+          vendedorAddForm={vendedorAddForm}
         />
       )}
     </main>

@@ -1,14 +1,187 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Search, Plus, Package, FolderPlus, Edit2, Trash2 } from 'lucide-react';
+import { Search, Plus, Package, FolderPlus, Edit2, Trash2 } from "lucide-react";
 
 const Page = () => {
-  const [productos, setProductos] = useState([]);
+  const [productos, setProductos] = useState([
+    {
+      id_producto: 1,
+      img: null,
+      nombre_producto: "Producto de prueba 1",
+      descripcion: "Descripción del producto 1",
+      precio_compra: 100,
+      porcentaje_de_ganancia: 20,
+      precio_neto: 120,
+      precio_venta: 144,
+      precio_venta_final: 144,
+      codigo: "P001",
+      descuento: 10,
+      precio_descuento: 129.6,
+      cantidad: 10,
+      id_empresa: 1,
+      id_categoria: 1,
+    },
+    {
+      id_producto: 2,
+      img: null,
+      nombre_producto: "Producto de prueba 2",
+      descripcion: "Descripción del producto 2",
+      precio_compra: 200,
+      porcentaje_de_ganancia: 25,
+      precio_neto: 250,
+      precio_venta: 300,
+      precio_venta_final: 300,
+      codigo: "P002",
+      descuento: 15,
+      precio_descuento: 255,
+      cantidad: 5,
+      id_empresa: 2,
+      id_categoria: 2,
+    },
+    {
+      id_producto: 3,
+      img: null,
+      nombre_producto: "Monitor 4K UHD",
+      descripcion: "Monitor 4K UHD de 27 pulgadas con tasa de refresco de 144Hz y HDR para juegos y trabajo.",
+      precio_compra: 300,
+      porcentaje_de_ganancia: 30,
+      precio_neto: 390,
+      precio_venta: 500,
+      precio_venta_final: 500,
+      codigo: "P003",
+      descuento: 10,
+      precio_descuento: 450,
+      cantidad: 8,
+      id_empresa: 1,
+      id_categoria: 3,
+    },
+    {
+      id_producto: 4,
+      img: null,
+      nombre_producto: "Teclado Gaming RGB",
+      descripcion: "Teclado mecánico con retroiluminación RGB y teclas programables, ideal para gamers.",
+      precio_compra: 120,
+      porcentaje_de_ganancia: 40,
+      precio_neto: 168,
+      precio_venta: 220,
+      precio_venta_final: 220,
+      codigo: "P004",
+      descuento: 5,
+      precio_descuento: 209,
+      cantidad: 12,
+      id_empresa: 1,
+      id_categoria: 1,
+    },
+    {
+      id_producto: 5,
+      img: null,
+      nombre_producto: "Mouse Óptico Gamer",
+      descripcion: "Mouse óptico con 16,000 DPI, 8 botones programables y retroiluminación RGB.",
+      precio_compra: 40,
+      porcentaje_de_ganancia: 50,
+      precio_neto: 60,
+      precio_venta: 80,
+      precio_venta_final: 80,
+      codigo: "P005",
+      descuento: 10,
+      precio_descuento: 72,
+      cantidad: 20,
+      id_empresa: 2,
+      id_categoria: 1,
+    },
+    {
+      id_producto: 6,
+      img: null,
+      nombre_producto: "Auriculares Gaming 7.1",
+      descripcion: "Auriculares con sonido envolvente 7.1, micrófono flexible y diseño ergonómico.",
+      precio_compra: 60,
+      porcentaje_de_ganancia: 40,
+      precio_neto: 84,
+      precio_venta: 120,
+      precio_venta_final: 120,
+      codigo: "P006",
+      descuento: 15,
+      precio_descuento: 102,
+      cantidad: 15,
+      id_empresa: 2,
+      id_categoria: 1,
+    },
+    {
+      id_producto: 7,
+      img: null,
+      nombre_producto: "Silla Gamer Ergonómica",
+      descripcion: "Silla ergonómica para gamers, con soporte lumbar ajustable y reposabrazos.",
+      precio_compra: 150,
+      porcentaje_de_ganancia: 45,
+      precio_neto: 217.5,
+      precio_venta: 300,
+      precio_venta_final: 300,
+      codigo: "P007",
+      descuento: 5,
+      precio_descuento: 285,
+      cantidad: 5,
+      id_empresa: 1,
+      id_categoria: 2,
+    },
+    {
+      id_producto: 8,
+      img: null,
+      nombre_producto: "Almohadilla para Muñeca Gaming",
+      descripcion: "Almohadilla ergonómica para muñeca con superficie antideslizante para largas sesiones de juego.",
+      precio_compra: 20,
+      porcentaje_de_ganancia: 60,
+      precio_neto: 32,
+      precio_venta: 40,
+      precio_venta_final: 40,
+      codigo: "P008",
+      descuento: 0,
+      precio_descuento: 40,
+      cantidad: 30,
+      id_empresa: 2,
+      id_categoria: 1,
+    },
+    {
+      id_producto: 9,
+      img: null,
+      nombre_producto: "Base de Enfriamiento para Laptop",
+      descripcion: "Base de enfriamiento para laptop gaming con ventiladores ajustables y puertos USB adicionales.",
+      precio_compra: 45,
+      porcentaje_de_ganancia: 50,
+      precio_neto: 67.5,
+      precio_venta: 90,
+      precio_venta_final: 90,
+      codigo: "P009",
+      descuento: 10,
+      precio_descuento: 81,
+      cantidad: 10,
+      id_empresa: 2,
+      id_categoria: 1,
+    },
+    {
+      id_producto: 10,
+      img: null,
+      nombre_producto: "Cargador Rápido para Consolas",
+      descripcion: "Cargador rápido compatible con PlayStation y Xbox para cargar simultáneamente dos controles.",
+      precio_compra: 30,
+      porcentaje_de_ganancia: 45,
+      precio_neto: 43.5,
+      precio_venta: 60,
+      precio_venta_final: 60,
+      codigo: "P010",
+      descuento: 0,
+      precio_descuento: 60,
+      cantidad: 25,
+      id_empresa: 1,
+      id_categoria: 1,
+    }
+  ]);
   const [categorias, setCategorias] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [datosSimulados, setDatosSimulados] = useState(true); // Estado para indicar si los datos son simulados
+
   const [nuevoProducto, setNuevoProducto] = useState({
     id_producto: null,
     img: null,
@@ -35,8 +208,10 @@ const Page = () => {
       try {
         const response = await axios.get("http://190.114.252.218:8000/api/inventarios/");
         setProductos(response.data);
+        setDatosSimulados(false);
       } catch (error) {
-        console.error("Error al obtener productos:", error);
+        console.error("Error al obtener productos. Usando datos simulados.", error);
+        setDatosSimulados(true);
       }
     };
 
@@ -77,24 +252,16 @@ const Page = () => {
     setIsModalOpen(true);
   };
 
-  const abrirModalCategoria = () => {
-    setNuevaCategoria({ nombre_categoria: "" });
-    setIsCategoryModalOpen(true);
-  };
-
   const cerrarModalProducto = () => setIsModalOpen(false);
-  const cerrarModalCategoria = () => setIsCategoryModalOpen(false);
 
   const manejarCambioProducto = (e) => {
     const { name, value } = e.target;
     setNuevoProducto((prev) => {
-      // Convertir id_categoria a número si ese es el campo que está cambiando
-      const updatedProducto = { 
-        ...prev, 
-        [name]: name === "id_categoria" ? Number(value) : value 
+      const updatedProducto = {
+        ...prev,
+        [name]: name === "id_categoria" ? Number(value) : value,
       };
-  
-      // Cálculo del precio neto y precio de venta si cambia porcentaje de ganancia o precio de compra
+
       if (name === "porcentaje_de_ganancia" || name === "precio_compra") {
         const gananciaDecimal = parseFloat(updatedProducto.porcentaje_de_ganancia) / 100;
         const precioNeto = parseFloat(updatedProducto.precio_compra) * (1 + gananciaDecimal);
@@ -102,26 +269,14 @@ const Page = () => {
         updatedProducto.precio_venta = precioNeto * 1.2;
         updatedProducto.precio_venta_final = updatedProducto.precio_venta;
       }
-  
-      // Cálculo de precio con descuento si cambia el descuento
+
       if (name === "descuento") {
         const descuentoDecimal = parseFloat(updatedProducto.descuento) / 100;
         updatedProducto.precio_descuento = updatedProducto.precio_venta * (1 - descuentoDecimal);
       }
-      
+
       return updatedProducto;
     });
-  };
-
-  const manejarCambioArchivo = (e) => {
-    setNuevoProducto((prev) => ({
-      ...prev,
-      img: e.target.files[0],
-    }));
-  };
-
-  const manejarCambioCategoria = (e) => {
-    setNuevaCategoria({ ...nuevaCategoria, nombre_categoria: e.target.value });
   };
 
   const guardarProducto = async () => {
@@ -129,49 +284,32 @@ const Page = () => {
       console.error("Por favor completa los campos obligatorios.");
       return;
     }
-  
+
     const url = `http://190.114.252.218:8000/api/inventarios/${isEditing ? `${nuevoProducto.id_producto}/` : ""}`;
     const method = isEditing ? "PUT" : "POST";
     const formData = new FormData();
-  
+
     Object.keys(nuevoProducto).forEach((key) => {
       formData.append(key, nuevoProducto[key]);
     });
-  
+
     try {
       const response = await axios({
         method,
         url,
         data: formData,
-        headers: { "Content-Type": "multipart/form-data" }
+        headers: { "Content-Type": "multipart/form-data" },
       });
-  
-      console.log("Respuesta de la API:", response.data); // Verifica la respuesta
-  
+
       setProductos((prev) =>
         isEditing
           ? prev.map((prod) => (prod.id_producto === nuevoProducto.id_producto ? response.data : prod))
           : [...prev, response.data]
       );
-  
+
       cerrarModalProducto();
     } catch (error) {
       console.error("Error en la solicitud:", error.response?.data || error.message);
-      if (error.response) {
-        console.error("Detalles del error:", error.response.data);
-      }
-    }
-  };
-  
-  
-
-  const guardarCategoria = async () => {
-    try {
-      const response = await axios.post("http://190.114.252.218:8000/api/categorias/", nuevaCategoria);
-      setCategorias([...categorias, response.data]);
-      cerrarModalCategoria();
-    } catch (error) {
-      console.error("Error al guardar categoría:", error);
     }
   };
 
@@ -180,9 +318,10 @@ const Page = () => {
       await axios.delete(`http://190.114.252.218:8000/api/inventarios/${id}/`);
       setProductos((prev) => prev.filter((prod) => prod.id_producto !== id));
     } catch (error) {
-      console.error("Error al eliminar el producto:", error.response ? error.response.data : error.message);
+      console.error("Error al eliminar el producto:", error.message);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
