@@ -89,6 +89,7 @@ const Dashboard = () => {
     { product: 'Producto C', revenue: 2500 },
     { product: 'Producto D', revenue: 1800 },
   ];
+  
 
   const simulatedAnnualComparison = [
     { year: 2023, sales: 5000 },
@@ -138,13 +139,14 @@ const InventoryPanel = ({ data }) => (
     <ul className="space-y-2">
       {data.map((item, index) => (
         <li key={index} className="flex justify-between">
-          <span>{item.nombre}</span>
-          <span>{item.cantidad}</span>
+          <span>{item.nombre_producto}</span> {/* Muestra el nombre del producto */}
+          <span>{item.cantidad}</span> {/* Muestra la cantidad */}
         </li>
       ))}
     </ul>
   </div>
 );
+
 
 // StatsGrid Component
 const StatsGrid = ({ salesCount, salesRevenue, userCount, productCount }) => (
@@ -178,7 +180,6 @@ const ChartCard = ({ title, chart, exportTitle, exportData }) => (
 const ChartsGrid = ({ monthlySales, productRevenue, annualComparison }) => (
   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
     <ChartCard title="Ventas Mensuales" chart={<SalesChart data={monthlySales} />} exportTitle="Ventas Mensuales" exportData={monthlySales} />
-    <ChartCard title="Ingresos por Producto" chart={<RevenueChart data={productRevenue} />} exportTitle="Ingresos por Producto" exportData={productRevenue} />
     <ChartCard title="Comparativa Anual" chart={<AnnualComparisonChart data={annualComparison} />} exportTitle="Comparativa Anual" exportData={annualComparison} />
   </div>
 );
@@ -205,26 +206,7 @@ const SalesChart = ({ data }) => {
 };
 
 
-// RevenueChart Component
-const RevenueChart = ({ data }) => {
-  const chartData = data.map(item => ({
-    month: item.month || item.mes,
-    revenue: item.revenue || item.ingresos || 0,
-  }));
 
-  return (
-    <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={chartData}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="month" />
-        <YAxis />
-        <Tooltip />
-        <Legend />
-        <Bar dataKey="revenue" fill="#82ca9d" />
-      </BarChart>
-    </ResponsiveContainer>
-  );
-};
 
 
 // AnnualComparisonChart Component
