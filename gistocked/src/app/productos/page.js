@@ -21,167 +21,15 @@ const Page = () => {
       id_empresa: 1,
       id_categoria: 1,
     },
-    {
-      id_producto: 2,
-      img: null,
-      nombre_producto: "Producto de prueba 2",
-      descripcion: "Descripción del producto 2",
-      precio_compra: 200,
-      porcentaje_de_ganancia: 25,
-      precio_neto: 250,
-      precio_venta: 300,
-      precio_venta_final: 300,
-      codigo: "P002",
-      descuento: 15,
-      precio_descuento: 255,
-      cantidad: 5,
-      id_empresa: 2,
-      id_categoria: 2,
-    },
-    {
-      id_producto: 3,
-      img: null,
-      nombre_producto: "Monitor 4K UHD",
-      descripcion: "Monitor 4K UHD de 27 pulgadas con tasa de refresco de 144Hz y HDR para juegos y trabajo.",
-      precio_compra: 300,
-      porcentaje_de_ganancia: 30,
-      precio_neto: 390,
-      precio_venta: 500,
-      precio_venta_final: 500,
-      codigo: "P003",
-      descuento: 10,
-      precio_descuento: 450,
-      cantidad: 8,
-      id_empresa: 1,
-      id_categoria: 3,
-    },
-    {
-      id_producto: 4,
-      img: null,
-      nombre_producto: "Teclado Gaming RGB",
-      descripcion: "Teclado mecánico con retroiluminación RGB y teclas programables, ideal para gamers.",
-      precio_compra: 120,
-      porcentaje_de_ganancia: 40,
-      precio_neto: 168,
-      precio_venta: 220,
-      precio_venta_final: 220,
-      codigo: "P004",
-      descuento: 5,
-      precio_descuento: 209,
-      cantidad: 12,
-      id_empresa: 1,
-      id_categoria: 1,
-    },
-    {
-      id_producto: 5,
-      img: null,
-      nombre_producto: "Mouse Óptico Gamer",
-      descripcion: "Mouse óptico con 16,000 DPI, 8 botones programables y retroiluminación RGB.",
-      precio_compra: 40,
-      porcentaje_de_ganancia: 50,
-      precio_neto: 60,
-      precio_venta: 80,
-      precio_venta_final: 80,
-      codigo: "P005",
-      descuento: 10,
-      precio_descuento: 72,
-      cantidad: 20,
-      id_empresa: 2,
-      id_categoria: 1,
-    },
-    {
-      id_producto: 6,
-      img: null,
-      nombre_producto: "Auriculares Gaming 7.1",
-      descripcion: "Auriculares con sonido envolvente 7.1, micrófono flexible y diseño ergonómico.",
-      precio_compra: 60,
-      porcentaje_de_ganancia: 40,
-      precio_neto: 84,
-      precio_venta: 120,
-      precio_venta_final: 120,
-      codigo: "P006",
-      descuento: 15,
-      precio_descuento: 102,
-      cantidad: 15,
-      id_empresa: 2,
-      id_categoria: 1,
-    },
-    {
-      id_producto: 7,
-      img: null,
-      nombre_producto: "Silla Gamer Ergonómica",
-      descripcion: "Silla ergonómica para gamers, con soporte lumbar ajustable y reposabrazos.",
-      precio_compra: 150,
-      porcentaje_de_ganancia: 45,
-      precio_neto: 217.5,
-      precio_venta: 300,
-      precio_venta_final: 300,
-      codigo: "P007",
-      descuento: 5,
-      precio_descuento: 285,
-      cantidad: 5,
-      id_empresa: 1,
-      id_categoria: 2,
-    },
-    {
-      id_producto: 8,
-      img: null,
-      nombre_producto: "Almohadilla para Muñeca Gaming",
-      descripcion: "Almohadilla ergonómica para muñeca con superficie antideslizante para largas sesiones de juego.",
-      precio_compra: 20,
-      porcentaje_de_ganancia: 60,
-      precio_neto: 32,
-      precio_venta: 40,
-      precio_venta_final: 40,
-      codigo: "P008",
-      descuento: 0,
-      precio_descuento: 40,
-      cantidad: 30,
-      id_empresa: 2,
-      id_categoria: 1,
-    },
-    {
-      id_producto: 9,
-      img: null,
-      nombre_producto: "Base de Enfriamiento para Laptop",
-      descripcion: "Base de enfriamiento para laptop gaming con ventiladores ajustables y puertos USB adicionales.",
-      precio_compra: 45,
-      porcentaje_de_ganancia: 50,
-      precio_neto: 67.5,
-      precio_venta: 90,
-      precio_venta_final: 90,
-      codigo: "P009",
-      descuento: 10,
-      precio_descuento: 81,
-      cantidad: 10,
-      id_empresa: 2,
-      id_categoria: 1,
-    },
-    {
-      id_producto: 10,
-      img: null,
-      nombre_producto: "Cargador Rápido para Consolas",
-      descripcion: "Cargador rápido compatible con PlayStation y Xbox para cargar simultáneamente dos controles.",
-      precio_compra: 30,
-      porcentaje_de_ganancia: 45,
-      precio_neto: 43.5,
-      precio_venta: 60,
-      precio_venta_final: 60,
-      codigo: "P010",
-      descuento: 0,
-      precio_descuento: 60,
-      cantidad: 25,
-      id_empresa: 1,
-      id_categoria: 1,
-    }
   ]);
+  
   const [categorias, setCategorias] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
-  const [datosSimulados, setDatosSimulados] = useState(true); // Estado para indicar si los datos son simulados
-
+  const [datosSimulados, setDatosSimulados] = useState(true);
+  
   const [nuevoProducto, setNuevoProducto] = useState({
     id_producto: null,
     img: null,
@@ -199,6 +47,19 @@ const Page = () => {
     id_empresa: 0,
     id_categoria: 0,
   });
+  const manejarCambioArchivo = (event) => {
+    const archivo = event.target.files[0];
+    if (archivo) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setNuevoProducto((prev) => ({
+          ...prev,
+          img: e.target.result // Guardar la imagen en el estado
+        }));
+      };
+      reader.readAsDataURL(archivo);
+    }
+  };
   const [nuevaCategoria, setNuevaCategoria] = useState({
     nombre_categoria: "",
   });
@@ -227,6 +88,35 @@ const Page = () => {
     fetchProductos();
     fetchCategorias();
   }, []);
+
+  // Función para abrir el modal de categoría
+  const abrirModalCategoria = () => {
+    setNuevaCategoria({ nombre_categoria: "" }); // Resetea el estado de nueva categoría
+    setIsCategoryModalOpen(true);
+  };
+
+  // Función para cerrar el modal de categoría
+  const cerrarModalCategoria = () => setIsCategoryModalOpen(false);
+
+  // Manejar el cambio de entrada para la nueva categoría
+  const manejarCambioCategoria = (e) => {
+    const { name, value } = e.target;
+    setNuevaCategoria((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Función para guardar la nueva categoría
+  const guardarCategoria = async () => {
+    try {
+      await axios.post("http://190.114.252.218:8000/api/categorias/", nuevaCategoria);
+      setCategorias((prev) => [...prev, nuevaCategoria]);
+      cerrarModalCategoria();
+    } catch (error) {
+      console.error("Error al guardar la categoría:", error);
+    }
+  };
 
   const abrirModalProducto = (producto = null) => {
     setNuevoProducto(
@@ -278,21 +168,20 @@ const Page = () => {
       return updatedProducto;
     });
   };
-
   const guardarProducto = async () => {
     if (!nuevoProducto.nombre_producto || !nuevoProducto.precio_compra) {
       console.error("Por favor completa los campos obligatorios.");
       return;
     }
-
+  
     const url = `http://190.114.252.218:8000/api/inventarios/${isEditing ? `${nuevoProducto.id_producto}/` : ""}`;
     const method = isEditing ? "PUT" : "POST";
     const formData = new FormData();
-
+  
     Object.keys(nuevoProducto).forEach((key) => {
       formData.append(key, nuevoProducto[key]);
     });
-
+  
     try {
       const response = await axios({
         method,
@@ -300,16 +189,21 @@ const Page = () => {
         data: formData,
         headers: { "Content-Type": "multipart/form-data" },
       });
-
+  
       setProductos((prev) =>
         isEditing
           ? prev.map((prod) => (prod.id_producto === nuevoProducto.id_producto ? response.data : prod))
           : [...prev, response.data]
       );
-
       cerrarModalProducto();
     } catch (error) {
-      console.error("Error en la solicitud:", error.response?.data || error.message);
+      if (error.response) {
+        // Si hay una respuesta del servidor
+        console.error("Error en la solicitud:", error.response.data || error.message);
+      } else {
+        // Si no hay respuesta del servidor
+        console.error("Error en la solicitud:", error.message);
+      }
     }
   };
 
@@ -321,7 +215,6 @@ const Page = () => {
       console.error("Error al eliminar el producto:", error.message);
     }
   };
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
@@ -433,29 +326,30 @@ const Page = () => {
         {/* Product Modal */}
         {isModalOpen && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div className="bg-white w-full max-w-4xl p-8 mx-4 rounded-2xl shadow-xl">
-              <h2 className="text-3xl font-bold mb-8 text-gray-800 text-center">
+            <div className="bg-white w-full max-w-4xl p-6 mx-4 rounded-lg shadow-xl">
+              <h2 className="text-3xl font-semibold mb-6 text-gray-800 text-center">
                 {isEditing ? "Editar Producto" : "Nuevo Producto"}
               </h2>
-              
-              <form onSubmit={(e) => { e.preventDefault(); guardarProducto(); }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+              <form onSubmit={(e) => { e.preventDefault(); guardarProducto(); }} className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
                 {/* Código del producto */}
-                <div className="col-span-full">
+                <div className="flex flex-col">
                   <label className="block text-sm font-medium text-gray-700 mb-2">Código del producto</label>
                   <input
                     type="text"
                     name="codigo"
                     placeholder="Escanea o ingresa el código"
-                    className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition-all duration-200"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
                     value={nuevoProducto.codigo}
                     onChange={manejarCambioProducto}
                   />
                 </div>
 
-                {/* Image Upload */}
-                <div className="col-span-full">
+                {/* Imagen del producto */}
+                <div className="flex flex-col">
                   <label className="block text-sm font-medium text-gray-700 mb-2">Imagen del producto</label>
-                  <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-500 transition-colors duration-200">
+                  <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-lg hover:border-blue-500">
                     <div className="space-y-1 text-center">
                       <Package className="mx-auto h-12 w-12 text-gray-400" />
                       <div className="flex text-sm text-gray-600">
@@ -473,117 +367,120 @@ const Page = () => {
                   </div>
                 </div>
 
-                {/* Resto de campos del formulario con diseño mejorado */}
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Nombre del producto</label>
-                    <input
-                      type="text"
-                      name="nombre_producto"
-                      className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition-all duration-200"
-                      value={nuevoProducto.nombre_producto}
-                      onChange={manejarCambioProducto}
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
-                    <textarea
-                      name="descripcion"
-                      className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition-all duration-200"
-                      rows="4"
-                      value={nuevoProducto.descripcion}
-                      onChange={manejarCambioProducto}
-                    />
-                  </div>
+                {/* Nombre del producto */}
+                <div className="flex flex-col">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Nombre del producto</label>
+                  <input
+                    type="text"
+                    name="nombre_producto"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
+                    value={nuevoProducto.nombre_producto}
+                    onChange={manejarCambioProducto}
+                  />
                 </div>
 
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Precio de compra</label>
-                    <input
-                      type="number"
-                      name="precio_compra"
-                      className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition-all duration-200"
-                      value={nuevoProducto.precio_compra}
-                      onChange={manejarCambioProducto}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Porcentaje de ganancia</label>
-                    <input
-                      type="number"
-                      name="porcentaje_de_ganancia"
-                      className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition-all duration-200"
-                      value={nuevoProducto.porcentaje_de_ganancia}
-                      onChange={manejarCambioProducto}
-                    />
-                  </div>
+                {/* Descripción */}
+                <div className="flex flex-col">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+                  <textarea
+                    name="descripcion"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
+                    rows="4"
+                    value={nuevoProducto.descripcion}
+                    onChange={manejarCambioProducto}
+                  />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 col-span-full">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Precio neto</label>
-                    <input
-                      type="number"
-                      name="precio_neto"
-                      className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200"
-                      value={nuevoProducto.precio_neto.toFixed(2)}
-                      readOnly
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Precio de venta</label>
-                    <input
-                      type="number"
-                      name="precio_venta"
-                      className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200"
-                      value={nuevoProducto.precio_venta.toFixed(2)}
-                      readOnly
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Descuento (%)</label>
-                    <input
-                      type="number"
-                      name="descuento"
-                      className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition-all duration-200"
-                      value={nuevoProducto.descuento}
-                      onChange={manejarCambioProducto}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Precio con descuento</label>
-                    <input
-                      type="number"
-                      name="precio_descuento"
-                      className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200"
-                      value={nuevoProducto.precio_descuento.toFixed(2)}
-                      readOnly
-                    />
-                  </div>
+                {/* Precio de compra */}
+                <div className="flex flex-col">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Precio de compra</label>
+                  <input
+                    type="number"
+                    name="precio_compra"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
+                    value={nuevoProducto.precio_compra}
+                    onChange={manejarCambioProducto}
+                  />
                 </div>
 
-                <div className="col-span-full">
+                {/* Porcentaje de ganancia */}
+                <div className="flex flex-col">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Porcentaje de ganancia</label>
+                  <input
+                    type="number"
+                    name="porcentaje_de_ganancia"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
+                    value={nuevoProducto.porcentaje_de_ganancia}
+                    onChange={manejarCambioProducto}
+                  />
+                </div>
+
+                {/* Precio neto */}
+                <div className="flex flex-col">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Precio neto</label>
+                  <input
+                    type="number"
+                    name="precio_neto"
+                    className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200"
+                    value={nuevoProducto.precio_neto.toFixed(2)}
+                    readOnly
+                  />
+                </div>
+
+                {/* Precio de venta */}
+                <div className="flex flex-col">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Precio de venta</label>
+                  <input
+                    type="number"
+                    name="precio_venta"
+                    className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200"
+                    value={nuevoProducto.precio_venta.toFixed(2)}
+                    readOnly
+                  />
+                </div>
+
+                {/* Descuento */}
+                <div className="flex flex-col">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Descuento (%)</label>
+                  <input
+                    type="number"
+                    name="descuento"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
+                    value={nuevoProducto.descuento}
+                    onChange={manejarCambioProducto}
+                  />
+                </div>
+
+                {/* Precio con descuento */}
+                <div className="flex flex-col">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Precio con descuento</label>
+                  <input
+                    type="number"
+                    name="precio_descuento"
+                    className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200"
+                    value={nuevoProducto.precio_descuento.toFixed(2)}
+                    readOnly
+                  />
+                </div>
+
+                {/* Cantidad */}
+                <div className="flex flex-col">
                   <label className="block text-sm font-medium text-gray-700 mb-2">Cantidad</label>
                   <input
                     type="number"
                     name="cantidad"
-                    className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition-all duration-200"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
                     value={nuevoProducto.cantidad}
                     onChange={manejarCambioProducto}
                   />
                 </div>
 
-                <div className="col-span-full">
+                {/* Categoría */}
+                <div className="flex flex-col">
                   <label className="block text-sm font-medium text-gray-700 mb-2">Categoría</label>
                   <select
                     name="id_categoria"
-                    className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition-all duration-200"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
                     value={nuevoProducto.id_categoria}
                     onChange={manejarCambioProducto}
                   >
@@ -595,12 +492,13 @@ const Page = () => {
                     ))}
                   </select>
                 </div>
-                   {/* Buttons */}
+
+                {/* Buttons */}
                 <div className="col-span-full flex justify-end gap-4 mt-8">
                   <button
                     type="button"
                     onClick={cerrarModalProducto}
-                    className="px-6 py-3 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200"
+                    className="px-6 py-3 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-300"
                   >
                     Cancelar
                   </button>
@@ -608,14 +506,13 @@ const Page = () => {
                     type="submit"
                     className="px-6 py-3 rounded-xl bg-gradient-to-r from-green-600 to-green-700 text-white hover:shadow-lg hover:shadow-green-200 hover:translate-y-[-1px] transition-all duration-200"
                   >
-                    {isEditing ? "Guardar cambios" : "Añadir Producto"}
+                    {isEditing ? "Guardar cambios" : "Agregar Producto"}
                   </button>
                 </div>
               </form>
             </div>
           </div>
         )}
-
         {/* Category Modal */}
         {isCategoryModalOpen && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
