@@ -6,6 +6,7 @@ import BarcodeScanner from 'react-qr-barcode-scanner'
 import axios from '../../app/api/services/axiosConfig'
 import { generateInvoicePDF, generateReceiptPDF } from '../ventas/pdfUtils'
 import SalesTable from '../components/SalesTable'
+import { Search, Plus } from 'lucide-react'
 
 const EnhancedPaymentProcess = ({ isInvoice, formData, setFormData, handleGenerateDocument, setIsModalOpen }) => {
   const [currentStep, setCurrentStep] = useState(0)
@@ -230,12 +231,13 @@ const EnhancedPaymentProcess = ({ isInvoice, formData, setFormData, handleGenera
 
 export default function Component() {
   const [sales, setSales] = useState([])
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const [productos, setProductos] = useState([])
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const [isInvoice, setIsInvoice] = useState(false)
   const [isNewSaleModalOpen, setIsNewSaleModalOpen] = useState(false)
   const [isScannerOpen, setIsScannerOpen] = useState(false)
   const [isOffline, setIsOffline] = useState(false)
+  const [busqueda, setBusqueda] = useState("")
   const [newSaleData, setNewSaleData] = useState({
     producto: '',
     cantidad: 1,
@@ -305,7 +307,7 @@ export default function Component() {
       setIsNewSaleModalOpen(true)
     }
   }
-
+  
   const handleNewSaleSubmit = async (e) => {
     e.preventDefault()
     if (!newSaleData.producto || newSaleData.cantidad <= 0 || newSaleData.precio <= 0) {
@@ -340,19 +342,20 @@ export default function Component() {
     }
   }
 
+
   const handleScan = async (data) => {
     if (data) {
       const scannedBarcode = data
-      const producto = productos.find(item => item.codigoBarras === scannedBarcode)
+      const producto = productos.find(item => item.codigo === scannedBarcode)
   
       if (producto) {
-        if (producto.stock > 0) {
+        if (producto.cantidad > 0) {
           const newSale = {
             id: Date.now(),
-            producto: producto.nombre,
+            producto: producto.nombre_producto,
             cantidad: 1,
-            precio: producto.precio,
-            total: producto.precio,
+            precio: producto.precio_venta_final,
+            total: producto.precio_venta_final,
             fecha: new Date().toLocaleDateString('es-ES'),
             vendedorNombre: newSaleData.vendedorNombre,
           }
@@ -363,7 +366,7 @@ export default function Component() {
           if (!isOffline) {
             try {
               await axios.post('http://190.114.252.218:8000/api/ventas/', newSale)
-              await axios.patch(`http://190.114.252.218:8000/api/inventarios/${producto.id}`, { stock: producto.stock - 1 })
+              await axios.patch(`http://190.114.252.218:8000/api/inventarios/${producto.id_producto}`, { cantidad: producto.cantidad - 1 })
             } catch (error) {
               console.error('Error al actualizar la API:', error)
             }
@@ -378,7 +381,7 @@ export default function Component() {
       }
     }
   }
-  
+
   const handleIncreaseQuantity = async (id) => {
     const updatedSales = sales.map((sale) => {
       if (sale.id === id) {
@@ -483,11 +486,24 @@ export default function Component() {
         </button>
       </div>
 
+      <div className="mb-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          <input
+            type="text"
+            placeholder="Buscar ventas..."
+            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+          />
+        </div>
+      </div>
+
       <SalesTable
-        sales={sales.map(sale => ({
-          ...sale,
-          fecha: new Date(sale.fecha).toLocaleDateString('es-ES'),
-        }))}
+        sales={sales.filter(sale => 
+          sale.producto.toLowerCase().includes(busqueda.toLowerCase()) ||
+          sale.vendedorNombre.toLowerCase().includes(busqueda.toLowerCase())
+        )}
         handleEditSale={handleEditSale}
         handleDeleteSale={handleDeleteSale}
         handleIncreaseQuantity={handleIncreaseQuantity}
