@@ -121,21 +121,20 @@ const Page = () => {
   const abrirModalProducto = (producto = null) => {
     setNuevoProducto(
       producto || {
-        id_producto: null,
-        img: null,
+        img: "",
         nombre_producto: "",
         descripcion: "",
-        precio_compra: 0,
-        porcentaje_de_ganancia: 0,
-        precio_neto: 0,
-        precio_venta: 0,
-        precio_venta_final: 0,
-        codigo: "",
-        descuento: 0,
-        precio_descuento: 0,
-        cantidad: 0,
-        id_empresa: 0,
-        id_categoria: 0,
+        cantidad: null,
+        precio_compra: null,
+        porcentaje_de_ganancia: null,
+        precio_neto: null,
+        precio_venta: null,
+        precio_venta_final: null,
+        codigo: null,
+        id_categoria: null,
+        descuento: null,
+        precio_descuento: null,
+        id_empresa: null,
       }
     );
     setIsEditing(!!producto);
@@ -168,20 +167,23 @@ const Page = () => {
       return updatedProducto;
     });
   };
+
   const guardarProducto = async () => {
-    if (!nuevoProducto.nombre_producto || !nuevoProducto.precio_compra) {
+    if (!nuevoProducto.nombre_producto || !nuevoProducto.precio_compra || !nuevoProducto.id_categoria) {
       console.error("Por favor completa los campos obligatorios.");
       return;
     }
-  
+
     const url = `http://190.114.252.218:8000/api/inventarios/${isEditing ? `${nuevoProducto.id_producto}/` : ""}`;
     const method = isEditing ? "PUT" : "POST";
     const formData = new FormData();
-  
+
     Object.keys(nuevoProducto).forEach((key) => {
       formData.append(key, nuevoProducto[key]);
     });
-  
+
+    console.log("Datos a enviar:", Object.fromEntries(formData.entries())); // Verificar el contenido de formData
+
     try {
       const response = await axios({
         method,
@@ -189,7 +191,7 @@ const Page = () => {
         data: formData,
         headers: { "Content-Type": "multipart/form-data" },
       });
-  
+
       setProductos((prev) =>
         isEditing
           ? prev.map((prod) => (prod.id_producto === nuevoProducto.id_producto ? response.data : prod))
@@ -197,13 +199,7 @@ const Page = () => {
       );
       cerrarModalProducto();
     } catch (error) {
-      if (error.response) {
-        // Si hay una respuesta del servidor
-        console.error("Error en la solicitud:", error.response.data || error.message);
-      } else {
-        // Si no hay respuesta del servidor
-        console.error("Error en la solicitud:", error.message);
-      }
+      console.error("Error en la solicitud:", error.response ? error.response.data : error.message);
     }
   };
 
@@ -215,7 +211,6 @@ const Page = () => {
       console.error("Error al eliminar el producto:", error.message);
     }
   };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
       <div className="max-w-7xl mx-auto">
@@ -323,184 +318,184 @@ const Page = () => {
           </div>
         </div>
 
-  {/* Product Modal */}
-  {isModalOpen && (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white w-full max-w-4xl p-6 mx-4 rounded-lg shadow-xl">
-        <h2 className="text-3xl font-semibold mb-6 text-gray-800 text-center">
-          {isEditing ? "Editar Producto" : "Nuevo Producto"}
-        </h2>
+      {/* Product Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white w-full max-w-4xl p-6 mx-4 rounded-lg shadow-xl">
+            <h2 className="text-3xl font-semibold mb-6 text-gray-800 text-center">
+              {isEditing ? "Editar Producto" : "Nuevo Producto"}
+            </h2>
 
-        <form onSubmit={(e) => { e.preventDefault(); guardarProducto(); }} className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <form onSubmit={(e) => { e.preventDefault(); guardarProducto(); }} className="grid grid-cols-1 sm:grid-cols-2 gap-6">
 
-          {/* Código del producto */}
-          <div className="flex flex-col">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Código del producto</label>
-            <input
-              type="text"
-              name="codigo"
-              placeholder="Escanea o ingresa el código"
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
-              value={nuevoProducto.codigo || ""}
-              onChange={manejarCambioProducto}
-            />
-          </div>
+              {/* Código del producto */}
+              <div className="flex flex-col">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Código del producto</label>
+                <input
+                  type="text"
+                  name="codigo"
+                  placeholder="Escanea o ingresa el código"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
+                  value={nuevoProducto.codigo || ""}
+                  onChange={manejarCambioProducto}
+                />
+              </div>
 
-          {/* Imagen del producto */}
-          <div className="flex flex-col">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Imagen del producto</label>
-            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-lg hover:border-blue-500">
-              <div className="space-y-1 text-center">
-                <Package className="mx-auto h-12 w-12 text-gray-400" />
-                <div className="flex text-sm text-gray-600">
-                  <label className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500">
-                    <span>Subir archivo</span>
-                    <input
-                      type="file"
-                      name="img"
-                      className="sr-only"
-                      onChange={manejarCambioArchivo}
-                    />
-                  </label>
+              {/* Imagen del producto */}
+              <div className="flex flex-col">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Imagen del producto</label>
+                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-lg hover:border-blue-500">
+                  <div className="space-y-1 text-center">
+                    <Package className="mx-auto h-12 w-12 text-gray-400" />
+                    <div className="flex text-sm text-gray-600">
+                      <label className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500">
+                        <span>Subir archivo</span>
+                        <input
+                          type="file"
+                          name="img"
+                          className="sr-only"
+                          onChange={manejarCambioArchivo}
+                        />
+                      </label>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Nombre del producto */}
-          <div className="flex flex-col">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Nombre del producto</label>
-            <input
-              type="text"
-              name="nombre_producto"
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
-              value={nuevoProducto.nombre_producto}
-              onChange={manejarCambioProducto}
-            />
-          </div>
+              {/* Nombre del producto */}
+              <div className="flex flex-col">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Nombre del producto</label>
+                <input
+                  type="text"
+                  name="nombre_producto"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
+                  value={nuevoProducto.nombre_producto}
+                  onChange={manejarCambioProducto}
+                />
+              </div>
 
-          {/* Descripción */}
-          <div className="flex flex-col">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
-            <textarea
-              name="descripcion"
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
-              rows="4"
-              value={nuevoProducto.descripcion}
-              onChange={manejarCambioProducto}
-            />
-          </div>
+              {/* Descripción */}
+              <div className="flex flex-col">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+                <textarea
+                  name="descripcion"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
+                  rows="4"
+                  value={nuevoProducto.descripcion}
+                  onChange={manejarCambioProducto}
+                />
+              </div>
 
-          {/* Precio de compra */}
-          <div className="flex flex-col">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Precio de compra</label>
-            <input
-              type="number"
-              name="precio_compra"
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
-              value={nuevoProducto.precio_compra || ""}
-              onChange={manejarCambioProducto}
-            />
-          </div>
+              {/* Precio de compra */}
+              <div className="flex flex-col">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Precio de compra</label>
+                <input
+                  type="number"
+                  name="precio_compra"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
+                  value={nuevoProducto.precio_compra || ""}
+                  onChange={manejarCambioProducto}
+                />
+              </div>
 
-          {/* Porcentaje de ganancia */}
-          <div className="flex flex-col">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Porcentaje de ganancia</label>
-            <input
-              type="number"
-              name="porcentaje_de_ganancia"
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
-              value={nuevoProducto.porcentaje_de_ganancia || ""}
-              onChange={manejarCambioProducto}
-            />
-          </div>
+              {/* Porcentaje de ganancia */}
+              <div className="flex flex-col">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Porcentaje de ganancia</label>
+                <input
+                  type="number"
+                  name="porcentaje_de_ganancia"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
+                  value={nuevoProducto.porcentaje_de_ganancia || ""}
+                  onChange={manejarCambioProducto}
+                />
+              </div>
 
-          {/* Precio de venta */}
-          <div className="flex flex-col">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Precio de venta</label>
-            <input
-              type="number"
-              name="precio_venta"
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-gray-50"
-              value={nuevoProducto.precio_venta || ""}
-              readOnly
-            />
-          </div>
+              {/* Precio de venta */}
+              <div className="flex flex-col">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Precio de venta</label>
+                <input
+                  type="number"
+                  name="precio_venta"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-gray-50"
+                  value={nuevoProducto.precio_venta || ""}
+                  readOnly
+                />
+              </div>
 
-          {/* Descuento */}
-          <div className="flex flex-col">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Descuento (%)</label>
-            <input
-              type="number"
-              name="descuento"
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
-              value={nuevoProducto.descuento || ""}
-              onChange={manejarCambioProducto}
-            />
-          </div>
+              {/* Descuento */}
+              <div className="flex flex-col">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Descuento (%)</label>
+                <input
+                  type="number"
+                  name="descuento"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
+                  value={nuevoProducto.descuento || ""}
+                  onChange={manejarCambioProducto}
+                />
+              </div>
 
-          {/* Precio con descuento */}
-          <div className="flex flex-col">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Precio con descuento</label>
-            <input
-              type="number"
-              name="precio_descuento"
-              className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200"
-              value={nuevoProducto.precio_descuento || ""}
-              readOnly
-            />
-          </div>
+              {/* Precio con descuento */}
+              <div className="flex flex-col">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Precio con descuento</label>
+                <input
+                  type="number"
+                  name="precio_descuento"
+                  className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200"
+                  value={nuevoProducto.precio_descuento || ""}
+                  readOnly
+                />
+              </div>
 
-          {/* Cantidad */}
-          <div className="flex flex-col">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Cantidad</label>
-            <input
-              type="number"
-              name="cantidad"
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
-              value={nuevoProducto.cantidad || ""}
-              onChange={manejarCambioProducto}
-            />
-          </div>
+              {/* Cantidad */}
+              <div className="flex flex-col">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Cantidad</label>
+                <input
+                  type="number"
+                  name="cantidad"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
+                  value={nuevoProducto.cantidad || ""}
+                  onChange={manejarCambioProducto}
+                />
+              </div>
 
-          {/* Categoría */}
-          <div className="flex flex-col">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Categoría</label>
-            <select
-              name="id_categoria"
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
-              value={nuevoProducto.id_categoria || ""}
-              onChange={manejarCambioProducto}
-            >
-              <option value={null}>Seleccione una categoría</option>
-              {categorias.map((categoria) => (
-                <option key={categoria.id_categoria} value={categoria.id_categoria}>
-                  {categoria.nombre_categoria}
-                </option>
-              ))}
-            </select>
-          </div>
+              {/* Categoría */}
+              <div className="flex flex-col">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Categoría</label>
+                <select
+                  name="id_categoria"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
+                  value={nuevoProducto.id_categoria || ""}
+                  onChange={manejarCambioProducto}
+                >
+                  <option value="">Seleccione una categoría</option>
+                  {categorias.map((categoria) => (
+                    <option key={categoria.id} value={categoria.id}>
+                      {categoria.nombre_categoria}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-                {/* Buttons */}
-                <div className="col-span-full flex justify-end gap-4 mt-8">
-                  <button
-                    type="button"
-                    onClick={cerrarModalProducto}
-                    className="px-6 py-3 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-300"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-6 py-3 rounded-xl bg-gradient-to-r from-green-600 to-green-700 text-white hover:shadow-lg hover:shadow-green-200 hover:translate-y-[-1px] transition-all duration-200"
-                  >
-                    {isEditing ? "Guardar cambios" : "Agregar Producto"}
-                  </button>
-                </div>
-              </form>
-            </div>
+              {/* Buttons */}
+              <div className="col-span-full flex justify-end gap-4 mt-8">
+                <button
+                  type="button"
+                  onClick={cerrarModalProducto}
+                  className="px-6 py-3 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-300"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-3 rounded-xl bg-gradient-to-r from-green-600 to-green-700 text-white hover:shadow-lg hover:shadow-green-200 hover:translate-y-[-1px] transition-all duration-200"
+                >
+                  {isEditing ? "Guardar cambios" : "Agregar Producto"}
+                </button>
+              </div>
+            </form>
           </div>
-        )}
+        </div>
+      )}
         {/* Category Modal */}
         {isCategoryModalOpen && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
