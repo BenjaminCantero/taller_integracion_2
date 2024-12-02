@@ -325,11 +325,35 @@ export default function Component() {
       if (!isOffline) {
         const response = await axios.post('http://190.114.252.218:8000/api/ventas/', newSale)
         setSales([...sales, response.data])
+
+        // Update inventory
+        const productToUpdate = productos.find(p => p.nombre_producto === newSale.producto)
+        if (productToUpdate) {
+          const updatedQuantity = productToUpdate.cantidad - newSale.cantidad
+          await axios.patch(`http://190.114.252.218:8000/api/inventarios/${productToUpdate.id_producto}/`, {
+            cantidad: updatedQuantity
+          })
+
+          // Update local state
+          setProductos(productos.map(p =>
+            p.id_producto === productToUpdate.id_producto
+              ? {...p, cantidad: updatedQuantity}
+              : p
+          ))
+        }
       } else {
         setSales([...sales, newSale])
+
+        // Update local inventory
+        setProductos(productos.map(p =>
+          p.nombre_producto === newSale.producto
+            ? {...p, cantidad: p.cantidad - newSale.cantidad}
+            : p
+        ))
       }
       
       localStorage.setItem('sales', JSON.stringify([...sales, newSale]))
+      localStorage.setItem('productos', JSON.stringify(productos))
       
       setIsNewSaleModalOpen(false)
       setNewSaleData({ producto: '', cantidad: 1, precio: 0, fecha: new Date().toLocaleDateString('es-ES'), vendedorNombre: '' })
@@ -341,7 +365,6 @@ export default function Component() {
       localStorage.setItem('sales', JSON.stringify([...sales, newSale]))
     }
   }
-
 
   const handleScan = async (data) => {
     if (data) {
@@ -371,6 +394,14 @@ export default function Component() {
               console.error('Error al actualizar la API:', error)
             }
           }
+          
+          // Update local inventory
+          setProductos(productos.map(p => 
+            p.id_producto === producto.id_producto 
+              ? {...p, cantidad: p.cantidad - 1} 
+              : p
+          ))
+          localStorage.setItem('productos', JSON.stringify(productos))
           
           setIsScannerOpen(false)
         } else {
@@ -602,3 +633,4 @@ export default function Component() {
     </div>
   )
 }
+
